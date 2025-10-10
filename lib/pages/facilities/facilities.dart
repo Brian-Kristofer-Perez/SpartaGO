@@ -20,6 +20,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
       'building': 'Building A, Level 1',
       'capacity': '50 people',
       'equipment': ['Basketball', 'Basketball Hoop'],
+      'type': 'Court', // Added type field
     },
     {
       'name': 'Volleyball Court',
@@ -28,6 +29,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
       'building': 'Building A, Level 1',
       'capacity': '50 people',
       'equipment': ['Volleyball', 'Volleyball Net'],
+      'type': 'Court', // Added type field
     },
     {
       'name': 'Sparta Fitness Gym',
@@ -36,8 +38,17 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
       'building': 'Building A, Level 2',
       'capacity': '70 people',
       'equipment': ['Treadmill', 'Exercise Bike'],
+      'type': 'Gym', // Added type field
     },
   ];
+
+  // Filter facilities based on selected filter
+  List<Map<String, dynamic>> get filteredFacilities {
+    if (selectedFilter == 'All') {
+      return facilities;
+    }
+    return facilities.where((facility) => facility['type'] == selectedFilter).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +78,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
               icon: const Text('View Events', 
               style: TextStyle(fontSize: 13)
               ),
-              label: const Icon(Icons.calendar_today, size: 16, color: const Color(0xFF991B1B),),
+              label: const Icon(Icons.calendar_today, size: 16, color: Color(0xFF991B1B)),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.black87,
                 side: const BorderSide(color: Colors.grey),
@@ -112,20 +123,24 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
 
           // Search Bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0,),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Container(
-              height: 28,
+              height: 40, 
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(8),
               ),
               child: TextField(
+                cursorColor: Colors.black, 
+                style: const TextStyle(fontSize: 14), 
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+                  prefixIcon: Icon(Icons.search, color: Colors.grey[600], size: 20),
+                  hintText: 'Search facilities...', 
+                  hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
-                    vertical: 7,
+                    vertical: 12, 
                   ),
                 ),
               ),
@@ -171,7 +186,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
 
           const SizedBox(height: 10),
 
-          // Facilities Grid
+          // Facilities Grid - Now uses filteredFacilities
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -181,14 +196,16 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),
-              itemCount: facilities.length,
+              itemCount: filteredFacilities.length,
               itemBuilder: (context, index) {
-                return FacilityCard(facility: facilities[index]);
+                return FacilityCard(facility: filteredFacilities[index]);
               },
             ),
           ),
         ],
       ),
+
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedNavIndex,
         onTap: (index) {
