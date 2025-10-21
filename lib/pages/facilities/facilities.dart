@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sparta_go/common/facility_card.dart';
+import 'package:sparta_go/common/search_bar_widget.dart';
+import 'package:sparta_go/common/filter_chips_widget.dart';
 
 class FacilitiesPage extends StatefulWidget {
   const FacilitiesPage({Key? key}) : super(key: key);
@@ -11,6 +13,7 @@ class FacilitiesPage extends StatefulWidget {
 class _FacilitiesPageState extends State<FacilitiesPage> {
   String selectedFilter = 'All';
   int selectedNavIndex = 0;
+  String searchQuery = '';
 
   final List<Map<String, dynamic>> facilities = [
     {
@@ -20,7 +23,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
       'building': 'Building A, Level 1',
       'capacity': '50 people',
       'equipment': ['Basketball', 'Basketball Hoop'],
-      'type': 'Court', // Added type field
+      'type': 'Court',
     },
     {
       'name': 'Volleyball Court',
@@ -29,7 +32,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
       'building': 'Building A, Level 1',
       'capacity': '50 people',
       'equipment': ['Volleyball', 'Volleyball Net'],
-      'type': 'Court', // Added type field
+      'type': 'Court', 
     },
     {
       'name': 'Sparta Fitness Gym',
@@ -38,16 +41,27 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
       'building': 'Building A, Level 2',
       'capacity': '70 people',
       'equipment': ['Treadmill', 'Exercise Bike'],
-      'type': 'Gym', // Added type field
+      'type': 'Gym',
     },
   ];
 
-  // Filter facilities based on selected filter
   List<Map<String, dynamic>> get filteredFacilities {
-    if (selectedFilter == 'All') {
-      return facilities;
+    List<Map<String, dynamic>> filtered = facilities;
+    
+    if (selectedFilter != 'All') {
+      filtered = filtered.where((facility) => facility['type'] == selectedFilter).toList();
     }
-    return facilities.where((facility) => facility['type'] == selectedFilter).toList();
+    
+    if (searchQuery.isNotEmpty) {
+      filtered = filtered.where((facility) {
+        final name = facility['name'].toString().toLowerCase();
+        final description = facility['description'].toString().toLowerCase();
+        final query = searchQuery.toLowerCase();
+        return name.contains(query) || description.contains(query);
+      }).toList();
+    }
+    
+    return filtered;
   }
 
   @override
@@ -121,72 +135,35 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
             ),
           ),
 
-          // Search Bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Container(
-              height: 40, 
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: TextField(
-                cursorColor: Colors.black, 
-                style: const TextStyle(fontSize: 14), 
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search, color: Colors.grey[600], size: 20),
-                  hintText: 'Search facilities...', 
-                  hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12, 
-                  ),
-                ),
-              ),
+            child: SearchBarWidget(
+              hintText: 'Search facilities...',
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value;
+                });
+              },
             ),
           ),
 
           const SizedBox(height: 8),
 
-          // Filter Chips 
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Wrap(
-                spacing: 8.0,
-                alignment: WrapAlignment.center,
-                children: ['All', 'Gym', 'Court', 'Studio'].map((filter) {
-                  final isSelected = selectedFilter == filter;
-                  return FilterChip(
-                    label: Text(filter),
-                    selected: isSelected,
-                    showCheckmark: false,
-                    onSelected: (selected) {
-                      setState(() {
-                        selectedFilter = filter;
-                      });
-                    },
-                    backgroundColor: Colors.white,
-                    selectedColor: const Color(0xFF8B1E1E),
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black87,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    side: BorderSide(
-                      color: isSelected
-                          ? const Color(0xFF8B1E1E)
-                          : Colors.grey[300]!,
-                    ),
-                  );
-                }).toList(),
-              ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: FilterChipsWidget(
+              filters: const ['All', 'Gym', 'Court', 'Studio'],
+              selectedFilter: selectedFilter,
+              onFilterSelected: (filter) {
+                setState(() {
+                  selectedFilter = filter;
+                });
+              },
             ),
           ),
 
           const SizedBox(height: 10),
 
-          // Facilities Grid - Now uses filteredFacilities
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -204,7 +181,6 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
           ),
         ],
       ),
-
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedNavIndex,
