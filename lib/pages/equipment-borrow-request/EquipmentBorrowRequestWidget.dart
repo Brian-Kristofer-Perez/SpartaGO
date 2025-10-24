@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'calendar/calendar.dart';
+import '../../common/calendar/calendar.dart';
 
 class EquipmentBorrowRequestWidget extends StatefulWidget {
   const EquipmentBorrowRequestWidget({super.key});

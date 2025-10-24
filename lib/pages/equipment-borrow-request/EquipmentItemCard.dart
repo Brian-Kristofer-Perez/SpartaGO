@@ -1,7 +1,7 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:sparta_go/pages/borrow-request/calendar/calendar.dart';
+import 'package:sparta_go/common/calendar/calendar.dart';
 
 class ItemCard extends StatelessWidget{
 
