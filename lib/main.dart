@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sparta_go/pages/equipment/equipment.dart';
 import 'package:sparta_go/pages/facilities/facilities.dart';
+import 'package:sparta_go/pages/borrow-request/EquipmentBorrowRequestPage.dart';
 import 'package:sparta_go/pages/login/login-page.dart';
-import 'package:sparta_go/pages/sign-up/progress-item.dart';
+
 import 'common/back_button.dart';
 
 void main() {
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       routes: {
-          '/': (context) => EquipmentPage(),
+          '/': (context) => EquipmentBorrowRequestPage(),
           // '/about': (context) => AboutPage(),
         },
       theme: ThemeData(
