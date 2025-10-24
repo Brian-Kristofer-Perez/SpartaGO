@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:sparta_go/common/calendar/calendar.dart';
 
-class ItemCard extends StatelessWidget{
+class EquipmentItemCard extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
