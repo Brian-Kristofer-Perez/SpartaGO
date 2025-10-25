@@ -1,8 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:sparta_go/pages/borrow-request/EquipmentBorrowRequestWidget.dart';
-import 'package:sparta_go/pages/borrow-request/EquipmentItemCard.dart';
-import 'package:sparta_go/pages/borrow-request/calendar/calendar.dart';
+import 'package:sparta_go/pages/equipment-borrow-request/EquipmentBorrowRequestWidget.dart';
+import 'package:sparta_go/pages/equipment-borrow-request/EquipmentItemCard.dart';
 
 import '../../common/back_button.dart';
 
@@ -55,7 +54,7 @@ class EquipmentBorrowRequestPage extends StatelessWidget {
                     SizedBox(height: 20,),
 
                     Center(
-                      child: ItemCard(),
+                      child: EquipmentItemCard(),
                     ),
 
                     SizedBox(height: 30,),
