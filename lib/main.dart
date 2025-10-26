@@ -20,8 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       routes: {
-          '/': (context) => FacilityBorrowRequestPage(),
-          // '/about': (context) => AboutPage(),
+          '/': (context) => FacilitiesPage(),
         },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF991B1B)).copyWith(

@@ -7,9 +7,8 @@ import '../../common/back_button.dart';
 
 class FacilityBorrowRequestPage extends StatelessWidget {
 
-  // TODO: replace with equipment object
-  // final Map<String, dynamic> borrowedItem;
-  // BorrowRequestPage({required this.borrowedItem});
+  final Map<String, dynamic> facility;
+  FacilityBorrowRequestPage({required this.facility});
 
   @override
   Widget build(BuildContext context) {
@@ -48,16 +47,7 @@ class FacilityBorrowRequestPage extends StatelessWidget {
 
                         Center(
                             child: FacilityItemCard(
-                              facility:
-                                {
-                                  'name': 'Basketball Court',
-                                  'description': 'Indoor basketball court',
-                                  'image': 'assets/images/basketballCourt.jpg',
-                                  'building': 'Building A, Level 1',
-                                  'capacity': '50 people',
-                                  'equipment': ['Basketball', 'Basketball Hoop'],
-                                  'type': 'Court',
-                                },
+                              facility: facility
                             )
                         ),
 
@@ -65,15 +55,7 @@ class FacilityBorrowRequestPage extends StatelessWidget {
 
                         Center(
                           child: FacilityBorrowRequestWidget(
-                            facility: {
-                              'name': 'Basketball Court',
-                              'description': 'Indoor basketball court',
-                              'image': 'assets/images/basketballCourt.jpg',
-                              'building': 'Building A, Level 1',
-                              'capacity': '50 people',
-                              'equipment': ['Basketball', 'Basketball Hoop'],
-                              'type': 'Court',
-                            },
+                            facility: facility
                           ),
                         )
 

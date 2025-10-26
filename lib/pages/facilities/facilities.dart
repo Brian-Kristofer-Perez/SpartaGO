@@ -88,6 +88,8 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: OutlinedButton.icon(
+
+              // TODO: View events
               onPressed: () {},
               icon: const Text('View Events', 
               style: TextStyle(fontSize: 13)
@@ -110,6 +112,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
           // Header
           Padding(
             padding: const EdgeInsets.all(16.0),
