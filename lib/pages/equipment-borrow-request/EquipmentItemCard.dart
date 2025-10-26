@@ -5,6 +5,10 @@ import 'package:sparta_go/common/calendar/calendar.dart';
 
 class EquipmentItemCard extends StatelessWidget{
 
+  final Map<String, dynamic> equipment;
+
+  EquipmentItemCard({required this.equipment});
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -31,7 +35,7 @@ class EquipmentItemCard extends StatelessWidget{
                 topRight: Radius.circular(16),
               ),
               child: Image.asset(
-                'assets/images/basketballCourt.jpg',
+                equipment['image'],
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: 175,
@@ -44,24 +48,24 @@ class EquipmentItemCard extends StatelessWidget{
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Basketball',
+                  Text(
+                    equipment["name"],
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Official Size Basketball',
+                  Text(
+                    equipment['description'],
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.black54,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    '15/20 Available',
+                  Text(
+                    '${equipment['available']}/${equipment['total']} available',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.black87,

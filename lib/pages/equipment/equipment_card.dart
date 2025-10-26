@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:sparta_go/pages/equipment-borrow-request/EquipmentBorrowRequestPage.dart';
 
 class EquipmentCard extends StatelessWidget {
-  final Map<String, dynamic> facility;
+  final Map<String, dynamic> equipment;
 
-  const EquipmentCard({Key? key, required this.facility}) : super(key: key);
+  const EquipmentCard({Key? key, required this.equipment}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class EquipmentCard extends StatelessWidget {
               width: double.infinity,
               color: Colors.grey[300],
               child: Image.asset(
-                facility['image'],
+                equipment['image'],
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Icon(
                   Icons.fitness_center,
@@ -43,7 +44,7 @@ class EquipmentCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    facility['name'],
+                    equipment['name'],
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -53,7 +54,7 @@ class EquipmentCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    facility['description'],
+                    equipment['description'],
                     style: TextStyle(
                       fontSize: 8,
                       color: Colors.grey[600],
@@ -65,7 +66,7 @@ class EquipmentCard extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      '${facility['available']}/${facility['total']} Available',
+                      '${equipment['available']}/${equipment['total']} Available',
                       style: TextStyle(
                         fontSize: 9,
                         color: Colors.grey[700],
@@ -78,7 +79,14 @@ class EquipmentCard extends StatelessWidget {
                     width: 150,
                     height: 15,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EquipmentBorrowRequestPage(equipment: equipment)
+                          )
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF8B1E1E),
                         foregroundColor: Colors.white,
@@ -88,7 +96,7 @@ class EquipmentCard extends StatelessWidget {
                         ),
                       ),
                       child: const Text(
-                        'Add to Borrow',
+                        'Borrow Equipment',
                         style: TextStyle(fontSize: 10),
                       ),
                     ),

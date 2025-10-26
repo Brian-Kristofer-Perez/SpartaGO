@@ -7,9 +7,8 @@ import '../../common/back_button.dart';
 
 class EquipmentBorrowRequestPage extends StatelessWidget {
 
-  // TODO: replace with equipment object
-  // final Map<String, dynamic> borrowedItem;
-  // BorrowRequestPage({required this.borrowedItem});
+  final Map<String, dynamic> equipment;
+  EquipmentBorrowRequestPage({required this.equipment});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +53,7 @@ class EquipmentBorrowRequestPage extends StatelessWidget {
                     SizedBox(height: 20,),
 
                     Center(
-                      child: EquipmentItemCard(),
+                      child: EquipmentItemCard(equipment: equipment),
                     ),
 
                     SizedBox(height: 30,),

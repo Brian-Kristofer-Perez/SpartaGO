@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sparta_go/pages/equipment-borrow-request/EquipmentBorrowRequestPage.dart';
 import 'package:sparta_go/pages/equipment/equipment_card.dart';
 import 'package:sparta_go/common/search_bar_widget.dart';
 import 'package:sparta_go/common/filter_chips_widget.dart';
@@ -228,7 +229,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
               ),
               itemCount: filteredEquipment.length,
               itemBuilder: (context, index) {
-                return EquipmentCard(facility: filteredEquipment[index]);
+                return EquipmentCard(equipment: filteredEquipment[index]);
               },
             ),
           ),
