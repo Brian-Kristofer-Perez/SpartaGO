@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sparta_go/common/equipment_card.dart';
+import 'package:sparta_go/pages/equipment/equipment_card.dart';
 import 'package:sparta_go/common/search_bar_widget.dart';
 import 'package:sparta_go/common/filter_chips_widget.dart';
 
