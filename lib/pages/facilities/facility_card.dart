@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sparta_go/pages/facility-borrow-request/FacilityBorrowRequestPage.dart';
 
 class FacilityCard extends StatelessWidget {
   final Map<String, dynamic> facility;
@@ -143,7 +144,16 @@ class FacilityCard extends StatelessWidget {
                     width: 150,
                     height: 15,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => FacilityBorrowRequestPage(
+                                  facility: facility,
+                                )
+                            )
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF8B1E1E),
                         foregroundColor: Colors.white,

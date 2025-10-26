@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sparta_go/common/facility_card.dart';
+import 'package:sparta_go/pages/facilities/facility_card.dart';
 import 'package:sparta_go/common/search_bar_widget.dart';
 import 'package:sparta_go/common/filter_chips_widget.dart';
 
@@ -88,6 +88,8 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: OutlinedButton.icon(
+
+              // TODO: View events
               onPressed: () {},
               icon: const Text('View Events', 
               style: TextStyle(fontSize: 13)
@@ -110,6 +112,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
           // Header
           Padding(
             padding: const EdgeInsets.all(16.0),
