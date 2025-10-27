@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sparta_go/pages/equipment-borrow-request/EquipmentBorrowRequestPage.dart';
 import 'package:sparta_go/pages/equipment/equipment_card.dart';
 import 'package:sparta_go/common/search_bar_widget.dart';
 import 'package:sparta_go/common/filter_chips_widget.dart';
+import 'package:sparta_go/pages/facilities/facilities.dart';
 
 class EquipmentPage extends StatefulWidget {
   const EquipmentPage({Key? key}) : super(key: key);
@@ -13,7 +13,6 @@ class EquipmentPage extends StatefulWidget {
 
 class _EquipmentPageState extends State<EquipmentPage> {
   String selectedFilter = 'All';
-  int selectedNavIndex = 0;
   String searchQuery = '';
 
   final List<Map<String, dynamic>> equipment = [
@@ -118,6 +117,20 @@ class _EquipmentPageState extends State<EquipmentPage> {
     return filtered;
   }
 
+  void _onNavTapped(int index) {
+    if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const FacilitiesPage(),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ),
+      );
+    }
+    // TODO: Add navigation for other tabs (History, Notification, Profile)
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,7 +157,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
             child: OutlinedButton.icon(
               onPressed: () {},
               icon: const Text('View Events', 
-              style: TextStyle(fontSize: 13)
+                style: TextStyle(fontSize: 13)
               ),
               label: const Icon(Icons.calendar_today, size: 16, color: Color(0xFF991B1B)),
               style: OutlinedButton.styleFrom(
@@ -164,7 +177,6 @@ class _EquipmentPageState extends State<EquipmentPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -192,7 +204,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SearchBarWidget(
-              hintText: 'Search facilities...',
+              hintText: 'Search equipment...',
               onChanged: (value) {
                 setState(() {
                   searchQuery = value;
@@ -235,14 +247,9 @@ class _EquipmentPageState extends State<EquipmentPage> {
           ),
         ],
       ),
-
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedNavIndex,
-        onTap: (index) {
-          setState(() {
-            selectedNavIndex = index;
-          });
-        },
+        currentIndex: 1, 
+        onTap: _onNavTapped,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF8B1E1E),
         unselectedItemColor: Colors.grey,
