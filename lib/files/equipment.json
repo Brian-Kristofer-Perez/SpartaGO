@@ -1,0 +1,92 @@
+[
+  {
+    "id": "eq001",
+    "name": "Basketball",
+    "description": "Official Size Basketball",
+    "image": "assets/images/basketball.jpg",
+    "available": 15,
+    "total": 20,
+    "type": "Sports Equipment"
+  },
+  {
+    "id": "eq002",
+    "name": "Volleyball",
+    "description": "Official Size Volleyball",
+    "image": "assets/images/volleyball.jpg",
+    "available": 15,
+    "total": 20,
+    "type": "Sports Equipment"
+  },
+  {
+    "id": "eq003",
+    "name": "Badminton Racket",
+    "description": "Durable racket for power and precision",
+    "image": "assets/images/badminton.jpg",
+    "available": 15,
+    "total": 20,
+    "type": "Sports Equipment"
+  },
+  {
+    "id": "eq004",
+    "name": "Shuttlecock",
+    "description": "High-quality for matches",
+    "image": "assets/images/shuttlcock.jpg",
+    "available": 15,
+    "total": 20,
+    "type": "Sports Equipment"
+  },
+  {
+    "id": "eq005",
+    "name": "Yoga Mat",
+    "description": "Premium non-slip yoga mat",
+    "image": "assets/images/yoga mat.jpg",
+    "available": 15,
+    "total": 20,
+    "type": "Strength Training"
+  },
+  {
+    "id": "eq006",
+    "name": "Resistance Band",
+    "description": "Stretchable for all levels",
+    "image": "assets/images/resistance band.jpg",
+    "available": 15,
+    "total": 20,
+    "type": "Strength Training"
+  },
+  {
+    "id": "eq007",
+    "name": "Dumbbell",
+    "description": "Durable for strength workouts",
+    "image": "assets/images/dumbbell.jpg",
+    "available": 15,
+    "total": 20,
+    "type": "Strength Training"
+  },
+  {
+    "id": "eq008",
+    "name": "Jump Rope",
+    "description": "Portable for cardio workouts",
+    "image": "assets/images/jump rope.jpg",
+    "available": 15,
+    "total": 20,
+    "type": "Strength Training"
+  },
+  {
+    "id": "eq009",
+    "name": "Table Tennis Paddle",
+    "description": "Comfortable grip for control",
+    "image": "assets/images/table tennis paddle.jpg",
+    "available": 15,
+    "total": 20,
+    "type": "Sports Equipment"
+  },
+  {
+    "id": "eq010",
+    "name": "Table Tennis Ball",
+    "description": "Smooth spin and bounce",
+    "image": "assets/images/table tennis ball.jpg",
+    "available": 15,
+    "total": 20,
+    "type": "Sports Equipment"
+  }
+]
