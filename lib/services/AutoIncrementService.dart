@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
+import '../Helpers/LocalFileHelper.dart';
+
 
 class AutoIncrementService {
-  final String filePath = 'assets/files/autoincrement_data.json';
+  final String filename = 'autoincrement_data.json';
 
+  /// Loads the counter data from the writable JSON file
   Future<Map<String, dynamic>> _loadData() async {
-    final file = File(filePath);
+    final path = await LocalFileHelper.getFilePath(filename);
+    final file = File(path);
 
     if (!await file.exists()) {
       await file.create(recursive: true);
@@ -21,11 +25,14 @@ class AutoIncrementService {
     return jsonDecode(contents);
   }
 
+  /// Saves updated counter data
   Future<void> _saveData(Map<String, dynamic> data) async {
-    final file = File(filePath);
+    final path = await LocalFileHelper.getFilePath(filename);
+    final file = File(path);
     await file.writeAsString(jsonEncode(data));
   }
 
+  /// Returns the next auto-increment ID for a given key
   Future<int> getNextId(String key) async {
     final data = await _loadData();
 
@@ -37,5 +44,16 @@ class AutoIncrementService {
     await _saveData(data);
 
     return data[key];
+  }
+
+  /// Optional helper to reset all counters to 0
+  Future<void> resetAll() async {
+    final data = {
+      "equipment": 0,
+      "facility": 0,
+      "equipment_reservation": 0,
+      "facility_reservation": 0
+    };
+    await _saveData(data);
   }
 }

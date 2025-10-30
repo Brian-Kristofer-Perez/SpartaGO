@@ -9,7 +9,7 @@ class EquipmentReservationService {
   EquipmentRepository equipments = EquipmentRepository();
   EquipmentReservationRepository reservations  = EquipmentReservationRepository();
 
-  void reserve_equipment(int equipment_id, int count, String user_id, DateTime start_date, DateTime end_date ) async {
+  Future<void> reserve_equipment(int equipment_id, int count, int user_id, DateTime start_date, DateTime end_date ) async {
     final Map<String, dynamic>? equipment = await equipments.getById(
         equipment_id);
 
@@ -23,7 +23,7 @@ class EquipmentReservationService {
 
 
     Map<String, dynamic> new_reservation = {
-      "id": AutoIncrementService().getNextId('equipment_reservation'),
+      "id": await AutoIncrementService().getNextId('equipment_reservation'),
       "userId": user_id,
       "equipmentId": equipment_id,
       "count": count,
@@ -31,7 +31,13 @@ class EquipmentReservationService {
       "endDate": "${end_date.year}-${end_date.month}-${end_date.day}"
     };
 
+    await equipments.update(
+      equipment_id,
+      {
+        "available" : equipment['available'] - count
+      }
+    );
 
-    reservations.add(new_reservation);
+    await reservations.add(new_reservation);
   }
 }

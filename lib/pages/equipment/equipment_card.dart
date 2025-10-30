@@ -3,8 +3,9 @@ import 'package:sparta_go/pages/equipment-borrow-request/EquipmentBorrowRequestP
 
 class EquipmentCard extends StatelessWidget {
   final Map<String, dynamic> equipment;
+  final Future<void> Function() onRefresh;
 
-  const EquipmentCard({Key? key, required this.equipment}) : super(key: key);
+  const EquipmentCard({Key? key, required this.equipment, required this.onRefresh}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -79,13 +80,15 @@ class EquipmentCard extends StatelessWidget {
                     width: 150,
                     height: 15,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+                        bool mustRefresh = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => EquipmentBorrowRequestPage(equipment: equipment)
                           )
                         );
+
+                        if (mustRefresh) { await onRefresh(); }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF8B1E1E),

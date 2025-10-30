@@ -69,6 +69,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
     // TODO: Add navigation for other tabs (History, Notification, Profile)
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,7 +180,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
               ),
               itemCount: filteredEquipment.length,
               itemBuilder: (context, index) {
-                return EquipmentCard(equipment: filteredEquipment[index]);
+                return EquipmentCard(equipment: filteredEquipment[index], onRefresh: () async {await _loadEquipment();},);
               },
             ),
           ),
