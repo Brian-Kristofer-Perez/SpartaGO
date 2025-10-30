@@ -4,7 +4,7 @@
     "name": "Basketball",
     "description": "Official Size Basketball",
     "image": "assets/images/basketball.jpg",
-    "available": 15,
+    "available": 10,
     "total": 20,
     "type": "Sports Equipment"
   },
@@ -13,8 +13,8 @@
     "name": "Volleyball",
     "description": "Official Size Volleyball",
     "image": "assets/images/volleyball.jpg",
-    "available": 15,
-    "total": 20,
+    "available": 12,
+    "total": 18,
     "type": "Sports Equipment"
   },
   {

@@ -1,14 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:sparta_go/Helpers/LocalFileHelper.dart';
 import 'package:sparta_go/pages/equipment/equipment.dart';
 import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/pages/equipment-borrow-request/EquipmentBorrowRequestPage.dart';
 import 'package:sparta_go/pages/facility-borrow-request/FacilityBorrowRequestPage.dart';
 import 'package:sparta_go/pages/login/login-page.dart';
+import 'package:sparta_go/pages/view-events/ViewEventsPage.dart';
 
 import 'common/back_button.dart';
 
-void main() {
+void main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Reset storage for testing
+  await LocalFileHelper.resetStorage();
+
+  // Reinitialize from assets
+  await LocalFileHelper.reinitializeFiles([
+    'equipment.json',
+    'facilities.json',
+    'equipment_reservations.json',
+    'facility_reservations.json',
+    'autoincrement_data.json'
+  ]);
+
   runApp(const MyApp());
+
 }
 
 class MyApp extends StatelessWidget {
@@ -20,7 +38,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       routes: {
-          '/': (context) => EquipmentPage(),
+          '/': (context) => EquipmentPage()
         },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF991B1B)).copyWith(

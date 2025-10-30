@@ -1,23 +1,19 @@
 import 'dart:convert';
-import 'dart:io';
+import '../Helpers/LocalFileHelper.dart';
 
 class EquipmentRepository {
-  final String filePath = 'assets/files/equipment.json';
+  final String _fileName = 'equipment.json';
 
   Future<List<Map<String, dynamic>>> _loadData() async {
-    final file = File(filePath);
-    if (!await file.exists()) {
-      await file.writeAsString(jsonEncode([]));
-    }
+    final file = await LocalFileHelper.initializeJsonFile(_fileName);
     final contents = await file.readAsString();
     return List<Map<String, dynamic>>.from(jsonDecode(contents));
   }
 
   Future<void> _saveData(List<Map<String, dynamic>> data) async {
-    final file = File(filePath);
+    final file = await LocalFileHelper.initializeJsonFile(_fileName);
     await file.writeAsString(jsonEncode(data));
   }
-
 
   Future<List<Map<String, dynamic>>> getAll() async => await _loadData();
 
