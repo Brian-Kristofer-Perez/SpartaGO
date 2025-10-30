@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "userId": 101,
+    "facilityId": 1,
+    "date": "2025-10-30",
+    "timeSlot": "5:00 - 6:00pm"
+  },
+  {
+    "id": 2,
+    "userId": 102,
+    "facilityId": 2,
+    "date": "2025-11-01",
+    "timeSlot": "7:00 - 8:00pm"
+  },
+  {
+    "id": 3,
+    "userId": 103,
+    "facilityId": 3,
+    "date": "2025-11-02",
+    "timeSlot": "6:00 - 7:00pm"
+  }
+]

@@ -1,6 +1,6 @@
 [
   {
-    "id": "eq001",
+    "id": 1,
     "name": "Basketball",
     "description": "Official Size Basketball",
     "image": "assets/images/basketball.jpg",
@@ -9,7 +9,7 @@
     "type": "Sports Equipment"
   },
   {
-    "id": "eq002",
+    "id": 2,
     "name": "Volleyball",
     "description": "Official Size Volleyball",
     "image": "assets/images/volleyball.jpg",
@@ -18,7 +18,7 @@
     "type": "Sports Equipment"
   },
   {
-    "id": "eq003",
+    "id": 3,
     "name": "Badminton Racket",
     "description": "Durable racket for power and precision",
     "image": "assets/images/badminton.jpg",
@@ -27,7 +27,7 @@
     "type": "Sports Equipment"
   },
   {
-    "id": "eq004",
+    "id": 4,
     "name": "Shuttlecock",
     "description": "High-quality for matches",
     "image": "assets/images/shuttlcock.jpg",
@@ -36,7 +36,7 @@
     "type": "Sports Equipment"
   },
   {
-    "id": "eq005",
+    "id": 5,
     "name": "Yoga Mat",
     "description": "Premium non-slip yoga mat",
     "image": "assets/images/yoga mat.jpg",
@@ -45,7 +45,7 @@
     "type": "Strength Training"
   },
   {
-    "id": "eq006",
+    "id": 6,
     "name": "Resistance Band",
     "description": "Stretchable for all levels",
     "image": "assets/images/resistance band.jpg",
@@ -54,7 +54,7 @@
     "type": "Strength Training"
   },
   {
-    "id": "eq007",
+    "id": 7,
     "name": "Dumbbell",
     "description": "Durable for strength workouts",
     "image": "assets/images/dumbbell.jpg",
@@ -63,7 +63,7 @@
     "type": "Strength Training"
   },
   {
-    "id": "eq008",
+    "id": 8,
     "name": "Jump Rope",
     "description": "Portable for cardio workouts",
     "image": "assets/images/jump rope.jpg",
@@ -72,7 +72,7 @@
     "type": "Strength Training"
   },
   {
-    "id": "eq009",
+    "id": 9,
     "name": "Table Tennis Paddle",
     "description": "Comfortable grip for control",
     "image": "assets/images/table tennis paddle.jpg",
@@ -81,7 +81,7 @@
     "type": "Sports Equipment"
   },
   {
-    "id": "eq010",
+    "id": 10,
     "name": "Table Tennis Ball",
     "description": "Smooth spin and bounce",
     "image": "assets/images/table tennis ball.jpg",

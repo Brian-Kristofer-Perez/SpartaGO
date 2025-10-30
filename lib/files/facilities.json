@@ -1,6 +1,6 @@
 [
   {
-    "id": "fc001",
+    "id": 1,
     "name": "Basketball Court",
     "description": "Indoor basketball court",
     "image": "assets/images/basketballCourt.jpg",
@@ -11,7 +11,7 @@
     "availableTimeSlots": ["5:00 - 6:00pm", "6:00 - 7:00pm", "7:00 - 8:00pm"]
   },
   {
-    "id": "fc002",
+    "id": 2,
     "name": "Volleyball Court",
     "description": "Indoor volleyball court",
     "image": "assets/images/volleyballCourt.png",
@@ -22,7 +22,7 @@
     "availableTimeSlots": ["5:00 - 6:00pm", "6:00 - 7:00pm", "7:00 - 8:00pm"]
   },
   {
-    "id": "fc003",
+    "id": 3,
     "name": "Sparta Fitness Gym",
     "description": "Workout Gym with various equipment",
     "image": "assets/images/spartaGym.png",
