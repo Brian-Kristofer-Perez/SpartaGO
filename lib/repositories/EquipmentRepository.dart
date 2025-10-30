@@ -18,9 +18,10 @@ class EquipmentRepository {
     await file.writeAsString(jsonEncode(data));
   }
 
+
   Future<List<Map<String, dynamic>>> getAll() async => await _loadData();
 
-  Future<Map<String, dynamic>?> getById(String id) async {
+  Future<Map<String, dynamic>?> getById(int id) async {
     final data = await _loadData();
     final item = data.firstWhere((e) => e['id'] == id, orElse: () => {});
     return item.isEmpty ? null : item;
@@ -35,7 +36,7 @@ class EquipmentRepository {
     await _saveData(data);
   }
 
-  Future<bool> update(String id, Map<String, dynamic> updatedFields) async {
+  Future<bool> update(int id, Map<String, dynamic> updatedFields) async {
     final data = await _loadData();
     final index = data.indexWhere((e) => e['id'] == id);
     if (index == -1) return false;
@@ -45,7 +46,7 @@ class EquipmentRepository {
     return true;
   }
 
-  Future<bool> delete(String id) async {
+  Future<bool> delete(int id) async {
     final data = await _loadData();
     final index = data.indexWhere((e) => e['id'] == id);
     if (index == -1) return false;

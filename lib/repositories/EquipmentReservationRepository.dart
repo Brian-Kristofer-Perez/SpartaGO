@@ -20,7 +20,7 @@ class EquipmentReservationRepository {
 
   Future<List<Map<String, dynamic>>> getAll() async => await _loadData();
 
-  Future<Map<String, dynamic>?> getById(String id) async {
+  Future<Map<String, dynamic>?> getById(int id) async {
     final data = await _loadData();
     final reservation = data.firstWhere((r) => r['id'] == id, orElse: () => {});
     return reservation.isEmpty ? null : reservation;
@@ -35,7 +35,7 @@ class EquipmentReservationRepository {
     await _saveData(data);
   }
 
-  Future<bool> update(String id, Map<String, dynamic> updatedFields) async {
+  Future<bool> update(int id, Map<String, dynamic> updatedFields) async {
     final data = await _loadData();
     final index = data.indexWhere((r) => r['id'] == id);
     if (index == -1) return false;
@@ -45,7 +45,7 @@ class EquipmentReservationRepository {
     return true;
   }
 
-  Future<bool> delete(String id) async {
+  Future<bool> delete(int id) async {
     final data = await _loadData();
     final index = data.indexWhere((r) => r['id'] == id);
     if (index == -1) return false;
