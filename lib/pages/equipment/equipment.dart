@@ -72,7 +72,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const ProfilePage(),
+          pageBuilder: (context, animation, secondaryAnimation) => ProfilePage(user: widget.user),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),

@@ -5,7 +5,10 @@ import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/pages/equipment/equipment.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+
+  Map<String, dynamic> user;
+  ProfilePage({Key? key, required this.user}) : super(key: key);
+
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -19,7 +22,7 @@ class _ProfilePageState extends State<ProfilePage> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const FacilitiesPage(),
+          pageBuilder: (context, animation, secondaryAnimation) => FacilitiesPage(user: widget.user),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
@@ -29,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const EquipmentPage(),
+          pageBuilder: (context, animation, secondaryAnimation) => EquipmentPage(user: widget.user),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
@@ -183,6 +186,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: AppButton(
                   onPressed: () {
                     // Add logout logic here
+
+                    Navigator.pop(context);
                   },
                   padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
                   borderRadius: 8,
