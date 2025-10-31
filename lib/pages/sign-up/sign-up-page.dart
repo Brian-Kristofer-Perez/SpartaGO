@@ -18,6 +18,13 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
 
+  // Error messages
+  String? fullNameError;
+  String? emailError;
+  String? studentNumberError;
+  String? passwordError;
+  String? confirmPasswordError;
+
   @override
   void dispose() {
     fullNameController.dispose();
@@ -28,8 +35,109 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
+  // Validation functions
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    );
+    return emailRegex.hasMatch(email);
+  }
+
+  bool isValidStudentNumber(String number) {
+    final numberRegex = RegExp(r'^\d{2}-\d{5}$');
+    return numberRegex.hasMatch(number);
+  }
+
+  String? validateFullName(String value) {
+    if (value.isEmpty) {
+      return 'Please enter your full name';
+    }
+    if (value.length < 2) {
+      return 'Name must be at least 2 characters';
+    }
+    return null;
+  }
+
+  String? validateEmail(String value) {
+    if (value.isEmpty) {
+      return 'Please enter your email address';
+    }
+    if (!isValidEmail(value)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  }
+
+  String? validateStudentNumber(String value) {
+    if (value.isEmpty) {
+      return 'Please enter your student/employee number';
+    }
+    if (!isValidStudentNumber(value)) {
+      return 'Please enter a valid student/employee number';
+    }
+    return null;
+  }
+
+  String? validatePassword(String value) {
+    if (value.isEmpty) {
+      return 'Please enter a password';
+    }
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters';
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(value)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!RegExp(r'[a-z]').hasMatch(value)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!RegExp(r'[0-9]').hasMatch(value)) {
+      return 'Password must contain at least one number';
+    }
+    return null;
+  }
+
+  String? validateConfirmPassword(String value) {
+    if (value.isEmpty) {
+      return 'Please confirm your password';
+    }
+    if (value != passwordController.text) {
+      return 'Passwords do not match';
+    }
+    return null;
+  }
+
+  bool validateStep0() {
+    setState(() {
+      fullNameError = validateFullName(fullNameController.text.trim());
+      emailError = validateEmail(emailController.text.trim());
+      studentNumberError = validateStudentNumber(studentNumberController.text.trim());
+    });
+
+    return fullNameError == null && emailError == null && studentNumberError == null;
+  }
+
+  bool validateStep1() {
+    setState(() {
+      passwordError = validatePassword(passwordController.text);
+      confirmPasswordError = validateConfirmPassword(confirmPasswordController.text);
+    });
+
+    return passwordError == null && confirmPasswordError == null;
+  }
+
   void nextStep() {
-    if (currentStep < 2) {
+    bool isValid = false;
+
+    if (currentStep == 0) {
+      isValid = validateStep0();
+    } else if (currentStep == 1) {
+      isValid = validateStep1();
+    } else {
+      isValid = true;
+    }
+
+    if (isValid && currentStep < 2) {
       setState(() {
         currentStep++;
       });
@@ -40,6 +148,11 @@ class _SignUpPageState extends State<SignUpPage> {
     if (currentStep > 0) {
       setState(() {
         currentStep--;
+        // Clear errors when going back
+        if (currentStep == 0) {
+          passwordError = null;
+          confirmPasswordError = null;
+        }
       });
     }
   }
@@ -126,18 +239,18 @@ class _SignUpPageState extends State<SignUpPage> {
               
               // Step Indicators
               Center( 
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          buildStepIndicator(0, 'Account Info', currentStep > 0, currentStep == 0),
-                          SizedBox(width: 50),
-                          buildStepIndicator(1, 'Credentials', currentStep > 1, currentStep == 1),
-                          SizedBox(width: 57),
-                          buildStepIndicator(2, 'Complete', false, currentStep == 2),
-                        ],
-                      ),
-                    ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    buildStepIndicator(0, 'Account Info', currentStep > 0, currentStep == 0),
+                    SizedBox(width: 50),
+                    buildStepIndicator(1, 'Credentials', currentStep > 1, currentStep == 1),
+                    SizedBox(width: 57),
+                    buildStepIndicator(2, 'Complete', false, currentStep == 2),
+                  ],
+                ),
+              ),
               
               SizedBox(height: 40),
               
@@ -201,24 +314,72 @@ class _SignUpPageState extends State<SignUpPage> {
         Row(
           children: [
             Expanded(
-              child: CustomFormInput(
-                label: 'Full Name',
-                controller: fullNameController,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomFormInput(
+                    label: 'Full Name',
+                    controller: fullNameController,
+                  ),
+                  if (fullNameError != null)
+                    Padding(
+                      padding: EdgeInsets.only(left: 10, top: 4),
+                      child: Text(
+                        fullNameError!,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             SizedBox(width: 16),
             Expanded(
-              child: CustomFormInput(
-                label: 'Email Address',
-                controller: emailController,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomFormInput(
+                    label: 'Email Address',
+                    controller: emailController,
+                  ),
+                  if (emailError != null)
+                    Padding(
+                      padding: EdgeInsets.only(left: 10, top: 4),
+                      child: Text(
+                        emailError!,
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ],
         ),
         SizedBox(height: 20),
-        CustomFormInput(
-          label: 'Student/Employee Number',
-          controller: studentNumberController,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomFormInput(
+              label: 'Student/Employee Number',
+              controller: studentNumberController,
+            ),
+            if (studentNumberError != null)
+              Padding(
+                padding: EdgeInsets.only(left: 10, top: 4),
+                child: Text(
+                  studentNumberError!,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
     );
@@ -227,16 +388,48 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _buildCredentialsStep() {
     return Column(
       children: [
-        CustomFormInput(
-          label: 'Create Password',
-          isPassword: true,
-          controller: passwordController,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomFormInput(
+              label: 'Create Password',
+              isPassword: true,
+              controller: passwordController,
+            ),
+            if (passwordError != null)
+              Padding(
+                padding: EdgeInsets.only(left: 10, top: 4),
+                child: Text(
+                  passwordError!,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+          ],
         ),
         SizedBox(height: 20),
-        CustomFormInput(
-          label: 'Confirm Password',
-          isPassword: true,
-          controller: confirmPasswordController,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomFormInput(
+              label: 'Confirm Password',
+              isPassword: true,
+              controller: confirmPasswordController,
+            ),
+            if (confirmPasswordError != null)
+              Padding(
+                padding: EdgeInsets.only(left: 10, top: 4),
+                child: Text(
+                  confirmPasswordError!,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
     );
@@ -273,7 +466,7 @@ class _SignUpPageState extends State<SignUpPage> {
     if (currentStep == 2) {
       return Row(
         children: [
-                    Expanded(
+          Expanded(
             child: TextButton.icon(
               onPressed: previousStep,
               icon: Icon(
@@ -295,6 +488,10 @@ class _SignUpPageState extends State<SignUpPage> {
             child: AppButton(
               onPressed: () {
                 // Navigate to home or dashboard
+                print('Account created successfully!');
+                print('Name: ${fullNameController.text}');
+                print('Email: ${emailController.text}');
+                print('Student Number: ${studentNumberController.text}');
               },
               children: [
                 Text(
