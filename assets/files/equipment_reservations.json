@@ -1,26 +1,2 @@
 [
-  {
-    "id": 1,
-    "userId": 101,
-    "equipmentId": 1,
-    "count": 2,
-    "startDate": "2025-10-30",
-    "endDate": "2025-11-02"
-  },
-  {
-    "id": 2,
-    "userId": 102,
-    "equipmentId": 3,
-    "count": 1,
-    "startDate": "2025-11-01",
-    "endDate": "2025-11-03"
-  },
-  {
-    "id": 3,
-    "userId": 103,
-    "equipmentId": 7,
-    "count": 4,
-    "startDate": "2025-11-05",
-    "endDate": "2025-11-07"
-  }
 ]
