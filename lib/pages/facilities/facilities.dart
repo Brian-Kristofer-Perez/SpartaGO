@@ -3,6 +3,7 @@ import 'package:sparta_go/pages/facilities/facility_card.dart';
 import 'package:sparta_go/common/search_bar_widget.dart';
 import 'package:sparta_go/common/filter_chips_widget.dart';
 import 'package:sparta_go/pages/equipment/equipment.dart';
+import 'package:sparta_go/pages/profile/profile.dart';
 import 'package:sparta_go/repositories/FacilityRepository.dart';
 import 'package:sparta_go/services/FacilityService.dart';
 
@@ -66,7 +67,16 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
         ),
       );
     }
-    // TODO: Add navigation for other tabs (History, Notification, Profile)
+    if (index == 4) {
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const ProfilePage(),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ),
+      );
+    }
   }
 
   @override

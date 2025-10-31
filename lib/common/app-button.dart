@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 
 class AppButton extends StatelessWidget {
-
   final List<Widget> children;
   final VoidCallback onPressed;
   final EdgeInsetsGeometry padding;
   final double borderRadius;
+  final MainAxisAlignment alignment;
 
-  AppButton({
+  const AppButton({
     super.key,
     required this.children,
     required this.onPressed,
     this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 9),
     this.borderRadius = 12,
+    this.alignment = MainAxisAlignment.center,
   });
 
   @override
@@ -28,7 +29,7 @@ class AppButton extends StatelessWidget {
         elevation: 0,
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: alignment,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: children,
       ),
