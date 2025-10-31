@@ -13,8 +13,12 @@ class FacilityReservationService {
 
     facility!['availableTimeSlots'].remove(timeslot);
 
+    await facilities.update(facility_id, {
+      'availableTimeSlots': facility['availableTimeSlots']
+    });
+
     Map<String, dynamic> new_reservation = {
-      "id": AutoIncrementService().getNextId('facility_reservation'),
+      "id": await AutoIncrementService().getNextId('facility_reservation'),
       "userId": user_id,
       "facilityId": facility_id,
       "date": "${date.year}-${date.month}-${date.day}",

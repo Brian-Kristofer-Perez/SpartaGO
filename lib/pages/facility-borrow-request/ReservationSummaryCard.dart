@@ -72,7 +72,7 @@ class ReservationSummaryCard extends StatelessWidget {
                   width: 300,
                   height: 44,
                   child: ElevatedButton(
-                    onPressed: (date == null || time == null ? null : onConfirm),
+                    onPressed: onConfirm,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _buttonColor,
                       foregroundColor: Colors.white,

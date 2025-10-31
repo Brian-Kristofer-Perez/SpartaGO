@@ -50,8 +50,6 @@ class _EquipmentPageState extends State<EquipmentPage> {
   void initState() {
     super.initState();
     _loadEquipment();
-
-    print(this.equipment);
   }
 
   // Helper: Callback upon navigation tap

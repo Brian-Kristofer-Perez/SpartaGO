@@ -3,6 +3,8 @@ import 'package:sparta_go/pages/facilities/facility_card.dart';
 import 'package:sparta_go/common/search_bar_widget.dart';
 import 'package:sparta_go/common/filter_chips_widget.dart';
 import 'package:sparta_go/pages/equipment/equipment.dart';
+import 'package:sparta_go/repositories/FacilityRepository.dart';
+import 'package:sparta_go/services/FacilityService.dart';
 
 class FacilitiesPage extends StatefulWidget {
   const FacilitiesPage({Key? key}) : super(key: key);
@@ -15,43 +17,29 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
   String selectedFilter = 'All';
   String searchQuery = '';
 
-  final List<Map<String, dynamic>> facilities = [
-    {
-      'name': 'Basketball Court',
-      'description': 'Indoor basketball court',
-      'image': 'assets/images/basketballCourt.jpg',
-      'building': 'Building A, Level 1',
-      'capacity': '50 people',
-      'equipment': ['Basketball', 'Basketball Hoop'],
-      'type': 'Court',
-    },
-    {
-      'name': 'Volleyball Court',
-      'description': 'Indoor volleyball court',
-      'image': 'assets/images/volleyballCourt.png',
-      'building': 'Building A, Level 1',
-      'capacity': '50 people',
-      'equipment': ['Volleyball', 'Volleyball Net'],
-      'type': 'Court', 
-    },
-    {
-      'name': 'Sparta Fitness Gym',
-      'description': 'Workout Gym with various equipment',
-      'image': 'assets/images/spartaGym.png',
-      'building': 'Building A, Level 2',
-      'capacity': '70 people',
-      'equipment': ['Treadmill', 'Exercise Bike'],
-      'type': 'Gym',
-    },
-  ];
+  List<Map<String, dynamic>> facilities = [];
+
+  // Helper: Load data asynchronously
+  Future<void> _get_facilities() async {
+    final data = await FacilityService().get_all();
+    setState(() {
+      facilities = data;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _get_facilities();
+  }
 
   List<Map<String, dynamic>> get filteredFacilities {
     List<Map<String, dynamic>> filtered = facilities;
-    
+
     if (selectedFilter != 'All') {
       filtered = filtered.where((facility) => facility['type'] == selectedFilter).toList();
     }
-    
+
     if (searchQuery.isNotEmpty) {
       filtered = filtered.where((facility) {
         final name = facility['name'].toString().toLowerCase();
@@ -60,8 +48,8 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
         return name.contains(query) || description.contains(query);
       }).toList();
     }
-    
-    return filtered;
+
+      return filtered;
   }
 
   void _onNavTapped(int index) {
@@ -188,7 +176,10 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
               ),
               itemCount: filteredFacilities.length,
               itemBuilder: (context, index) {
-                return FacilityCard(facility: filteredFacilities[index]);
+                return FacilityCard(
+                    facility: filteredFacilities[index],
+                    onRefresh: () async { await _get_facilities(); },
+                );
               },
             ),
           ),
