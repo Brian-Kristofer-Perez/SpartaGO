@@ -23,6 +23,7 @@ void main() async {
     'equipment_reservations.json',
     'facility_reservations.json',
     'autoincrement_data.json'
+    'users.json'
   ]);
 
   runApp(const MyApp());
