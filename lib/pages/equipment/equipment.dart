@@ -3,6 +3,7 @@ import 'package:sparta_go/pages/equipment/equipment_card.dart';
 import 'package:sparta_go/common/search_bar_widget.dart';
 import 'package:sparta_go/common/filter_chips_widget.dart';
 import 'package:sparta_go/pages/facilities/facilities.dart';
+import 'package:sparta_go/pages/profile/profile.dart';
 import 'package:sparta_go/services/EquipmentService.dart';
 
 class EquipmentPage extends StatefulWidget {
@@ -62,6 +63,16 @@ class _EquipmentPageState extends State<EquipmentPage> {
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) => FacilitiesPage(user: widget.user),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ),
+      );
+    }
+    if (index == 4) {
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => ProfilePage(user: widget.user),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
