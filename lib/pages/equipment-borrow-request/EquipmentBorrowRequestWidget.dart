@@ -7,8 +7,9 @@ import '../../services/EquipmentReservationService.dart';
 class EquipmentBorrowRequestWidget extends StatefulWidget {
 
   Map<String, dynamic> equipment;
+  Map<String, dynamic> user;
 
-  EquipmentBorrowRequestWidget({super.key, required this.equipment});
+  EquipmentBorrowRequestWidget({super.key, required this.equipment, required this.user});
 
   @override
   State<EquipmentBorrowRequestWidget> createState() => _EquipmentBorrowRequestWidgetState();
@@ -142,7 +143,7 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                   await EquipmentReservationService().reserve_equipment(
                       widget.equipment['id'],
                       count,
-                      81,  // TODO: Pass in an actual user as argument upon login
+                      widget.user['id'],
                       startDate!,
                       endDate!
                   );

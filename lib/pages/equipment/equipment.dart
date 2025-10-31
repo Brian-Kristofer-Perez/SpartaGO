@@ -6,7 +6,10 @@ import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/services/EquipmentService.dart';
 
 class EquipmentPage extends StatefulWidget {
-  const EquipmentPage({Key? key}) : super(key: key);
+
+  Map<String, dynamic> user;
+
+  EquipmentPage({Key? key, required this.user}) : super(key: key);
 
   @override
   State<EquipmentPage> createState() => _EquipmentPageState();
@@ -58,13 +61,12 @@ class _EquipmentPageState extends State<EquipmentPage> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const FacilitiesPage(),
+          pageBuilder: (context, animation, secondaryAnimation) => FacilitiesPage(user: widget.user),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
       );
     }
-    // TODO: Add navigation for other tabs (History, Notification, Profile)
   }
 
 
@@ -178,7 +180,11 @@ class _EquipmentPageState extends State<EquipmentPage> {
               ),
               itemCount: filteredEquipment.length,
               itemBuilder: (context, index) {
-                return EquipmentCard(equipment: filteredEquipment[index], onRefresh: () async {await _loadEquipment();},);
+                return EquipmentCard(
+                  equipment: filteredEquipment[index],
+                  onRefresh: () async {await _loadEquipment();},
+                  user: widget.user,
+                );
               },
             ),
           ),

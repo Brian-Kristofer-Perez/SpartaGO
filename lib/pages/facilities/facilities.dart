@@ -60,7 +60,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const EquipmentPage(),
+          pageBuilder: (context, animation, secondaryAnimation) => EquipmentPage(user: widget.user,),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
