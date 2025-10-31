@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:sparta_go/common/app-button.dart';
 import 'package:sparta_go/common/custom-form-input.dart';
 import 'package:sparta_go/common/hollow-app-button.dart';
+import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/pages/login/sign-as-admin.dart';
 import 'package:sparta_go/pages/sign-up/sign-up-page.dart';
+import 'package:sparta_go/services/UserService.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -67,19 +69,36 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-  void handleLogin() {
+  void handleLogin() async {
     setState(() {
       emailError = validateEmailOrStudentNumber(emailController.text.trim());
       passwordError = validatePassword(passwordController.text);
     });
 
     if (emailError == null && passwordError == null) {
-      // Add your login logic here
-      print('Login successful!');
-      print('Email/Number: ${emailController.text}');
-      print('Password: ${passwordController.text}');
-      
-      // Navigate to home screen or show success message
+
+      UserService service = UserService();
+
+      // try {
+        await service.log_in(email: emailController.text, password: passwordController.text);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login successful')),
+        );
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FacilitiesPage()
+          )
+        );
+      // }
+      // catch (e) {
+      //   final String message = e.toString().replaceFirst('Exception: ', '');
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text(message)),
+      //   );
+      // }
     }
   }
 

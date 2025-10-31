@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:sparta_go/Repositories/UserRepository.dart';
 import 'package:sparta_go/common/app-button.dart';
 import 'package:sparta_go/common/custom-form-input.dart';
 import 'package:sparta_go/common/hollow-app-button.dart';
 import 'package:sparta_go/pages/login/login-page.dart';
+
+import '../../services/UserService.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -493,12 +496,42 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           Expanded(
             child: AppButton(
-              onPressed: () {
-                // Navigate to home or dashboard
-                print('Account created successfully!');
+              onPressed: () async {
                 print('Name: ${fullNameController.text}');
                 print('Email: ${emailController.text}');
                 print('Student Number: ${studentNumberController.text}');
+                print('Password: ${passwordController.text}');
+
+                // Validation: Check if email already exists
+                UserRepository repo = UserRepository();
+                Map<String, dynamic>? user = await repo.getByEmail(emailController.text);
+
+                if (user != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Email already exists. Use a valid email!')),
+                  );
+                  return;
+                }
+
+                // TODO: add other validation steps
+                await UserService().register(
+                    name: fullNameController.text,
+                    email: emailController.text,
+                    studentNumber: studentNumberController.text,
+                    password: passwordController.text
+                );
+
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('User registration successful!')),
+                );
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => LoginPage()
+                  )
+                );
               },
               children: [
                 Text(

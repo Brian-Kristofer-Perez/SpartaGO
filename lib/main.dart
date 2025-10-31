@@ -22,7 +22,7 @@ void main() async {
     'facilities.json',
     'equipment_reservations.json',
     'facility_reservations.json',
-    'autoincrement_data.json'
+    'autoincrement_data.json',
     'users.json'
   ]);
 
