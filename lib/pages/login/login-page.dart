@@ -3,6 +3,7 @@ import 'package:sparta_go/common/app-button.dart';
 import 'package:sparta_go/common/custom-form-input.dart';
 import 'package:sparta_go/common/hollow-app-button.dart';
 import 'package:sparta_go/pages/login/sign-as-admin.dart';
+import 'package:sparta_go/pages/sign-up/sign-up-page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -179,7 +180,14 @@ class _LoginPageState extends State<LoginPage> {
             
             HollowAppButton(
               text: "Create a new account",
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SignUpPage()
+                  )
+                );
+              },
             ),
             
             SizedBox(height: 10),

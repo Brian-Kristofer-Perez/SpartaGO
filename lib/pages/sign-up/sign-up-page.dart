@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sparta_go/common/app-button.dart';
 import 'package:sparta_go/common/custom-form-input.dart';
 import 'package:sparta_go/common/hollow-app-button.dart';
+import 'package:sparta_go/pages/login/login-page.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -274,6 +275,12 @@ class _SignUpPageState extends State<SignUpPage> {
                     TextButton(
                       onPressed: () {
                         // Navigate to sign in
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LoginPage()
+                          )
+                        );
                       },
                       child: Text(
                         "Sign In",
