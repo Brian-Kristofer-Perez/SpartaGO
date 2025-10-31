@@ -65,14 +65,14 @@ class LoginPage extends StatelessWidget {
                   onPressed: (){}
               ),
 
-              SizedBox(height: 28,),
+              SizedBox(height: 10,),
 
               HollowAppButton(
                 text: "Create a new account",
                 onPressed: () {},
               ),
 
-              SizedBox(height: 2,),
+              SizedBox(height: 10,),
 
               AdminSignIn()
             ]
