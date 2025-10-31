@@ -79,8 +79,8 @@ class _LoginPageState extends State<LoginPage> {
 
       UserService service = UserService();
 
-      // try {
-        await service.log_in(email: emailController.text, password: passwordController.text);
+      try {
+        Map<String, dynamic> user = await service.log_in(email: emailController.text, password: passwordController.text);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login successful')),
@@ -89,16 +89,16 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => FacilitiesPage()
+            builder: (context) => FacilitiesPage(user: user)
           )
         );
-      // }
-      // catch (e) {
-      //   final String message = e.toString().replaceFirst('Exception: ', '');
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text(message)),
-      //   );
-      // }
+      }
+      catch (e) {
+        final String message = e.toString().replaceFirst('Exception: ', '');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
     }
   }
 
