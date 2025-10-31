@@ -22,7 +22,8 @@ void main() async {
     'facilities.json',
     'equipment_reservations.json',
     'facility_reservations.json',
-    'autoincrement_data.json'
+    'autoincrement_data.json',
+    'users.json'
   ]);
 
   runApp(const MyApp());
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       routes: {
-          '/': (context) => FacilitiesPage()
+          '/': (context) => LoginPage()
         },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF991B1B)).copyWith(

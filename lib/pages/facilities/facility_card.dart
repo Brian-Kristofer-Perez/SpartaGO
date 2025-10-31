@@ -5,7 +5,9 @@ class FacilityCard extends StatelessWidget {
   final Map<String, dynamic> facility;
   final Future<void> Function() onRefresh;
 
-  const FacilityCard({Key? key, required this.facility, required this.onRefresh}) : super(key: key);
+  Map<String, dynamic> user;
+
+  FacilityCard({Key? key, required this.facility, required this.onRefresh, required this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +153,7 @@ class FacilityCard extends StatelessWidget {
                             MaterialPageRoute(
                                 builder: (context) => FacilityBorrowRequestPage(
                                   facility: facility,
+                                  user: user,
                                 )
                             )
                         );

@@ -4,8 +4,9 @@ import 'package:sparta_go/pages/equipment-borrow-request/EquipmentBorrowRequestP
 class EquipmentCard extends StatelessWidget {
   final Map<String, dynamic> equipment;
   final Future<void> Function() onRefresh;
+  final Map<String, dynamic> user;
 
-  const EquipmentCard({Key? key, required this.equipment, required this.onRefresh}) : super(key: key);
+  const EquipmentCard({Key? key, required this.equipment, required this.onRefresh, required this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +85,7 @@ class EquipmentCard extends StatelessWidget {
                         bool mustRefresh = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EquipmentBorrowRequestPage(equipment: equipment)
+                            builder: (context) => EquipmentBorrowRequestPage(equipment: equipment, user: user)
                           )
                         );
 

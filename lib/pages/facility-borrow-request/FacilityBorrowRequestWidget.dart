@@ -7,7 +7,8 @@ import '../../common/calendar/calendar.dart';
 class FacilityBorrowRequestWidget extends StatefulWidget {
 
   final Map<String,dynamic> facility;
-  const FacilityBorrowRequestWidget({super.key, required this.facility});
+  Map<String,dynamic> user;
+  FacilityBorrowRequestWidget({super.key, required this.facility, required this.user});
 
   @override
   State<FacilityBorrowRequestWidget> createState() => _FacilityBorrowRequestWidgetState();
@@ -94,7 +95,7 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                 }
 
                 await FacilityReservationService().reserve_facility(
-                    81, // TODO: Use passed user id
+                    widget.user['id'],
                     widget.facility['id'],
                     startDate!,
                     selectedTime!

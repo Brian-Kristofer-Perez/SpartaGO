@@ -7,7 +7,10 @@ import 'package:sparta_go/repositories/FacilityRepository.dart';
 import 'package:sparta_go/services/FacilityService.dart';
 
 class FacilitiesPage extends StatefulWidget {
-  const FacilitiesPage({Key? key}) : super(key: key);
+
+  Map<String, dynamic> user;
+
+  FacilitiesPage({Key? key, required this.user}) : super(key: key);
 
   @override
   State<FacilitiesPage> createState() => _FacilitiesPageState();
@@ -57,7 +60,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const EquipmentPage(),
+          pageBuilder: (context, animation, secondaryAnimation) => EquipmentPage(user: widget.user,),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
@@ -178,6 +181,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
               itemBuilder: (context, index) {
                 return FacilityCard(
                     facility: filteredFacilities[index],
+                    user: widget.user,
                     onRefresh: () async { await _get_facilities(); },
                 );
               },
