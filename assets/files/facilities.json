@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "name": "Basketball Court",
+    "description": "Indoor basketball court",
+    "image": "assets/images/basketballCourt.jpg",
+    "building": "Building A, Level 1",
+    "capacity": "50 people",
+    "equipment": ["Basketball", "Basketball Hoop"],
+    "type": "Court",
+    "availableTimeSlots": ["5:00 - 6:00pm", "6:00 - 7:00pm", "7:00 - 8:00pm"]
+  },
+  {
+    "id": 2,
+    "name": "Volleyball Court",
+    "description": "Indoor volleyball court",
+    "image": "assets/images/volleyballCourt.png",
+    "building": "Building A, Level 1",
+    "capacity": "50 people",
+    "equipment": ["Volleyball", "Volleyball Net"],
+    "type": "Court",
+    "availableTimeSlots": ["5:00 - 6:00pm", "6:00 - 7:00pm", "7:00 - 8:00pm"]
+  },
+  {
+    "id": 3,
+    "name": "Sparta Fitness Gym",
+    "description": "Workout Gym with various equipment",
+    "image": "assets/images/spartaGym.png",
+    "building": "Building A, Level 2",
+    "capacity": "70 people",
+    "equipment": ["Treadmill", "Exercise Bike"],
+    "type": "Gym",
+    "availableTimeSlots": ["5:00 - 6:00pm", "6:00 - 7:00pm", "7:00 - 8:00pm"]
+  }
+]

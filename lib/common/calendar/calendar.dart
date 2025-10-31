@@ -34,11 +34,11 @@ class _CustomCalendarState extends State<CustomCalendar> {
             });
             widget.onDateSelected(selectedDay); // notify the parent of value change
           },
+
+          // Track disabled dates
           enabledDayPredicate: (day) {
             final disabledDates = [
-              DateTime.utc(2025, 10, 25),
-              DateTime.utc(2025, 11, 1),
-              DateTime.utc(2025, 11, 11)
+              // TODO: Fill later on?
             ];
             return !disabledDates.any((disabledDay) => isSameDay(disabledDay, day));
           },

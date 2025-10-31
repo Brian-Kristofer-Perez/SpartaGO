@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sparta_go/pages/facility-borrow-request/ReservationSummaryCard.dart';
 import 'package:sparta_go/pages/facility-borrow-request/TimeSlotSelector.dart';
+import 'package:sparta_go/services/FacilityReservationService.dart';
 import '../../common/calendar/calendar.dart';
 
 class FacilityBorrowRequestWidget extends StatefulWidget {
@@ -47,6 +48,7 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                 SizedBox(width: 6),
 
                 TimeSlotSelector(
+                  availableSlots: List<String>.from(widget.facility['availableTimeSlots']),
                   onSelected: (time) {
                     setState(() {
                       selectedTime = time;
@@ -62,8 +64,49 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
               facility: widget.facility,
               date: startDate,
               time: selectedTime,
-              onConfirm: () {
-                print("Hello world");
+              onConfirm: () async {
+
+                if (startDate!.isBefore(
+                    DateTime(
+                        DateTime.now().year,
+                        DateTime.now().month,
+                        DateTime.now().day
+                    )
+                )) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Start date must be at least today')),
+                  );
+                  return;
+                }
+
+                if (startDate == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Enter a valid date')),
+                  );
+                  return;
+                }
+
+                if (selectedTime == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Select a valid time slot!')),
+                  );
+                  return;
+                }
+
+                await FacilityReservationService().reserve_facility(
+                    81, // TODO: Use passed user id
+                    widget.facility['id'],
+                    startDate!,
+                    selectedTime!
+                );
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Reservation made successfully')),
+                );
+
+                Navigator.pop(context, true);
+
+
               },
 
             )
@@ -97,8 +140,7 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
             icon: const Icon(Icons.calendar_today, size: 18),
             label: Text(
               selectedDate != null
-                  ? "${selectedDate.year}-${selectedDate.month}-${selectedDate
-                  .day}"
+                  ? "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}"
                   : 'Select Date',
             ),
             style: OutlinedButton.styleFrom(

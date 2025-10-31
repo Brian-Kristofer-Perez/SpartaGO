@@ -3,8 +3,9 @@ import 'package:sparta_go/pages/facility-borrow-request/FacilityBorrowRequestPag
 
 class FacilityCard extends StatelessWidget {
   final Map<String, dynamic> facility;
+  final Future<void> Function() onRefresh;
 
-  const FacilityCard({Key? key, required this.facility}) : super(key: key);
+  const FacilityCard({Key? key, required this.facility, required this.onRefresh}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -144,8 +145,8 @@ class FacilityCard extends StatelessWidget {
                     width: 150,
                     height: 15,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+                        bool willReset = await Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => FacilityBorrowRequestPage(
@@ -153,6 +154,10 @@ class FacilityCard extends StatelessWidget {
                                 )
                             )
                         );
+
+                        if(willReset) {
+                          await onRefresh();
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF8B1E1E),

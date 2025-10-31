@@ -3,6 +3,7 @@ import 'package:sparta_go/pages/equipment/equipment_card.dart';
 import 'package:sparta_go/common/search_bar_widget.dart';
 import 'package:sparta_go/common/filter_chips_widget.dart';
 import 'package:sparta_go/pages/facilities/facilities.dart';
+import 'package:sparta_go/services/EquipmentService.dart';
 
 class EquipmentPage extends StatefulWidget {
   const EquipmentPage({Key? key}) : super(key: key);
@@ -15,88 +16,8 @@ class _EquipmentPageState extends State<EquipmentPage> {
   String selectedFilter = 'All';
   String searchQuery = '';
 
-  final List<Map<String, dynamic>> equipment = [
-    {
-      'name': 'Basketball',
-      'description': 'Official Size Basketball',
-      'image': 'assets/images/basketball.jpg',
-      'available': 15,
-      'total': 20,
-      'type': 'Sports Equipment',
-    },
-    {
-      'name': 'Volleyball',
-      'description': 'Official Size Volleyball',
-      'image': 'assets/images/volleyball.jpg',
-      'available': 15,
-      'total': 20,
-      'type': 'Sports Equipment',
-    },
-    {
-      'name': 'Badminton Racket',
-      'description': 'Durable racket for power and precision',
-      'image': 'assets/images/badminton.jpg',
-      'available': 15,
-      'total': 20,
-      'type': 'Sports Equipment',
-    },
-    {
-      'name': 'Shuttlecock',
-      'description': 'High-quality for matches',
-      'image': 'assets/images/shuttlcock.jpg',
-      'available': 15,
-      'total': 20,
-      'type': 'Sports Equipment',
-    },
-    {
-      'name': 'Yoga Mat',
-      'description': 'Premium non-slip yoga mat',
-      'image': 'assets/images/yoga mat.jpg',
-      'available': 15,
-      'total': 20,
-      'type': 'Strength Training',
-    },
-    {
-      'name': 'Resistance Band',
-      'description': 'Stretchable for all levels',
-      'image': 'assets/images/resistance band.jpg',
-      'available': 15,
-      'total': 20,
-      'type': 'Strength Training',
-    },
-    {
-      'name': 'Dumbbell',
-      'description': 'Durable for strength workouts',
-      'image': 'assets/images/dumbbell.jpg',
-      'available': 15,
-      'total': 20,
-      'type': 'Strength Training',
-    },
-    {
-      'name': 'Jump Rope',
-      'description': 'Portable for cardio workouts',
-      'image': 'assets/images/jump rope.jpg',
-      'available': 15,
-      'total': 20,
-      'type': 'Strength Training',
-    },
-    {
-      'name': 'Table Tennis Paddle',
-      'description': 'Comfortable grip for control',
-      'image': 'assets/images/table tennis paddle.jpg',
-      'available': 15,
-      'total': 20,
-      'type': 'Sports Equipment',
-    },
-    {
-      'name': 'Table Tennis Ball',
-      'description': 'Smooth spin and bounce',
-      'image': 'assets/images/table tennis ball.jpg',
-      'available': 15,
-      'total': 20,
-      'type': 'Sports Equipment',
-    },
-  ];
+  List<Map<String, dynamic>> equipment = [];
+
 
   List<Map<String, dynamic>> get filteredEquipment {
     List<Map<String, dynamic>> filtered = equipment;
@@ -117,6 +38,21 @@ class _EquipmentPageState extends State<EquipmentPage> {
     return filtered;
   }
 
+  // Helper: Async function to get equipment
+  Future<void> _loadEquipment() async {
+    final data = await EquipmentService().getAllEquipment();
+    setState(() {
+      equipment = data;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEquipment();
+  }
+
+  // Helper: Callback upon navigation tap
   void _onNavTapped(int index) {
     if (index == 0) {
       Navigator.pushReplacement(
@@ -130,6 +66,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
     }
     // TODO: Add navigation for other tabs (History, Notification, Profile)
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +178,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
               ),
               itemCount: filteredEquipment.length,
               itemBuilder: (context, index) {
-                return EquipmentCard(equipment: filteredEquipment[index]);
+                return EquipmentCard(equipment: filteredEquipment[index], onRefresh: () async {await _loadEquipment();},);
               },
             ),
           ),

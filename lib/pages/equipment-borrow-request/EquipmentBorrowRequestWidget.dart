@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:sparta_go/repositories/EquipmentReservationRepository.dart';
+import 'package:sparta_go/services/AutoIncrementService.dart';
 import '../../common/calendar/calendar.dart';
+import '../../services/EquipmentReservationService.dart';
 
 class EquipmentBorrowRequestWidget extends StatefulWidget {
-  const EquipmentBorrowRequestWidget({super.key});
+
+  Map<String, dynamic> equipment;
+
+  EquipmentBorrowRequestWidget({super.key, required this.equipment});
 
   @override
   State<EquipmentBorrowRequestWidget> createState() => _EquipmentBorrowRequestWidgetState();
@@ -54,7 +60,9 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                 _roundButton(
                   icon: Icons.add,
                   onPressed: () {
-                    setState(() => count++);
+                    if (count < widget.equipment['available']) {
+                      setState(() { count++; });
+                    }
                   },
                 ),
               ],
@@ -91,13 +99,60 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {
+                onPressed: () async {
 
-                  // TODO: Handle submission logic
-                  debugPrint('Count: $count');
-                  debugPrint('Start Date: $startDate');
-                  debugPrint('End Date: $endDate');
+                  // Validation: Dates must be not null
+                  if (startDate == null || endDate == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please select both start and end dates.')),
+                    );
+                    return;
+                  }
 
+                  // Validation: end date must not be before start date
+                  if (endDate!.isBefore(startDate!)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('End date must be after start date.')),
+                    );
+                    return;
+                  }
+
+                  // Validation: start date is at least today
+                  if (startDate!.isBefore(
+                      DateTime(
+                        DateTime.now().year,
+                        DateTime.now().month,
+                        DateTime.now().day
+                    )
+                  )) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Start date must be at least today')),
+                    );
+                    return;
+                  }
+
+                  // Validation: there must be a valid count
+                  if (count == 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Enter a valid amount to borrow.')),
+                    );
+                    return;
+                  }
+
+                  await EquipmentReservationService().reserve_equipment(
+                      widget.equipment['id'],
+                      count,
+                      81,  // TODO: Pass in an actual user as argument upon login
+                      startDate!,
+                      endDate!
+                  );
+
+                  // TODO: Route page to successful page or print a success widget or return to main
+                  // Navigator.push()
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Reservation successful')),
+                  );
+                  Navigator.pop(context, true);
 
                 },
                 child: const Text(

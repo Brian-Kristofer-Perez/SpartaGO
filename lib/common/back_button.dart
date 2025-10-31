@@ -8,7 +8,7 @@ class CustomBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton.icon(
-      onPressed: () { Navigator.pop(context); },
+      onPressed: () { Navigator.pop(context, true); },
       icon: const Icon(Icons.arrow_back),
       label: const Text('Back'),
     );

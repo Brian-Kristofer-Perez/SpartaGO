@@ -59,7 +59,7 @@ class EquipmentBorrowRequestPage extends StatelessWidget {
                     SizedBox(height: 30,),
 
                     Center(
-                      child: EquipmentBorrowRequestWidget(),
+                      child: EquipmentBorrowRequestWidget(equipment: equipment,),
                     )
 
                   ],
