@@ -1,0 +1,70 @@
+{
+  "students": [
+    {
+      "name": "Jane Doe",
+      "id": "23-04485",
+      "userId": "00001",
+      "email": "23-04485@g.batstate-u.edu.ph",
+      "role": "Student",
+      "hasImage": true
+    },
+    {
+      "name": "Andrei Panganiban",
+      "id": "23-04488",
+      "userId": "00002",
+      "email": "23-04488@g.batstate-u.edu.ph",
+      "role": "Student",
+      "hasImage": false
+    },
+    {
+      "name": "Genrique Balmes",
+      "id": "23-04488",
+      "userId": "00003",
+      "email": "23-04488@g.batstate-u.edu.ph",
+      "role":"Student",
+      "hasImage": false
+    },
+    {
+      "name": "Brian Perez",
+      "id": "23-04488",
+      "userId": "00004",
+      "email": "23-04488@g.batstate-u.edu.ph",
+      "role":"Student",
+      "hasImage": true
+    },
+    {
+      "name": "Anthonina Vael",
+      "id": "23-04488",
+      "userId": "00005",
+      "email": "23-04488@g.batstate-u.edu.ph",
+      "role":"Student",
+      "hasImage": true
+    },
+    {
+      "name": "Angel Lyka De Castro",
+      "id": "23-04488",
+      "userId": "00006",
+      "email": "23-04488@g.batstate-u.edu.ph",
+      "role":"Student",
+      "hasImage": false
+    }
+  ],
+  "employees": [
+    {
+      "name": "John Smith",
+      "id": "EMP-001",
+      "userId": "00001",
+      "email": "23-04488@g.batstate-u.edu.ph",
+      "role":"Employee",
+      "hasImage": false
+    },
+    {
+      "name": "Maria Santos",
+      "id": "EMP-002",
+      "userId": "00002",
+      "email": "23-04488@g.batstate-u.edu.ph",
+      "role":"Employee",
+      "hasImage": false
+    }
+  ]
+}

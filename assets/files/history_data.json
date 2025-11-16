@@ -1,0 +1,30 @@
+{
+  "reservations": [
+    {
+      "name": "Basketball Court",
+      "date": "12/21/2025",
+      "bookedDate": "9/18/2025",
+      "time": "09:00-10:00 AM"
+    },
+    {
+      "name": "Volleyball Court",
+      "date": "12/21/2025",
+      "bookedDate": "9/18/2025",
+      "time": "03:00-04:00 PM"
+    }
+  ],
+  "borrowedEquipment": [
+    {
+      "name": "Basketball",
+      "quantity": 2,
+      "requestedDate": "9/18/2025",
+      "dateRange": "9/21/2025 - 9/27/2025"
+    },
+    {
+      "name": "Volleyball",
+      "quantity": 2,
+      "requestedDate": "9/18/2025",
+      "dateRange": "9/27/2025 - 9/27/2025"
+    }
+  ]
+}

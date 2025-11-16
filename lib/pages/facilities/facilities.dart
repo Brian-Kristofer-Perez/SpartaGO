@@ -3,6 +3,7 @@ import 'package:sparta_go/pages/facilities/facility_card.dart';
 import 'package:sparta_go/common/search_bar_widget.dart';
 import 'package:sparta_go/common/filter_chips_widget.dart';
 import 'package:sparta_go/pages/equipment/equipment.dart';
+import 'package:sparta_go/pages/history/history.dart';
 import 'package:sparta_go/pages/profile/profile.dart';
 import 'package:sparta_go/repositories/FacilityRepository.dart';
 import 'package:sparta_go/services/FacilityService.dart';
@@ -62,6 +63,16 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) => EquipmentPage(user: widget.user,),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ),
+      );
+    }
+    if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => HistoryPage(user: widget.user,),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
@@ -148,7 +159,6 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
               ],
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SearchBarWidget(

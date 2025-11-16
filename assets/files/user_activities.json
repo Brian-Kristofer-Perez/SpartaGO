@@ -1,0 +1,44 @@
+{
+  "23-04485": {
+    "reservations": [
+      {
+        "name": "Basketball Court",
+        "date": "12/21/2025",
+        "bookedDate": "9/18/2025",
+        "time": "09:00-11:00 AM"
+      },
+      {
+        "name": "Volleyball Court",
+        "date": "12/21/2025",
+        "bookedDate": "9/18/2025",
+        "time": "03:00-04:00 PM"
+      }
+    ],
+    "borrowedEquipment": [
+      {
+        "name": "Basketball",
+        "quantity": 2,
+        "requestedDate": "9/18/2025",
+        "dateRange": "9/21/2025 - 9/27/2025"
+      }
+    ]
+  },
+  "23-04488": {
+    "reservations": [
+      {
+        "name": "Tennis Court",
+        "date": "12/22/2025",
+        "bookedDate": "9/19/2025",
+        "time": "10:00-12:00 PM"
+      }
+    ],
+    "borrowedEquipment": [
+      {
+        "name": "Volleyball",
+        "quantity": 3,
+        "requestedDate": "9/19/2025",
+        "dateRange": "9/22/2025 - 9/28/2025"
+      }
+    ]
+  }
+}
