@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sparta_go/pages/admin-equipment/equipment_manager.dart';
+import 'package:sparta_go/pages/admin-facillities/facilities_manager.dart';
 import 'package:sparta_go/pages/admin-reservation/reservation_manager.dart';
 import 'dart:convert';
 import 'package:sparta_go/pages/admin-user_manager/user_detail.dart';
+import 'package:sparta_go/pages/equipment-borrow-request/EquipmentBorrowRequestPage.dart';
 
 class UserManagerPage extends StatefulWidget {
   const UserManagerPage({Key? key}) : super(key: key);
@@ -13,11 +16,9 @@ class UserManagerPage extends StatefulWidget {
 
 class _UserManagerPageState extends State<UserManagerPage> {
   int _currentIndex = 0;
-  int _selectedUserType = 0;
   final TextEditingController _searchController = TextEditingController();
 
-  List<Map<String, dynamic>> _students = [];
-  List<Map<String, dynamic>> _employees = [];
+  List<Map<String, dynamic>> _allUsers = [];
   bool _isLoading = true;
 
   @override
@@ -32,9 +33,11 @@ class _UserManagerPageState extends State<UserManagerPage> {
       final usersString = await rootBundle.loadString('assets/files/user_manager.json');
       final usersJson = json.decode(usersString);
 
+      // Parse the JSON array directly
+      List<Map<String, dynamic>> users = List<Map<String, dynamic>>.from(usersJson);
+
       setState(() {
-        _students = List<Map<String, dynamic>>.from(usersJson['students']);
-        _employees = List<Map<String, dynamic>>.from(usersJson['employees']);
+        _allUsers = users;
         _isLoading = false;
       });
     } catch (e) {
@@ -51,17 +54,13 @@ class _UserManagerPageState extends State<UserManagerPage> {
     super.dispose();
   }
 
-  List<Map<String, dynamic>> get _currentUsers {
-    return _selectedUserType == 0 ? _students : _employees;
-  }
-
   List<Map<String, dynamic>> get _filteredUsers {
     if (_searchController.text.isEmpty) {
-      return _currentUsers;
+      return _allUsers;
     }
     
     final query = _searchController.text.toLowerCase();
-    return _currentUsers.where((user) {
+    return _allUsers.where((user) {
       final name = user['name'].toString().toLowerCase();
       final id = user['id'].toString().toLowerCase();
       final email = user['email'].toString().toLowerCase();
@@ -117,21 +116,6 @@ class _UserManagerPageState extends State<UserManagerPage> {
                       color: Colors.grey.shade600,
                     ),
                   ),
-                  const SizedBox(height: 20),
-
-                  // User Type Selector
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildUserTypeButton('Students', 0),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildUserTypeButton('Employees', 1),
-                      ),
-                    ],
-                  ),
-
                   const SizedBox(height: 20),
 
                   // Search Bar
@@ -212,8 +196,26 @@ class _UserManagerPageState extends State<UserManagerPage> {
             );
           } else if (index == 2) {
             // Navigate to Facilities
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    const FacilityManagerPage(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+            );
           } else if (index == 3) {
             // Navigate to Equipment
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    const EquipmentManagerPage(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+            );
           } else if (index == 4) {
             _showLogoutDialog();
           }
@@ -249,39 +251,21 @@ class _UserManagerPageState extends State<UserManagerPage> {
     );
   }
 
-  Widget _buildUserTypeButton(String label, int type) {
-    final isSelected = _selectedUserType == type;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedUserType = type;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF8B1E1E) : Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected ? const Color(0xFF8B1E1E) : Colors.grey.shade300,
-            width: 1.5,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: isSelected ? Colors.white : Colors.black87,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildUserCard(Map<String, dynamic> user) {
+    // Check if user has image field, default to false if not present
+    final hasImage = user['hasImage'] ?? false;
+    
+    // Create a complete user object with all necessary fields
+    final completeUser = {
+      'id': user['id'] ?? 'N/A',
+      'name': user['name'] ?? 'Unknown User',
+      'email': user['email'] ?? 'N/A',
+      'password': user['password'] ?? '',
+      'hasImage': hasImage,
+      'userId': user['userId'] ?? user['id'] ?? '00001', // Use id as userId if not present
+      'role': user['role'] ?? 'Student', // Default to Student if not specified
+    };
+    
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -306,10 +290,10 @@ class _UserManagerPageState extends State<UserManagerPage> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: user['hasImage'] ? Colors.orange.shade100 : Colors.grey.shade200,
+                color: hasImage ? Colors.orange.shade100 : Colors.grey.shade200,
                 shape: BoxShape.circle,
               ),
-              child: user['hasImage']
+              child: hasImage
                   ? Center(
                       child: Icon(
                         Icons.person,

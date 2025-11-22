@@ -3,7 +3,7 @@ import 'package:sparta_go/common/app-button.dart';
 import 'package:sparta_go/common/hollow-app-button.dart';
 import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/pages/equipment/equipment.dart';
-import 'package:sparta_go/pages/history/history.dart';
+import 'package:sparta_go/pages/reservation/reservation.dart';
 import 'package:sparta_go/pages/profile/about.dart';
 import 'package:sparta_go/pages/profile/edit_profile.dart';
 import 'package:sparta_go/pages/profile/faqs.dart';
@@ -20,7 +20,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  int _currentIndex = 4;
+  int _currentIndex = 3;
 
   void _onNavTapped(int index) {
     if (index == 0) {
@@ -47,7 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => HistoryPage(user: widget.user,),
+          pageBuilder: (context, animation, secondaryAnimation) => ReservationPage(user: widget.user,),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
@@ -261,12 +261,8 @@ class _ProfilePageState extends State<ProfilePage> {
             label: 'Equipment',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'History',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications_outlined),
-            label: 'Notification',
+            icon: Icon(Icons.check_circle_outline),
+            label: 'Reservation',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),

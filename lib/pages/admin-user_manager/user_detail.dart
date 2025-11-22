@@ -32,6 +32,10 @@ class UserDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+               // Back Button
+              const CustomBackButton(),
+              const SizedBox(height: 10),
+
               // Title
               const Text(
                 'User Manager',
@@ -118,7 +122,7 @@ class UserDetailPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                user['userId'] ?? '00001',
+                                user['id'] ?? '00001',
                                 style: const TextStyle(
                                   fontSize: 15,
                                   color: Colors.white,
@@ -286,51 +290,12 @@ class UserDetailPage extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 20),
-
-              // Back Button
-              const CustomBackButton(),
-
               const SizedBox(height: 10),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        onTap: (index) {
-          if (index == 4) {
-            _showLogoutDialog(context);
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF8B1E1E),
-        unselectedItemColor: Colors.grey,
-        selectedFontSize: 11,
-        unselectedFontSize: 11,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Users',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Reservations',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Facilities',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
-            label: 'Equipment',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.logout),
-            label: 'Logout',
-          ),
-        ],
-      ),
+      
     );
   }
 

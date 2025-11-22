@@ -6,18 +6,18 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 
 
-class HistoryPage extends StatefulWidget {
+class ReservationPage extends StatefulWidget {
 
   Map<String, dynamic> user;
 
-  HistoryPage({Key? key, required this.user}) : super(key: key);
+  ReservationPage({Key? key, required this.user}) : super(key: key);
 
   @override
-  State<HistoryPage> createState() => _HistoryPageState();
+  State<ReservationPage> createState() => _ReservationPageState();
 }
 
 
-class _HistoryPageState extends State<HistoryPage> {
+class _ReservationPageState extends State<ReservationPage> {
   int _currentIndex = 2;
   int _selectedTab = 0;
 
@@ -38,7 +38,7 @@ class _HistoryPageState extends State<HistoryPage> {
   Future<void> _loadData() async {
     try {
       // Load combined history data
-      final historyString = await rootBundle.loadString('assets/files/history_data.json');
+      final historyString = await rootBundle.loadString('assets/files/reservation_data.json');
       final historyJson = json.decode(historyString);
 
 
@@ -71,7 +71,6 @@ class _HistoryPageState extends State<HistoryPage> {
       );
     }
 
-
     if (index == 1) {
       Navigator.pushReplacement(
         context,
@@ -83,7 +82,7 @@ class _HistoryPageState extends State<HistoryPage> {
       );
     }
    
-    if (index == 4) {
+    if (index == 3) {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
@@ -127,7 +126,7 @@ class _HistoryPageState extends State<HistoryPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'History',
+                      'Reservation',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -136,7 +135,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'View your facility reservations and equipment\nborrowing history',
+                      'View your facility reservations and borrowed equipment',
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade600,
@@ -193,12 +192,8 @@ class _HistoryPageState extends State<HistoryPage> {
             label: 'Equipment',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'History',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications_outlined),
-            label: 'Notification',
+            icon: Icon(Icons.check_circle_outline),
+            label: 'Reservation',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
@@ -249,11 +244,10 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
 
-  Widget _buildReservationsList() {
+Widget _buildReservationsList() {
     if (_reservations.isEmpty) {
-      return _buildEmptyState('No reservation history');
+      return _buildEmptyState('No current reservation facility');
     }
-
 
     return Column(
       children: _reservations.map((reservation) {
@@ -265,15 +259,13 @@ class _HistoryPageState extends State<HistoryPage> {
             border: Border.all(color: Colors.grey.shade300),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
                       reservation['name'],
                       style: const TextStyle(
                         fontSize: 15,
@@ -281,7 +273,53 @@ class _HistoryPageState extends State<HistoryPage> {
                         color: Colors.black,
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today,
+                          size: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          reservation['date'],
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Booked on ${reservation['bookedDate']}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  // Delete Icon Button
+                  IconButton(
+                    onPressed: () {
+                      _showDeleteReservationDialog(context, reservation);
+                    },
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: Color(0xFF8B1E1E),
+                      size: 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
+                  const SizedBox(height: 2),
+                  // Time
                   Text(
                     reservation['time'],
                     style: TextStyle(
@@ -291,32 +329,6 @@ class _HistoryPageState extends State<HistoryPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    reservation['date'],
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Booked on ${reservation['bookedDate']}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade500,
-                ),
-              ),
             ],
           ),
         );
@@ -324,12 +336,10 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-
   Widget _buildBorrowedEquipmentList() {
     if (_borrowedEquipment.isEmpty) {
-      return _buildEmptyState('No borrowed equipment history');
+      return _buildEmptyState('No current borrowed equipment');
     }
-
 
     return Column(
       children: _borrowedEquipment.map((equipment) {
@@ -341,15 +351,13 @@ class _HistoryPageState extends State<HistoryPage> {
             border: Border.all(color: Colors.grey.shade300),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
                       equipment['name'],
                       style: const TextStyle(
                         fontSize: 15,
@@ -357,7 +365,53 @@ class _HistoryPageState extends State<HistoryPage> {
                         color: Colors.black,
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.inventory_2_outlined,
+                          size: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Quantity: ${equipment['quantity']}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Requested on ${equipment['requestedDate']}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  // Return Icon Button
+                  IconButton(
+                    onPressed: () {
+                      _showReturnEquipmentDialog(context, equipment);
+                    },
+                    icon: const Icon(
+                      Icons.assignment_return_outlined,
+                      color: Colors.green,
+                      size: 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
+                  const SizedBox(height: 2),
+                  // Date Range
                   Row(
                     children: [
                       Icon(
@@ -377,32 +431,6 @@ class _HistoryPageState extends State<HistoryPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(
-                    Icons.inventory_2_outlined,
-                    size: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Quantity: ${equipment['quantity']}',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Requested on ${equipment['requestedDate']}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade500,
-                ),
-              ),
             ],
           ),
         );
@@ -410,6 +438,148 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
+
+  void _showDeleteReservationDialog(BuildContext context, Map<String, dynamic> reservation) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        contentPadding: const EdgeInsets.all(24),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Are you sure you want to delete this reservation?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _reservations.remove(reservation);
+                  });
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Reservation deleted successfully'),
+                      backgroundColor: Color(0xFF8B1E1E),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF8B1E1E),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Yes',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showReturnEquipmentDialog(BuildContext context, Map<String, dynamic> equipment) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        contentPadding: const EdgeInsets.all(24),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Are you sure you want to return this equipment?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _borrowedEquipment.remove(equipment);
+                  });
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Equipment returned successfully'),
+                      backgroundColor: Color(0xFF8B1E1E),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF8B1E1E),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Yes',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildEmptyState(String message) {
     return Center(
@@ -436,4 +606,3 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 }
-

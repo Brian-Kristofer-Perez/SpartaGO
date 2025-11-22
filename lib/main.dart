@@ -24,11 +24,10 @@ void main() async {
     'facilities.json',
     'equipment_reservations.json',
     'facility_reservations.json',
-    'history_data.json',
+    'reservation_data.json',
     'autoincrement_data.json',
     'users.json',
-    'user_manager.json',
-    'user_activities.json'
+    'user_manager.json'
   ]);
 
   runApp(const MyApp());

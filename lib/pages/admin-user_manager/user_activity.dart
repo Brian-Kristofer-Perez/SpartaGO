@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sparta_go/common/back_button.dart';
+import 'package:intl/intl.dart';
 import 'dart:convert';
 
 class UserActivityPage extends StatefulWidget {
@@ -28,32 +29,60 @@ class _UserActivityPageState extends State<UserActivityPage> {
 
   Future<void> _loadUserActivity() async {
     try {
-      final activitiesString = await rootBundle.loadString('assets/files/user_activities.json');
-      final activitiesJson = json.decode(activitiesString);
+      // Load facility reservations
+      final facilityString = await rootBundle.loadString('assets/files/facility_reservations.json');
+      final facilityJson = json.decode(facilityString) as List;
+
+      // Load equipment reservations
+      final equipmentString = await rootBundle.loadString('assets/files/equipment_reservations.json');
+      final equipmentJson = json.decode(equipmentString) as List;
 
       // Get user ID from the user object
-      final userId = widget.user['id'] ?? '';
+      final userId = widget.user['id']?.toString() ?? '';
       
-      if (activitiesJson.containsKey(userId)) {
-        setState(() {
-          _reservations = List<Map<String, dynamic>>.from(
-            activitiesJson[userId]['reservations'] ?? []
-          );
-          _borrowedEquipment = List<Map<String, dynamic>>.from(
-            activitiesJson[userId]['borrowedEquipment'] ?? []
-          );
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      // Filter reservations for this specific user
+      final userFacilityReservations = List<Map<String, dynamic>>.from(
+        facilityJson.where((reservation) => 
+          reservation['userId']?.toString() == userId
+        )
+      );
+
+      // Filter equipment reservations for this specific user
+      final userEquipmentReservations = List<Map<String, dynamic>>.from(
+        equipmentJson.where((equipment) => 
+          equipment['userId']?.toString() == userId
+        )
+      );
+
+      setState(() {
+        _reservations = userFacilityReservations;
+        _borrowedEquipment = userEquipmentReservations;
+        _isLoading = false;
+      });
     } catch (e) {
       print('Error loading user activity: $e');
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  String _formatDate(String date) {
+    try {
+      DateTime parsedDate = DateTime.parse(date);
+      return DateFormat('MM/dd/yyyy').format(parsedDate);
+    } catch (e) {
+      return date;
+    }
+  }
+
+  String _getDateRange(String startDate, String endDate) {
+    try {
+      DateTime start = DateTime.parse(startDate);
+      DateTime end = DateTime.parse(endDate);
+      return '${DateFormat('MM/dd').format(start)} - ${DateFormat('MM/dd/yyyy').format(end)}';
+    } catch (e) {
+      return '$startDate - $endDate';
     }
   }
 
@@ -87,6 +116,12 @@ class _UserActivityPageState extends State<UserActivityPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+
+                          // Back Button at the top
+                          const CustomBackButton(),
+                          
+                          const SizedBox(height: 10),
+
                           // Title
                           const Text(
                             'User Activity',
@@ -221,52 +256,9 @@ class _UserActivityPageState extends State<UserActivityPage> {
                     ),
                   ),
                 ),
-
-                // Back Button at the bottom
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                  child: const Align(
-                    alignment: Alignment.centerLeft,
-                    child: CustomBackButton(),
-                  ),
-                ),
               ],
             ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          if (index == 4) {
-            _showLogoutDialog();
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF8B1E1E),
-        unselectedItemColor: Colors.grey,
-        selectedFontSize: 11,
-        unselectedFontSize: 11,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Users',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Reservations',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Facilities',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
-            label: 'Equipment',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.logout),
-            label: 'Logout',
-          ),
-        ],
-      ),
+
     );
   }
 
@@ -310,11 +302,13 @@ class _UserActivityPageState extends State<UserActivityPage> {
 
   Widget _buildReservationsList() {
     if (_reservations.isEmpty) {
-      return _buildEmptyState('No reservation history');
+      return _buildEmptyState('No pending reservations');
     }
 
     return Column(
       children: _reservations.map((reservation) {
+        final formattedDate = _formatDate(reservation['date'] ?? '');
+        
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
@@ -332,7 +326,7 @@ class _UserActivityPageState extends State<UserActivityPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      reservation['name'],
+                      reservation['facility'] ?? 'Unknown Facility',
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -341,7 +335,7 @@ class _UserActivityPageState extends State<UserActivityPage> {
                     ),
                   ),
                   Text(
-                    reservation['time'],
+                    reservation['timeSlot'] ?? 'N/A',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey.shade700,
@@ -359,7 +353,7 @@ class _UserActivityPageState extends State<UserActivityPage> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    reservation['date'],
+                    formattedDate,
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey.shade600,
@@ -368,12 +362,22 @@ class _UserActivityPageState extends State<UserActivityPage> {
                 ],
               ),
               const SizedBox(height: 4),
-              Text(
-                'Booked on ${reservation['bookedDate']}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade500,
-                ),
+              Row(
+                children: [
+                  Icon(
+                    Icons.location_on,
+                    size: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Facility ID: ${reservation['facilityId'] ?? 'N/A'}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -384,11 +388,16 @@ class _UserActivityPageState extends State<UserActivityPage> {
 
   Widget _buildBorrowedEquipmentList() {
     if (_borrowedEquipment.isEmpty) {
-      return _buildEmptyState('No borrowed equipment history');
+      return _buildEmptyState('No pending borrowed equipment');
     }
 
     return Column(
       children: _borrowedEquipment.map((equipment) {
+        final dateRange = _getDateRange(
+          equipment['startDate'] ?? '', 
+          equipment['endDate'] ?? ''
+        );
+        
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
@@ -406,7 +415,7 @@ class _UserActivityPageState extends State<UserActivityPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      equipment['name'],
+                      equipment['name'] ?? 'Unknown Equipment',
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -423,7 +432,7 @@ class _UserActivityPageState extends State<UserActivityPage> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        equipment['dateRange'],
+                        dateRange,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade700,
@@ -432,6 +441,16 @@ class _UserActivityPageState extends State<UserActivityPage> {
                     ],
                   ),
                 ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                equipment['description'] ?? '',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
               Row(
@@ -443,7 +462,7 @@ class _UserActivityPageState extends State<UserActivityPage> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Quantity: ${equipment['quantity']}',
+                    'Quantity: ${equipment['count'] ?? 'N/A'}',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey.shade600,
@@ -452,12 +471,22 @@ class _UserActivityPageState extends State<UserActivityPage> {
                 ],
               ),
               const SizedBox(height: 4),
-              Text(
-                'Requested on ${equipment['requestedDate']}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade500,
-                ),
+              Row(
+                children: [
+                  Icon(
+                    Icons.tag,
+                    size: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Equipment ID: ${equipment['equipmentId'] ?? 'N/A'}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
