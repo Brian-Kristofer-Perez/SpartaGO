@@ -1,2 +1,18 @@
 [
+  {
+    "id": "1", 
+    "userId": "1", 
+    "facilityId": "1",
+    "date": "2025-10-01", 
+    "timeSlot": "05:00-06:00 PM",
+    "facility": "Basketball Court"
+  },
+  {
+    "id": "2", 
+    "userId": "2", 
+    "facilityId": "2",
+    "date": "2025-12-01", 
+    "timeSlot": "05:00-06:00 PM",
+    "facility": "Volleyball Court"
+  }
 ]

@@ -5,7 +5,9 @@ import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/pages/equipment-borrow-request/EquipmentBorrowRequestPage.dart';
 import 'package:sparta_go/pages/facility-borrow-request/FacilityBorrowRequestPage.dart';
 import 'package:sparta_go/pages/login/login-page.dart';
-import 'package:sparta_go/pages/view-events/ViewEventsPage.dart';
+import 'package:sparta_go/pages/login/sign-as-admin.dart';
+import 'package:sparta_go/pages/profile/profile.dart';
+
 
 import 'common/back_button.dart';
 
@@ -22,8 +24,10 @@ void main() async {
     'facilities.json',
     'equipment_reservations.json',
     'facility_reservations.json',
+    'reservation_data.json',
     'autoincrement_data.json',
-    'users.json'
+    'users.json',
+    'user_manager.json'
   ]);
 
   runApp(const MyApp());

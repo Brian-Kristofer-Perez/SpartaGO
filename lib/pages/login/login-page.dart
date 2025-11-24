@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
 
   String? validateEmailOrStudentNumber(String value) {
     if (value.isEmpty) {
-      return 'Please enter your email or student/employee number';
+      return 'Please enter your email';
     }
     
     if (value.contains('@')) {
@@ -50,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } else {
       if (!isValidStudentNumber(value)) {
-        return 'Please enter a valid student/employee number';
+        return 'Please enter a valid email address';
       }
     }
     
@@ -138,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomFormInput(
-                  label: "Email or Student/Employee Number",
+                  label: "Email",
                   controller: emailController,
                 ),
                 if (emailError != null)

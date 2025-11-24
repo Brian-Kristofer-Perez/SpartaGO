@@ -1,0 +1,14 @@
+[
+  {
+    "id": "1",
+    "name": "Jane Doe",
+    "email": "23-04485@g.batstate-u.edu.ph",
+    "password": "jane doe"
+  },
+  {
+    "id": "2",
+    "name": "Andrei Panganiban",
+    "email": "23-04485@g.batstate-u.edu.ph",
+    "password": "andrei123"
+  } 
+]

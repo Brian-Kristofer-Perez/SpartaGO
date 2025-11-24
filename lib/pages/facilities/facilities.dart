@@ -3,6 +3,8 @@ import 'package:sparta_go/pages/facilities/facility_card.dart';
 import 'package:sparta_go/common/search_bar_widget.dart';
 import 'package:sparta_go/common/filter_chips_widget.dart';
 import 'package:sparta_go/pages/equipment/equipment.dart';
+import 'package:sparta_go/pages/incoming-event/incoming_event.dart';
+import 'package:sparta_go/pages/reservation/reservation.dart';
 import 'package:sparta_go/pages/profile/profile.dart';
 import 'package:sparta_go/repositories/FacilityRepository.dart';
 import 'package:sparta_go/services/FacilityService.dart';
@@ -67,7 +69,17 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
         ),
       );
     }
-    if (index == 4) {
+    if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => ReservationPage(user: widget.user,),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ),
+      );
+    }
+    if (index == 3) {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
@@ -103,7 +115,14 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => IncomingEventsPage(user: widget.user),
+                  ),
+                );
+              },
               icon: const Text('View Events', 
                 style: TextStyle(fontSize: 13)
               ),
@@ -148,7 +167,6 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
               ],
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SearchBarWidget(
@@ -215,12 +233,8 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
             label: 'Equipment',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'History',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications_outlined),
-            label: 'Notification',
+            icon: Icon(Icons.check_circle_outline),
+            label: 'Reservation',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),

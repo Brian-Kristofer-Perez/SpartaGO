@@ -3,6 +3,11 @@ import 'package:sparta_go/common/app-button.dart';
 import 'package:sparta_go/common/hollow-app-button.dart';
 import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/pages/equipment/equipment.dart';
+import 'package:sparta_go/pages/reservation/reservation.dart';
+import 'package:sparta_go/pages/profile/about.dart';
+import 'package:sparta_go/pages/profile/edit_profile.dart';
+import 'package:sparta_go/pages/profile/faqs.dart';
+import 'package:sparta_go/pages/profile/support.dart';
 
 class ProfilePage extends StatefulWidget {
 
@@ -15,7 +20,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  int _currentIndex = 4;
+  int _currentIndex = 3;
 
   void _onNavTapped(int index) {
     if (index == 0) {
@@ -33,6 +38,16 @@ class _ProfilePageState extends State<ProfilePage> {
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) => EquipmentPage(user: widget.user),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ),
+      );
+    }
+    if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => ReservationPage(user: widget.user,),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
@@ -105,9 +120,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Your Name',
-                            style: TextStyle(
+                          Text(
+                            widget.user['name'] ?? 'Your Name',
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               color: Colors.black,
@@ -123,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'yourname@g.batstate-u.edu.ph',
+                            widget.user['email'] ?? 'yourname@g.batstate-u.edu.ph',
                             style: TextStyle(
                               fontSize: 13,
                               color: Colors.grey.shade600,
@@ -139,44 +154,64 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 20),
               
               HollowAppButton(
-                text: 'Edit Profile',
-                onPressed: () {
-                  // Add navigation logic here
-                },
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-                borderRadius: 8,
-                alignment: MainAxisAlignment.start,
-              ),
+              text: 'Edit Profile',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileEditPage(user: widget.user),
+                  ),
+                );
+              },
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+              borderRadius: 8,
+              alignment: MainAxisAlignment.start,
+            ),
               const SizedBox(height: 12),
               HollowAppButton(
-                text: 'About',
-                onPressed: () {
-                  // Add navigation logic here
-                },
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-                borderRadius: 8,
-                alignment: MainAxisAlignment.start,
-              ),
+              text: 'About',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AboutPage(),
+                  ),
+                );
+              },
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+              borderRadius: 8,
+              alignment: MainAxisAlignment.start,
+            ),
               const SizedBox(height: 12),
               HollowAppButton(
-                text: 'Support',
-                onPressed: () {
-                  // Add navigation logic here
-                },
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-                borderRadius: 8,
-                alignment: MainAxisAlignment.start,
-              ),
-              const SizedBox(height: 12),
-              HollowAppButton(
-                text: 'FAQs',
-                onPressed: () {
-                  // Add navigation logic here
-                },
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-                borderRadius: 8,
-                alignment: MainAxisAlignment.start,
-              ),
+              text: 'Support',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SupportPage(),
+                  ),
+                );
+              },
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+              borderRadius: 8,
+              alignment: MainAxisAlignment.start,
+            ),
+            const SizedBox(height: 12),
+            HollowAppButton(
+              text: 'FAQs',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FAQsPage(),
+                  ),
+                );
+              },
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+              borderRadius: 8,
+              alignment: MainAxisAlignment.start,
+            ),
 
               
               const SizedBox(height: 20),
@@ -226,12 +261,8 @@ class _ProfilePageState extends State<ProfilePage> {
             label: 'Equipment',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'History',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications_outlined),
-            label: 'Notification',
+            icon: Icon(Icons.check_circle_outline),
+            label: 'Reservation',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
