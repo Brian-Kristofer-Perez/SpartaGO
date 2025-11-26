@@ -28,7 +28,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
   List<Map<String, dynamic>> equipment = [];
 
   // TODO: Replace with your actual API base URL
-  static const String baseUrl = 'http://10.0.2.2:8181';
+  static const String baseUrl = 'http://10.0.2.2:8080';
 
 
   List<Map<String, dynamic>> get filteredEquipment {
