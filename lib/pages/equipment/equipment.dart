@@ -5,8 +5,11 @@ import 'package:sparta_go/common/filter_chips_widget.dart';
 import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/pages/reservation/reservation.dart';
 import 'package:sparta_go/pages/profile/profile.dart';
-import 'package:sparta_go/services/EquipmentService.dart';
 import 'package:sparta_go/pages/incoming-event/incoming_event.dart';
+
+// Add these imports for HTTP request
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class EquipmentPage extends StatefulWidget {
 
@@ -23,6 +26,9 @@ class _EquipmentPageState extends State<EquipmentPage> {
   String searchQuery = '';
 
   List<Map<String, dynamic>> equipment = [];
+
+  // TODO: Replace with your actual API base URL
+  static const String baseUrl = 'http://10.0.2.2:8181';
 
 
   List<Map<String, dynamic>> get filteredEquipment {
@@ -44,12 +50,67 @@ class _EquipmentPageState extends State<EquipmentPage> {
     return filtered;
   }
 
-  // Helper: Async function to get equipment
+  // Updated: HTTP GET request to fetch equipment
   Future<void> _loadEquipment() async {
-    final data = await EquipmentService().getAllEquipment();
-    setState(() {
-      equipment = data;
-    });
+    try {
+      print('🔄 Fetching equipment from: $baseUrl/equipment/');
+      
+      // Make HTTP GET request
+      final response = await http.get(
+        Uri.parse('$baseUrl/equipment/'),
+        headers: {
+          'Content-Type': 'application/json',
+          // Add authorization if needed:
+          // 'Authorization': 'Bearer YOUR_TOKEN',
+        },
+      );
+
+      print('📡 Response status: ${response.statusCode}');
+
+      // Check if request was successful
+      if (response.statusCode == 200) {
+        // Decode JSON response
+        final List<dynamic> jsonData = json.decode(response.body);
+        
+        // Convert to List<Map<String, dynamic>>
+        final List<Map<String, dynamic>> data = 
+            jsonData.map((item) => item as Map<String, dynamic>).toList();
+        
+        print('✅ Successfully fetched ${data.length} equipment items');
+        
+        // Update state with fetched data
+        setState(() {
+          equipment = data;
+        });
+        
+      } else {
+        print('❌ Error: Status code ${response.statusCode}');
+        print('Response body: ${response.body}');
+        
+        // Show error to user
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to load equipment: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+      
+    } catch (e) {
+      print('❌ Error fetching equipment: $e');
+      
+      // Show error to user
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override

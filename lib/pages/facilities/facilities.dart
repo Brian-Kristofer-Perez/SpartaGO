@@ -6,8 +6,7 @@ import 'package:sparta_go/pages/equipment/equipment.dart';
 import 'package:sparta_go/pages/incoming-event/incoming_event.dart';
 import 'package:sparta_go/pages/reservation/reservation.dart';
 import 'package:sparta_go/pages/profile/profile.dart';
-import 'package:sparta_go/repositories/FacilityRepository.dart';
-import 'package:sparta_go/services/FacilityService.dart';
+
 
 class FacilitiesPage extends StatefulWidget {
 
@@ -26,12 +25,12 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
   List<Map<String, dynamic>> facilities = [];
 
   // Helper: Load data asynchronously
-  Future<void> _get_facilities() async {
+  /*Future<void> _get_facilities() async {
     final data = await FacilityService().get_all();
     setState(() {
       facilities = data;
     });
-  }
+  }*/
 
   @override
   void initState() {
