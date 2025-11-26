@@ -7,6 +7,10 @@ import 'package:sparta_go/pages/incoming-event/incoming_event.dart';
 import 'package:sparta_go/pages/reservation/reservation.dart';
 import 'package:sparta_go/pages/profile/profile.dart';
 
+// Add these imports for HTTP request
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 
 class FacilitiesPage extends StatefulWidget {
 
@@ -24,19 +28,78 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
 
   List<Map<String, dynamic>> facilities = [];
 
-  // Helper: Load data asynchronously
-  /*Future<void> _get_facilities() async {
-    final data = await FacilityService().get_all();
-    setState(() {
-      facilities = data;
-    });
-  }*/
+  // TODO: Replace with your actual API base URL
+  static const String baseUrl = 'http://10.0.2.2:8080';
+
+  // Helper: Load data asynchronously with HTTP request
+  Future<void> _get_facilities() async {
+    try {
+      print('🔄 Fetching facilities from: $baseUrl/facilities/');
+      
+      // Make HTTP GET request
+      final response = await http.get(
+        Uri.parse('$baseUrl/facilities/'),
+        headers: {
+          'Content-Type': 'application/json',
+          // Add authorization if needed:
+          // 'Authorization': 'Bearer YOUR_TOKEN',
+        },
+      );
+
+      print('📡 Response status: ${response.statusCode}');
+
+      // Check if request was successful
+      if (response.statusCode == 200) {
+        // Decode JSON response
+        final List<dynamic> jsonData = json.decode(response.body);
+        
+        // Convert to List<Map<String, dynamic>>
+        final List<Map<String, dynamic>> data = 
+            jsonData.map((item) => item as Map<String, dynamic>).toList();
+        
+        print('✅ Successfully fetched ${data.length} facilities');
+        
+        // Update state with fetched data
+        setState(() {
+          facilities = data;
+        });
+        
+      } else {
+        print('❌ Error: Status code ${response.statusCode}');
+        print('Response body: ${response.body}');
+        
+        // Show error to user
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to load facilities: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+      
+    } catch (e) {
+      print('❌ Error fetching facilities: $e');
+      
+      // Show error to user
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _get_facilities();
   }
+
 
   List<Map<String, dynamic>> get filteredFacilities {
     List<Map<String, dynamic>> filtered = facilities;
@@ -54,7 +117,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
       }).toList();
     }
 
-      return filtered;
+    return filtered;
   }
 
   void _onNavTapped(int index) {

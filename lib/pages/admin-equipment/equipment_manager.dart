@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:sparta_go/pages/admin-facillities/facilities_manager.dart';
 import 'package:sparta_go/pages/admin-reservation/reservation_manager.dart';
 import 'dart:convert';
 import 'package:sparta_go/pages/admin-user_manager/user_manager.dart';
+
+// Add HTTP imports
+import 'package:http/http.dart' as http;
 
 // Reusable Filter Chips Widget
 class FilterChipsWidget extends StatelessWidget {
@@ -75,26 +77,129 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
   bool _isLoading = true;
   String? _expandedEquipmentId; // Track which equipment is expanded
 
+  // TODO: Replace with your actual API base URL
+  static const String baseUrl = 'http://10.0.2.2:8080';
+
   @override
   void initState() {
     super.initState();
     _loadEquipmentData();
   }
 
+  // HTTP GET request to fetch all equipment
   Future<void> _loadEquipmentData() async {
     try {
-      final equipmentString = await rootBundle.loadString('assets/files/equipment.json');
-      final equipmentJson = json.decode(equipmentString) as List;
+      setState(() {
+        _isLoading = true;
+      });
 
-      setState(() {
-        _equipment = List<Map<String, dynamic>>.from(equipmentJson);
-        _isLoading = false;
-      });
+      print('🔄 Fetching equipment from: $baseUrl/equipment/');
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/equipment/'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('📡 Response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        final List<Map<String, dynamic>> equipmentList = 
+            jsonData.map((item) => item as Map<String, dynamic>).toList();
+
+        print('✅ Successfully fetched ${equipmentList.length} equipment items');
+
+        setState(() {
+          _equipment = equipmentList;
+          _isLoading = false;
+        });
+      } else {
+        print('❌ Error: Status code ${response.statusCode}');
+        
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to load equipment: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     } catch (e) {
-      print('Error loading equipment data: $e');
+      print('❌ Error loading equipment data: $e');
+      
       setState(() {
         _isLoading = false;
       });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  // HTTP DELETE request to delete equipment
+  Future<void> _deleteEquipment(int equipmentId) async {
+    try {
+      print('🔄 Deleting equipment ID: $equipmentId');
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/equipment/$equipmentId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('📡 Response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        print('✅ Equipment deleted successfully');
+
+        // Reload equipment list
+        await _loadEquipmentData();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Equipment deleted successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        print('❌ Error: Status code ${response.statusCode}');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete equipment: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('❌ Error deleting equipment: $e');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -158,17 +263,23 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
           ),
           TextButton(
             onPressed: () {
-              // TODO: Implement delete functionality
               Navigator.pop(context);
-              setState(() {
-                _expandedEquipmentId = null; // Collapse after delete
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${equipment['name']} deleted'),
-                  backgroundColor: Colors.green,
-                ),
-              );
+              
+              // Call HTTP DELETE
+              final equipmentId = equipment['id'] as int?;
+              if (equipmentId != null) {
+                _deleteEquipment(equipmentId);
+                setState(() {
+                  _expandedEquipmentId = null; // Collapse after delete
+                });
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Invalid equipment ID'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             child: const Text(
               'Delete',
@@ -301,38 +412,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
                               return _buildEquipmentCard(equipment, isExpanded);
                             },
                           ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Add Equipment Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // TODO: Navigate to Add Equipment page
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Add Equipment feature coming soon'),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF8B1E1E),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'Add Equipment',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),

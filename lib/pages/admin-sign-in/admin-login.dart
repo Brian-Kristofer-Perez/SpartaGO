@@ -4,6 +4,10 @@ import 'package:sparta_go/common/custom-form-input.dart';
 import 'package:sparta_go/pages/login/login-page.dart';
 import 'package:sparta_go/pages/admin-user_manager/user_manager.dart';
 
+// Add these imports for HTTP request
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({Key? key}) : super(key: key);
 
@@ -17,6 +21,10 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   
   String? adminIdError;
   String? passwordError;
+  bool isLoading = false;
+
+  // TODO: Replace with your actual API base URL
+  static const String baseUrl = 'http://10.0.2.2:8080';
 
   @override
   void dispose() {
@@ -27,7 +35,11 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
 
   String? validateAdminId(String value) {
     if (value.isEmpty) {
-      return 'Please enter your Admin UserID';
+      return 'Please enter your Admin Email';
+    }
+    // Basic email validation
+    if (!value.contains('@')) {
+      return 'Please enter a valid email';
     }
     return null;
   }
@@ -42,25 +54,105 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     return null;
   }
 
-  void handleAdminLogin() {
+  // HTTP POST request for admin login
+  Future<void> handleAdminLogin() async {
     setState(() {
       adminIdError = validateAdminId(adminIdController.text.trim());
       passwordError = validatePassword(passwordController.text);
     });
 
-    if (adminIdError == null && passwordError == null) {
-      // TODO: Add admin authentication logic here
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Admin login successful')),
+    if (adminIdError != null || passwordError != null) {
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final email = adminIdController.text.trim();
+      final password = passwordController.text;
+
+      print('🔄 Admin login attempt for: $email');
+
+      // Make HTTP POST request
+      final response = await http.post(
+        Uri.parse('$baseUrl/admin/login?email=$email&password=$password'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       );
 
-      // Navigate to Admin Dashboard (User Manager)
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const UserManagerPage(),
-        ),
-      );
+      print('📡 Response status: ${response.statusCode}');
+      print('📦 Response body: ${response.body}');
+
+      setState(() {
+        isLoading = false;
+      });
+
+      if (response.statusCode == 200) {
+        // Parse the boolean response
+        final bool isAuthenticated = json.decode(response.body);
+
+        if (isAuthenticated) {
+          print('✅ Admin login successful');
+          
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Admin login successful'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            // Navigate to Admin Dashboard (User Manager)
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const UserManagerPage(),
+              ),
+            );
+          }
+        } else {
+          print('❌ Admin login failed: Invalid credentials');
+          
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Invalid email or password'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } else {
+        print('❌ Error: Status code ${response.statusCode}');
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Login failed: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+      
+    } catch (e) {
+      print('❌ Error during admin login: $e');
+      
+      setState(() {
+        isLoading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -124,12 +216,12 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   
                   const SizedBox(height: 40),
                   
-                  // Admin UserID Field
+                  // Admin Email Field
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       CustomFormInput(
-                        label: 'Admin UserID',
+                        label: 'Admin Email',
                         controller: adminIdController,
                       ),
                       if (adminIdError != null)
@@ -173,18 +265,28 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   
                   const SizedBox(height: 32),
                   
-                  // Sign In Button
+                  // Sign In Button with Loading State
                   AppButton(
                     onPressed: handleAdminLogin,
-                    children: const [
-                      Text(
-                        'Sign In',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                    children: [
+                      if (isLoading)
+                        const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      else
+                        const Text(
+                          'Sign In',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                   
@@ -193,9 +295,9 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   // User Sign In Link
                   Column(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.person_outline,
-                        color: const Color(0xFF8B1E1E),
+                        color: Color(0xFF8B1E1E),
                         size: 32,
                       ),
                       const SizedBox(height: 8),

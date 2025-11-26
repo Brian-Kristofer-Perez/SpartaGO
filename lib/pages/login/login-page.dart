@@ -5,7 +5,8 @@ import 'package:sparta_go/common/hollow-app-button.dart';
 import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/pages/login/sign-as-admin.dart';
 import 'package:sparta_go/pages/sign-up/sign-up-page.dart';
-import 'package:sparta_go/services/UserService.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   @override
@@ -69,38 +70,60 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-  void handleLogin() async {
-    setState(() {
-      emailError = validateEmailOrStudentNumber(emailController.text.trim());
-      passwordError = validatePassword(passwordController.text);
-    });
+    Future<Map<String, dynamic>> loginUser(String email, String password) async {
+      final url = Uri.parse("http://10.0.2.2:8080/users/login");
 
-    if (emailError == null && passwordError == null) {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "email": email,
+          "password": password,
+        }),
+      );
 
-      UserService service = UserService();
-
-      try {
-        Map<String, dynamic> user = await service.log_in(email: emailController.text, password: passwordController.text);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login successful')),
-        );
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => FacilitiesPage(user: user)
-          )
-        );
-      }
-      catch (e) {
-        final String message = e.toString().replaceFirst('Exception: ', '');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body); // returns user object
+      } else if (response.statusCode == 404) {
+        throw Exception("Invalid email or password");
+      } else {
+        throw Exception("Server error: ${response.statusCode}");
       }
     }
-  }
+
+
+      void handleLogin() async {
+      setState(() {
+        emailError = validateEmailOrStudentNumber(emailController.text.trim());
+        passwordError = validatePassword(passwordController.text);
+      });
+
+      if (emailError == null && passwordError == null) {
+        try {
+          Map<String, dynamic> user = await loginUser(
+            emailController.text.trim(),
+            passwordController.text.trim(),
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login successful')),
+          );
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FacilitiesPage(user: user),
+            ),
+          );
+        } catch (e) {
+          final String message = e.toString().replaceFirst("Exception: ", "");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        }
+      }
+    }
+
 
   @override
   Widget build(BuildContext context) {

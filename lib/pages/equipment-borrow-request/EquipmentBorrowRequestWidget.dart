@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:sparta_go/repositories/EquipmentReservationRepository.dart';
-import 'package:sparta_go/services/AutoIncrementService.dart';
+import 'package:intl/intl.dart';  // Added for date formatting
+import 'package:http/http.dart' as http;  // Added for HTTP requests
+import 'dart:convert';  // Added for JSON encoding
 import '../../common/calendar/calendar.dart';
-import '../../services/EquipmentReservationService.dart';
 
 class EquipmentBorrowRequestWidget extends StatefulWidget {
-
   Map<String, dynamic> equipment;
   Map<String, dynamic> user;
 
@@ -19,6 +18,9 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
   int count = 0;
   DateTime? startDate;
   DateTime? endDate;
+
+  // Define your base URL here (replace with actual API base URL)
+  static const String baseUrl = 'http://10.0.2.2:8080';  
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +81,7 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                   selectedDate: startDate,
                   onPicked: (picked) => setState(() => startDate = picked),
                 ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 _dateSelector(
                   label: 'End Date',
                   selectedDate: endDate,
@@ -101,7 +103,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                   ),
                 ),
                 onPressed: () async {
-
                   // Validation: Dates must be not null
                   if (startDate == null || endDate == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -140,21 +141,35 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                     return;
                   }
 
-                  await EquipmentReservationService().reserve_equipment(
-                      widget.equipment['id'],
-                      count,
-                      widget.user['id'],
-                      startDate!,
-                      endDate!
-                  );
+                  // Replace service call with HTTP POST request
+                  try {
+                    final response = await http.post(
+                      Uri.parse('$baseUrl/equipment/reservations/'),
+                      headers: {'Content-Type': 'application/json'},
+                      body: json.encode({
+                        "equipmentId": widget.equipment['id'].toString(),
+                        "userId": widget.user['id'].toString(),
+                        "startDate": DateFormat('yyyy-MM-dd').format(startDate!),
+                        "endDate": DateFormat('yyyy-MM-dd').format(endDate!),  // Added based on data format
+                        "count": count.toString(),  // Added based on data format
+                      }),
+                    );
 
-                  // TODO: Route page to successful page or print a success widget or return to main
-                  // Navigator.push()
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Reservation successful')),
-                  );
-                  Navigator.pop(context, true);
-
+                    if (response.statusCode == 200) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Reservation successful')),
+                      );
+                      Navigator.pop(context, true);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to create reservation: ${response.statusCode}')),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $e')),
+                    );
+                  }
                 },
                 child: const Text(
                   'Submit Borrow Request',
@@ -210,8 +225,7 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
             icon: const Icon(Icons.calendar_today, size: 18),
             label: Text(
               selectedDate != null
-                  ? "${selectedDate.year}-${selectedDate.month}-${selectedDate
-                  .day}"
+                  ? "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}"
                   : 'Select Date',
             ),
             style: OutlinedButton.styleFrom(

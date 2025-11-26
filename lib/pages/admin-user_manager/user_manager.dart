@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 import 'package:sparta_go/pages/admin-equipment/equipment_manager.dart';
 import 'package:sparta_go/pages/admin-facillities/facilities_manager.dart';
 import 'package:sparta_go/pages/admin-reservation/reservation_manager.dart';
-import 'dart:convert';
 import 'package:sparta_go/pages/admin-user_manager/user_detail.dart';
-import 'package:sparta_go/pages/equipment-borrow-request/EquipmentBorrowRequestPage.dart';
 
 class UserManagerPage extends StatefulWidget {
   const UserManagerPage({Key? key}) : super(key: key);
@@ -21,27 +22,43 @@ class _UserManagerPageState extends State<UserManagerPage> {
   List<Map<String, dynamic>> _allUsers = [];
   bool _isLoading = true;
 
+  final String baseUrl = "http://10.0.2.2:8080/users"; // <-- UPDATE THIS
+
   @override
   void initState() {
     super.initState();
-    _loadUsersData();
+    _fetchUsers();
   }
 
-  // Load users data from JSON file
-  Future<void> _loadUsersData() async {
+  /// -------------------------------
+  /// FETCH USERS FROM API
+  /// -------------------------------
+  Future<void> _fetchUsers() async {
     try {
-      final usersString = await rootBundle.loadString('assets/files/user_manager.json');
-      final usersJson = json.decode(usersString);
+      final response = await http.get(
+        Uri.parse("$baseUrl/"),
+        headers: {"Content-Type": "application/json"},
+      );
 
-      // Parse the JSON array directly
-      List<Map<String, dynamic>> users = List<Map<String, dynamic>>.from(usersJson);
+      if (response.statusCode == 200) {
+        List<dynamic> jsonList = jsonDecode(response.body);
 
-      setState(() {
-        _allUsers = users;
-        _isLoading = false;
-      });
+        setState(() {
+          _allUsers = jsonList.map<Map<String, dynamic>>((user) {
+            return {
+              "name": user["name"] ?? "Unknown",
+              "email": user["email"] ?? "",
+              "password": user["password"] ?? "",
+            };
+          }).toList();
+
+          _isLoading = false;
+        });
+      } else {
+        throw Exception("Failed to fetch users: ${response.statusCode}");
+      }
     } catch (e) {
-      print('Error loading users data: $e');
+      print("ERROR FETCHING USERS: $e");
       setState(() {
         _isLoading = false;
       });
@@ -54,24 +71,31 @@ class _UserManagerPageState extends State<UserManagerPage> {
     super.dispose();
   }
 
+  /// FILTER USERS
   List<Map<String, dynamic>> get _filteredUsers {
-    if (_searchController.text.isEmpty) {
-      return _allUsers;
-    }
-    
+    if (_searchController.text.isEmpty) return _allUsers;
+
     final query = _searchController.text.toLowerCase();
     return _allUsers.where((user) {
-      final name = user['name'].toString().toLowerCase();
-      final id = user['id'].toString().toLowerCase();
-      final email = user['email'].toString().toLowerCase();
-      return name.contains(query) || id.contains(query) || email.contains(query);
+      final name = user["name"].toLowerCase();
+      final id = user["id"].toLowerCase();
+      final email = user["email"].toLowerCase();
+
+      return name.contains(query) ||
+          id.contains(query) ||
+          email.contains(query);
     }).toList();
   }
 
+  /// ----------------------------------------
+  /// UI BUILD
+  /// ----------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      /// APP BAR
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -87,11 +111,13 @@ class _UserManagerPageState extends State<UserManagerPage> {
                 color: Colors.red,
                 size: 40,
               ),
-            ),
+            )
           ],
         ),
         centerTitle: true,
       ),
+
+      /// BODY
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -99,18 +125,16 @@ class _UserManagerPageState extends State<UserManagerPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title
                   const Text(
-                    'User Manager',
+                    "User Manager",
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Manage Users of SpartaGo',
+                    "Manage Users of SpartaGo",
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey.shade600,
@@ -118,160 +142,57 @@ class _UserManagerPageState extends State<UserManagerPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Search Bar
+                  /// SEARCH BAR
                   TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                      hintText: 'Search users...',
-                      hintStyle: TextStyle(color: Colors.grey.shade400),
+                      prefixIcon:
+                          const Icon(Icons.search, color: Colors.grey),
+                      hintText: "Search users...",
                       filled: true,
                       fillColor: Colors.grey.shade100,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
                     ),
-                    onChanged: (value) {
-                      setState(() {}); // Trigger rebuild for search
-                    },
+                    onChanged: (_) => setState(() {}),
                   ),
 
                   const SizedBox(height: 20),
 
-                  // User List
+                  /// USER LIST
                   Expanded(
                     child: _filteredUsers.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.person_off_outlined,
-                                  size: 64,
-                                  color: Colors.grey.shade300,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No users found',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey.shade500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
+                        ? _noUsersFound()
                         : ListView.builder(
                             itemCount: _filteredUsers.length,
                             itemBuilder: (context, index) {
-                              final user = _filteredUsers[index];
-                              return _buildUserCard(user);
+                              return _buildUserCard(_filteredUsers[index]);
                             },
                           ),
-                  ),
+                  )
                 ],
               ),
             ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          if (index == 1) {
-            // Navigate to Reservations
-            Navigator.pushReplacement(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    const ReservationManagerPage(),
-                transitionDuration: Duration.zero,
-                reverseTransitionDuration: Duration.zero,
-              ),
-            );
-          } else if (index == 2) {
-            // Navigate to Facilities
-            Navigator.pushReplacement(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    const FacilityManagerPage(),
-                transitionDuration: Duration.zero,
-                reverseTransitionDuration: Duration.zero,
-              ),
-            );
-          } else if (index == 3) {
-            // Navigate to Equipment
-            Navigator.pushReplacement(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    const EquipmentManagerPage(),
-                transitionDuration: Duration.zero,
-                reverseTransitionDuration: Duration.zero,
-              ),
-            );
-          } else if (index == 4) {
-            _showLogoutDialog();
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF8B1E1E),
-        unselectedItemColor: Colors.grey,
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Users',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Reservations',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Facilities',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
-            label: 'Equipment',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.logout),
-            label: 'Logout',
-          ),
-        ],
-      ),
+
+      /// BOTTOM NAVIGATION
+      bottomNavigationBar: _buildBottomNavBar(),
     );
   }
 
+  /// ----------------------------------------
+  /// CARD UI FOR EACH USER
+  /// ----------------------------------------
   Widget _buildUserCard(Map<String, dynamic> user) {
-    // Check if user has image field, default to false if not present
-    final hasImage = user['hasImage'] ?? false;
-    
-    // Create a complete user object with all necessary fields
-    final completeUser = {
-      'id': user['id'] ?? 'N/A',
-      'name': user['name'] ?? 'Unknown User',
-      'email': user['email'] ?? 'N/A',
-      'password': user['password'] ?? '',
-      'hasImage': hasImage,
-      'userId': user['userId'] ?? user['id'] ?? '00001', // Use id as userId if not present
-      'role': user['role'] ?? 'Student', // Default to Student if not specified
-    };
-    
+    bool hasImage = user["hasImage"];
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => UserDetailPage(user: user),
+            builder: (_) => UserDetailPage(user: user),
           ),
         );
       },
@@ -279,108 +200,155 @@ class _UserManagerPageState extends State<UserManagerPage> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey.shade300),
+          color: Colors.white,
         ),
         child: Row(
           children: [
-            // Profile Picture
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: hasImage ? Colors.orange.shade100 : Colors.grey.shade200,
-                shape: BoxShape.circle,
+            /// PROFILE
+            CircleAvatar(
+              radius: 26,
+              backgroundColor:
+                  hasImage ? Colors.orange.shade100 : Colors.grey.shade200,
+              child: Icon(
+                hasImage ? Icons.person : Icons.person_outline,
+                size: 30,
+                color: hasImage ? Colors.orange.shade700 : Colors.grey,
               ),
-              child: hasImage
-                  ? Center(
-                      child: Icon(
-                        Icons.person,
-                        size: 30,
-                        color: Colors.orange.shade700,
-                      ),
-                    )
-                  : const Center(
-                      child: Icon(
-                        Icons.person_outline,
-                        size: 30,
-                        color: Colors.grey,
-                      ),
-                    ),
             ),
             const SizedBox(width: 16),
-            // User Info
+
+            /// USER INFO
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    user['name'],
+                    user["name"],
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 4),
                   Text(
-                    user['id'],
+                    user["id"],
                     style: TextStyle(
                       fontSize: 13,
-                      color: Colors.grey.shade600,
+                      color: Colors.grey.shade700,
                     ),
                   ),
-                  const SizedBox(height: 2),
                   Row(
                     children: [
-                      Icon(
-                        Icons.email,
-                        size: 14,
-                        color: Colors.grey.shade600,
-                      ),
+                      Icon(Icons.email, size: 14, color: Colors.grey.shade600),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          user['email'],
+                          user["email"],
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ),
+                      )
                     ],
-                  ),
+                  )
                 ],
               ),
-            ),
+            )
           ],
         ),
       ),
     );
   }
 
+  /// NO USERS FOUND WIDGET
+  Widget _noUsersFound() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.person_off_outlined,
+              size: 64, color: Colors.grey.shade300),
+          const SizedBox(height: 16),
+          Text(
+            "No users found",
+            style: TextStyle(fontSize: 16, color: Colors.grey.shade500),
+          )
+        ],
+      ),
+    );
+  }
+
+  /// BOTTOM NAVIGATION BAR
+  Widget _buildBottomNavBar() {
+    return BottomNavigationBar(
+      currentIndex: _currentIndex,
+      selectedItemColor: const Color(0xFF8B1E1E),
+      unselectedItemColor: Colors.grey,
+      onTap: (index) {
+        setState(() => _currentIndex = index);
+
+        switch (index) {
+          case 1:
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const ReservationManagerPage()),
+            );
+            break;
+
+          case 2:
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const FacilityManagerPage()),
+            );
+            break;
+
+          case 3:
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const EquipmentManagerPage()),
+            );
+            break;
+
+          case 4:
+            _showLogoutDialog();
+            break;
+        }
+      },
+      type: BottomNavigationBarType.fixed,
+      items: const [
+        BottomNavigationBarItem(
+            icon: Icon(Icons.people), label: "Users"),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today), label: "Reservations"),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined), label: "Facilities"),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.inventory_2_outlined), label: "Equipment"),
+        BottomNavigationBarItem(icon: Icon(Icons.logout), label: "Logout"),
+      ],
+    );
+  }
+
+  /// LOGOUT POPUP
   void _showLogoutDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+      builder: (_) => AlertDialog(
+        title: const Text("Logout"),
+        content: const Text("Are you sure you want to logout?"),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel")),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.popUntil(context, (route) => route.isFirst);
             },
-            child: const Text(
-              'Logout',
-              style: TextStyle(color: Color(0xFF8B1E1E)),
-            ),
+            child: const Text("Logout", style: TextStyle(color: Color(0xFF8B1E1E))),
           ),
         ],
       ),

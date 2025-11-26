@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';  // Added for date formatting
+import 'package:http/http.dart' as http;  // Added for HTTP requests
+import 'dart:convert';  // Added for JSON encoding
 import 'package:sparta_go/pages/facility-borrow-request/ReservationSummaryCard.dart';
 import 'package:sparta_go/pages/facility-borrow-request/TimeSlotSelector.dart';
-import 'package:sparta_go/services/FacilityReservationService.dart';
 import '../../common/calendar/calendar.dart';
 
 class FacilityBorrowRequestWidget extends StatefulWidget {
-
-  final Map<String,dynamic> facility;
-  Map<String,dynamic> user;
+  final Map<String, dynamic> facility;
+  Map<String, dynamic> user;
   FacilityBorrowRequestWidget({super.key, required this.facility, required this.user});
 
   @override
@@ -15,9 +16,11 @@ class FacilityBorrowRequestWidget extends StatefulWidget {
 }
 
 class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidget> {
-
   DateTime? startDate;
   String? selectedTime;
+
+  // Define your base URL here (replace with actual API base URL)
+  static const String baseUrl = 'http://10.0.2.2:8080';  
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +49,7 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                   selectedDate: startDate,
                   onPicked: (picked) => setState(() => startDate = picked),
                 ),
-                SizedBox(width: 6),
-
+                const SizedBox(width: 6),
                 TimeSlotSelector(
                   availableSlots: List<String>.from(widget.facility['availableTimeSlots']),
                   onSelected: (time) {
@@ -66,7 +68,6 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
               date: startDate,
               time: selectedTime,
               onConfirm: () async {
-
                 if (startDate!.isBefore(
                     DateTime(
                         DateTime.now().year,
@@ -94,29 +95,41 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                   return;
                 }
 
-                await FacilityReservationService().reserve_facility(
-                    widget.user['id'],
-                    widget.facility['id'],
-                    startDate!,
-                    selectedTime!
-                );
+                // Replace service call with HTTP POST request
+                try {
+                  final response = await http.post(
+                    Uri.parse('$baseUrl/facilities/reservations/'),
+                    headers: {'Content-Type': 'application/json'},
+                    body: json.encode({
+                      "userId": widget.user['id'].toString(),
+                      "facilityId": widget.facility['id'].toString(),
+                      "date": DateFormat('yyyy-MM-dd').format(startDate!),
+                      "timeSlot": selectedTime!,
+                    }),
+                  );
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Reservation made successfully')),
-                );
-
-                Navigator.pop(context, true);
-
-
+                  if (response.statusCode == 200) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Reservation made successfully')),
+                    );
+                    Navigator.pop(context, true);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to make reservation: ${response.statusCode}')),
+                    );
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
               },
-
             )
           ],
         ),
       ),
     );
   }
-
 
   Widget _dateSelector({
     required String label,

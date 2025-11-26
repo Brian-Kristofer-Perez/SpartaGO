@@ -5,6 +5,7 @@ import 'package:sparta_go/pages/admin-equipment/equipment_manager.dart';
 import 'package:sparta_go/pages/admin-facillities/facilities_manager.dart';
 import 'package:sparta_go/pages/admin-user_manager/user_manager.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class ReservationManagerPage extends StatefulWidget {
   const ReservationManagerPage({Key? key}) : super(key: key);
@@ -24,31 +25,45 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
   List<Map<String, dynamic>> _users = [];
   bool _isLoading = true;
 
+    // Define your base URL here (replace with actual API base URL)
+  static const String baseUrl = 'http://10.0.2.2:8080';
+
   @override
   void initState() {
     super.initState();
     _loadData();
   }
 
-  // Load all data from JSON files
+// Load all data via HTTP requests
   Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
-      // Load facility reservations
-      final facilityString = await rootBundle.loadString('assets/files/facility_reservations.json');
-      final facilityJson = json.decode(facilityString) as List;
-
-      // Load equipment reservations
-      final equipmentString = await rootBundle.loadString('assets/files/equipment_reservations.json');
-      final equipmentJson = json.decode(equipmentString) as List;
-
-      // Load users
+      // Load users (keeping as asset load since no API provided for users)
       final usersString = await rootBundle.loadString('assets/files/user_manager.json');
       final usersJson = json.decode(usersString) as List;
+      _users = List<Map<String, dynamic>>.from(usersJson);
+
+      // Load facility reservations via HTTP GET
+      final facilityResponse = await http.get(Uri.parse('$baseUrl/facilities/reservations/'));
+      if (facilityResponse.statusCode == 200) {
+        final facilityJson = json.decode(facilityResponse.body) as List;
+        _facilityReservations = List<Map<String, dynamic>>.from(facilityJson);
+      } else {
+        throw Exception('Failed to load facility reservations');
+      }
+
+      // Load equipment reservations via HTTP GET
+      final equipmentResponse = await http.get(Uri.parse('$baseUrl/equipment/reservations/'));
+      if (equipmentResponse.statusCode == 200) {
+        final equipmentJson = json.decode(equipmentResponse.body) as List;
+        _equipmentReservations = List<Map<String, dynamic>>.from(equipmentJson);
+      } else {
+        throw Exception('Failed to load equipment reservations');
+      }
 
       setState(() {
-        _facilityReservations = List<Map<String, dynamic>>.from(facilityJson);
-        _equipmentReservations = List<Map<String, dynamic>>.from(equipmentJson);
-        _users = List<Map<String, dynamic>>.from(usersJson);
         _isLoading = false;
       });
     } catch (e) {
@@ -56,6 +71,60 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
       setState(() {
         _isLoading = false;
       });
+      // Optionally show a snackbar or dialog for error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading data: $e')),
+      );
+    }
+  }
+
+  // Delete facility reservation via HTTP DELETE
+  Future<void> _deleteFacilityReservation(String id) async {
+    try {
+      final response = await http.delete(Uri.parse('$baseUrl/facilities/reservations/?reservationId=$id'));
+      if (response.statusCode == 200) {
+        setState(() {
+          _facilityReservations.removeWhere((r) => r['id'] == id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Facility reservation deleted')),
+        );
+      } else {
+        throw Exception('Failed to delete facility reservation');
+      }
+    } catch (e) {
+      print('Error deleting facility reservation: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting facility reservation: $e')),
+      );
+    }
+  }
+
+  // Delete equipment reservation via HTTP DELETE
+  Future<void> _deleteEquipmentReservation(String id) async {
+    try {
+      // Find the reservation object to send in the body
+      final reservation = _equipmentReservations.firstWhere((r) => r['id'] == id);
+      final response = await http.delete(
+        Uri.parse('$baseUrl/equipment/reservations/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(reservation),
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          _equipmentReservations.removeWhere((r) => r['id'] == id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Equipment reservation deleted')),
+        );
+      } else {
+        throw Exception('Failed to delete equipment reservation');
+      }
+    } catch (e) {
+      print('Error deleting equipment reservation: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting equipment reservation: $e')),
+      );
     }
   }
 
@@ -275,13 +344,30 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            reservation['facility'] ?? 'Unknown Facility',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  reservation['facility'] ?? 'Unknown Facility',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: () => _deleteFacilityReservation(reservation['id'].toString()),
+                icon: Icon(
+                  Icons.delete_outline,
+                  color: Colors.red.shade400,
+                  size: 22,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Row(
@@ -797,9 +883,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
           const SizedBox(width: 8),
           // Delete Icon
           IconButton(
-            onPressed: () {
-              // TODO: Implement delete functionality
-            },
+            onPressed: () => _deleteEquipmentReservation(equipment['id'].toString()),
             icon: Icon(
               Icons.delete_outline,
               color: Colors.red.shade400,
