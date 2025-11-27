@@ -72,7 +72,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
   // Delete facility reservation via HTTP DELETE
   Future<void> _deleteFacilityReservation(int id) async {
     try {
-      final response = await http.delete(Uri.parse('$API_URL/facilities/reservations/?reservationId=$id'));
+      final response = await http.delete(Uri.parse('$API_URL/facilities/reservations/$id'));
       if (response.statusCode == 200) {
         setState(() {
           _facilityReservations.removeWhere((r) => r['id'] == id);
