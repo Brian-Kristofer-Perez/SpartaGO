@@ -146,8 +146,8 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                       Uri.parse('$API_URL/equipment/reservations/'),
                       headers: {'Content-Type': 'application/json'},
                       body: json.encode({
-                        "equipmentId": widget.equipment['id'].toString(),
-                        "userId": widget.user['id'].toString(),
+                        "equipment": widget.equipment,
+                        "user": widget.user,
                         "startDate": DateFormat('yyyy-MM-dd').format(startDate!),
                         "endDate": DateFormat('yyyy-MM-dd').format(endDate!),  // Added based on data format
                         "count": count.toString(),  // Added based on data format
