@@ -35,7 +35,7 @@ class _UserManagerPageState extends State<UserManagerPage> {
   Future<void> _fetchUsers() async {
     try {
       final response = await http.get(
-        Uri.parse("{$API_URL}/"),
+        Uri.parse("$API_URL/"),
         headers: {"Content-Type": "application/json"},
       );
 

@@ -97,7 +97,7 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                 // Replace service call with HTTP POST request
                 try {
                   final response = await http.post(
-                    Uri.parse('{$API_URL}/facilities/reservations/'),
+                    Uri.parse('$API_URL/facilities/reservations/'),
                     headers: {'Content-Type': 'application/json'},
                     body: json.encode({
                       "userId": widget.user['id'].toString(),

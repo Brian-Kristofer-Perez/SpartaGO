@@ -44,7 +44,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
       _users = List<Map<String, dynamic>>.from(usersJson);
 
       // Load facility reservations via HTTP GET
-      final facilityResponse = await http.get(Uri.parse('{$API_URL}/facilities/reservations/'));
+      final facilityResponse = await http.get(Uri.parse('$API_URL/facilities/reservations/'));
       if (facilityResponse.statusCode == 200) {
         final facilityJson = json.decode(facilityResponse.body) as List;
         _facilityReservations = List<Map<String, dynamic>>.from(facilityJson);
@@ -53,7 +53,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
       }
 
       // Load equipment reservations via HTTP GET
-      final equipmentResponse = await http.get(Uri.parse('{$API_URL}/equipment/reservations/'));
+      final equipmentResponse = await http.get(Uri.parse('$API_URL/equipment/reservations/'));
       if (equipmentResponse.statusCode == 200) {
         final equipmentJson = json.decode(equipmentResponse.body) as List;
         _equipmentReservations = List<Map<String, dynamic>>.from(equipmentJson);
@@ -79,7 +79,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
   // Delete facility reservation via HTTP DELETE
   Future<void> _deleteFacilityReservation(String id) async {
     try {
-      final response = await http.delete(Uri.parse('{$API_URL}/facilities/reservations/?reservationId=$id'));
+      final response = await http.delete(Uri.parse('$API_URL/facilities/reservations/?reservationId=$id'));
       if (response.statusCode == 200) {
         setState(() {
           _facilityReservations.removeWhere((r) => r['id'] == id);
@@ -104,7 +104,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
       // Find the reservation object to send in the body
       final reservation = _equipmentReservations.firstWhere((r) => r['id'] == id);
       final response = await http.delete(
-        Uri.parse('{$API_URL}/equipment/reservations/$id'),
+        Uri.parse('$API_URL/equipment/reservations/$id'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(reservation),
       );

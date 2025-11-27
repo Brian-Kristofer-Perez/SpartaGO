@@ -55,7 +55,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
       
       // Make HTTP GET request
       final response = await http.get(
-        Uri.parse('{$API_URL}/equipment/'),
+        Uri.parse('$API_URL/equipment/'),
         headers: {
           'Content-Type': 'application/json',
           // Add authorization if needed:

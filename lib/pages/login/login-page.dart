@@ -61,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<Map<String, dynamic>> loginUser(String email, String password) async {
-    final url = Uri.parse("{$API_URL}/users/login");
+    final url = Uri.parse("$API_URL/users/login");
 
     final response = await http.post(
       url,

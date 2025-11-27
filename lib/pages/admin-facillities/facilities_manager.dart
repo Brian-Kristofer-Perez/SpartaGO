@@ -91,10 +91,10 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
         _isLoading = true;
       });
 
-      print('🔄 Fetching Facilities from: {$API_URL}/facilities/');
+      print('🔄 Fetching Facilities from: $API_URL/facilities/');
 
       final response = await http.get(
-        Uri.parse('{$API_URL}/facilities/'),
+        Uri.parse('$API_URL/facilities/'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -153,7 +153,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
       print('🔄 Deleting Facilities ID: $facilitiesId');
 
       final response = await http.delete(
-        Uri.parse('{$API_URL}/facilities/$facilitiesId'),
+        Uri.parse('$API_URL/facilities/$facilitiesId'),
         headers: {
           'Content-Type': 'application/json',
         },

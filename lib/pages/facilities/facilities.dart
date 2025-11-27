@@ -36,7 +36,7 @@ class _FacilitiesPageState extends State<FacilitiesPage> {
       
       // Make HTTP GET request
       final response = await http.get(
-        Uri.parse('{$API_URL}/facilities/'),
+        Uri.parse('$API_URL/facilities/'),
         headers: {
           'Content-Type': 'application/json',
           // Add authorization if needed:

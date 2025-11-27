@@ -143,7 +143,7 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                   // Replace service call with HTTP POST request
                   try {
                     final response = await http.post(
-                      Uri.parse('{$API_URL}/equipment/reservations/'),
+                      Uri.parse('$API_URL/equipment/reservations/'),
                       headers: {'Content-Type': 'application/json'},
                       body: json.encode({
                         "equipmentId": widget.equipment['id'].toString(),

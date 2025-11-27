@@ -73,10 +73,14 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
 
       // Make HTTP POST request
       final response = await http.post(
-        Uri.parse('{$API_URL}/admin/login?email=$email&password=$password'),
+        Uri.parse('$API_URL/admin/login'),
         headers: {
           'Content-Type': 'application/json',
         },
+        body: jsonEncode({
+          "email": email,
+          "password": password,
+        }),
       );
 
       print('📡 Response status: ${response.statusCode}');

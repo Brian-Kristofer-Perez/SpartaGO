@@ -94,7 +94,7 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
       print('🔄 Fetching equipment from: {$API_URL}/equipment/');
 
       final response = await http.get(
-        Uri.parse('{$API_URL}/equipment/'),
+        Uri.parse('$API_URL/equipment/'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -153,7 +153,7 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
       print('🔄 Deleting equipment ID: $equipmentId');
 
       final response = await http.delete(
-        Uri.parse('{$API_URL}/equipment/$equipmentId'),
+        Uri.parse('$API_URL/equipment/$equipmentId'),
         headers: {
           'Content-Type': 'application/json',
         },
