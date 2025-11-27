@@ -5,6 +5,7 @@ import 'dart:convert';  // Added for JSON encoding
 import 'package:sparta_go/pages/facility-borrow-request/ReservationSummaryCard.dart';
 import 'package:sparta_go/pages/facility-borrow-request/TimeSlotSelector.dart';
 import '../../common/calendar/calendar.dart';
+import 'package:sparta_go/constant/constant.dart';
 
 class FacilityBorrowRequestWidget extends StatefulWidget {
   final Map<String, dynamic> facility;
@@ -19,8 +20,6 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
   DateTime? startDate;
   String? selectedTime;
 
-  // Define your base URL here (replace with actual API base URL)
-  static const String baseUrl = 'http://10.0.2.2:8080';  
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +97,7 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                 // Replace service call with HTTP POST request
                 try {
                   final response = await http.post(
-                    Uri.parse('$baseUrl/facilities/reservations/'),
+                    Uri.parse('{$API_URL}/facilities/reservations/'),
                     headers: {'Content-Type': 'application/json'},
                     body: json.encode({
                       "userId": widget.user['id'].toString(),

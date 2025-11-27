@@ -3,10 +3,9 @@ import 'package:sparta_go/common/app-button.dart';
 import 'package:sparta_go/common/custom-form-input.dart';
 import 'package:sparta_go/pages/login/login-page.dart';
 import 'package:sparta_go/pages/admin-user_manager/user_manager.dart';
-
-// Add these imports for HTTP request
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:sparta_go/constant/constant.dart';
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({Key? key}) : super(key: key);
@@ -22,9 +21,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   String? adminIdError;
   String? passwordError;
   bool isLoading = false;
-
-  // TODO: Replace with your actual API base URL
-  static const String baseUrl = 'http://10.0.2.2:8080';
 
   @override
   void dispose() {
@@ -77,7 +73,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
 
       // Make HTTP POST request
       final response = await http.post(
-        Uri.parse('$baseUrl/admin/login?email=$email&password=$password'),
+        Uri.parse('{$API_URL}/admin/login?email=$email&password=$password'),
         headers: {
           'Content-Type': 'application/json',
         },

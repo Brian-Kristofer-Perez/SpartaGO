@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:sparta_go/pages/equipment/equipment.dart';
 import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/pages/profile/profile.dart';
-import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:sparta_go/constant/constant.dart';
 
 
 class ReservationPage extends StatefulWidget {
@@ -21,7 +22,6 @@ class _ReservationPageState extends State<ReservationPage> {
   int _currentIndex = 2;
   int _selectedTab = 0;
 
-
   List<Map<String, dynamic>> _reservations = [];
   List<Map<String, dynamic>> _borrowedEquipment = [];
   bool _isLoading = true;
@@ -33,32 +33,233 @@ class _ReservationPageState extends State<ReservationPage> {
     _loadData();
   }
 
-
-  // Load data from combined JSON file
+  // Load data from API using HTTP requests
   Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      // Load combined history data
-      final historyString = await rootBundle.loadString('assets/files/reservation_data.json');
-      final historyJson = json.decode(historyString);
+      // Get userId from user object
+      final userId = widget.user['id'];
+      
+      if (userId == null) {
+        throw Exception('User ID not found');
+      }
 
+      print('🔄 Fetching reservations for user ID: $userId');
+
+      // Fetch facility reservations
+      await _loadFacilityReservations(userId);
+
+      // Fetch equipment reservations (borrowed equipment)
+      await _loadEquipmentReservations(userId);
 
       setState(() {
-        _reservations = List<Map<String, dynamic>>.from(historyJson['reservations']);
-        _borrowedEquipment = List<Map<String, dynamic>>.from(historyJson['borrowedEquipment']);
         _isLoading = false;
       });
+
     } catch (e) {
-      print('Error loading data: $e');
+      print('❌ Error loading data: $e');
       setState(() {
         _isLoading = false;
       });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
+  // GET /facilities/reservations/?userId={userId}
+  Future<void> _loadFacilityReservations(int userId) async {
+    try {
+      print('🔄 Fetching facility reservations...');
+
+      final response = await http.get(
+        Uri.parse('{$API_URL}/facilities/reservations/?userId=$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('📡 Facility reservations status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        final List<Map<String, dynamic>> reservations = 
+            jsonData.map((item) => item as Map<String, dynamic>).toList();
+
+        print('✅ Loaded ${reservations.length} facility reservations');
+
+        setState(() {
+          _reservations = reservations;
+        });
+      } else {
+        print('❌ Failed to load facility reservations: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error loading facility reservations: $e');
+      throw e;
+    }
+  }
+
+  // GET /equipment/reservations/?userId={userId}
+  Future<void> _loadEquipmentReservations(int userId) async {
+    try {
+      print('🔄 Fetching equipment reservations...');
+
+      final response = await http.get(
+        Uri.parse('{$API_URL}/equipment/reservations/?userId=$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('📡 Equipment reservations status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        final List<Map<String, dynamic>> equipment = 
+            jsonData.map((item) => item as Map<String, dynamic>).toList();
+
+        print('✅ Loaded ${equipment.length} equipment reservations');
+
+        setState(() {
+          _borrowedEquipment = equipment;
+        });
+      } else {
+        print('❌ Failed to load equipment reservations: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error loading equipment reservations: $e');
+      throw e;
+    }
+  }
+
+  // DELETE /facilities/reservations/?reservationId={reservationId}
+  Future<void> _deleteFacilityReservation(int reservationId) async {
+    try {
+      print('🔄 Deleting facility reservation ID: $reservationId');
+
+      final response = await http.delete(
+        Uri.parse('{$API_URL}/facilities/reservations/?reservationId=$reservationId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('📡 Delete facility reservation status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        print('✅ Facility reservation deleted successfully');
+
+        // Reload data
+        await _loadData();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Reservation deleted successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        print('❌ Failed to delete reservation: ${response.statusCode}');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('❌ Error deleting facility reservation: $e');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  // DELETE /equipment/reservations/{id}
+  // Note: According to the API, this requires the full EquipmentReservation object in the request body
+  Future<void> _returnEquipment(Map<String, dynamic> equipment) async {
+    try {
+      final equipmentId = equipment['id'];
+      
+      if (equipmentId == null) {
+        throw Exception('Equipment reservation ID not found');
+      }
+
+      print('🔄 Returning equipment reservation ID: $equipmentId');
+
+      final response = await http.delete(
+        Uri.parse('{$API_URL}/equipment/reservations/$equipmentId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(equipment), // Send the full equipment object as request body
+      );
+
+      print('📡 Return equipment status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        print('✅ Equipment returned successfully');
+
+        // Reload data
+        await _loadData();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Equipment returned successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        print('❌ Failed to return equipment: ${response.statusCode}');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to return: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('❌ Error returning equipment: $e');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   void _onNavTapped(int index) {
     if (index == _currentIndex) return;
-
 
     if (index == 0) {
       Navigator.pushReplacement(
@@ -93,7 +294,6 @@ class _ReservationPageState extends State<ReservationPage> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +344,6 @@ class _ReservationPageState extends State<ReservationPage> {
                     ),
                     const SizedBox(height: 20),
 
-
                     // Tab Selector
                     Container(
                       padding: const EdgeInsets.all(4),
@@ -164,9 +363,7 @@ class _ReservationPageState extends State<ReservationPage> {
                       ),
                     ),
 
-
                     const SizedBox(height: 20),
-
 
                     // Content based on selected tab
                     _selectedTab == 0
@@ -203,7 +400,6 @@ class _ReservationPageState extends State<ReservationPage> {
       ),
     );
   }
-
 
   Widget _buildTabButton(String label, int index) {
     final isSelected = _selectedTab == index;
@@ -243,8 +439,7 @@ class _ReservationPageState extends State<ReservationPage> {
     );
   }
 
-
-Widget _buildReservationsList() {
+  Widget _buildReservationsList() {
     if (_reservations.isEmpty) {
       return _buildEmptyState('No current reservation facility');
     }
@@ -266,7 +461,7 @@ Widget _buildReservationsList() {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      reservation['name'],
+                      reservation['name'] ?? 'Unknown',
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -283,7 +478,7 @@ Widget _buildReservationsList() {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          reservation['date'],
+                          reservation['date'] ?? '',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade600,
@@ -293,7 +488,7 @@ Widget _buildReservationsList() {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Booked on ${reservation['bookedDate']}',
+                      'Booked on ${reservation['bookedDate'] ?? ''}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade500,
@@ -321,7 +516,7 @@ Widget _buildReservationsList() {
                   const SizedBox(height: 2),
                   // Time
                   Text(
-                    reservation['time'],
+                    reservation['time'] ?? '',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey.shade700,
@@ -358,7 +553,7 @@ Widget _buildReservationsList() {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      equipment['name'],
+                      equipment['name'] ?? 'Unknown',
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -375,7 +570,7 @@ Widget _buildReservationsList() {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'Quantity: ${equipment['quantity']}',
+                          'Quantity: ${equipment['quantity'] ?? 0}',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade600,
@@ -385,7 +580,7 @@ Widget _buildReservationsList() {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Requested on ${equipment['requestedDate']}',
+                      'Requested on ${equipment['requestedDate'] ?? ''}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade500,
@@ -421,7 +616,7 @@ Widget _buildReservationsList() {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        equipment['dateRange'],
+                        equipment['dateRange'] ?? '',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade700,
@@ -437,7 +632,6 @@ Widget _buildReservationsList() {
       }).toList(),
     );
   }
-
 
   void _showDeleteReservationDialog(BuildContext context, Map<String, dynamic> reservation) {
     showDialog(
@@ -465,16 +659,20 @@ Widget _buildReservationsList() {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  setState(() {
-                    _reservations.remove(reservation);
-                  });
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Reservation deleted successfully'),
-                      backgroundColor: Color(0xFF8B1E1E),
-                    ),
-                  );
+                  
+                  // Call HTTP DELETE
+                  final reservationId = reservation['id'];
+                  if (reservationId != null) {
+                    _deleteFacilityReservation(reservationId);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Invalid reservation ID'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8B1E1E),
@@ -536,16 +734,10 @@ Widget _buildReservationsList() {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  setState(() {
-                    _borrowedEquipment.remove(equipment);
-                  });
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Equipment returned successfully'),
-                      backgroundColor: Color(0xFF8B1E1E),
-                    ),
-                  );
+                  
+                  // Call HTTP DELETE with full equipment object
+                  _returnEquipment(equipment);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8B1E1E),

@@ -7,6 +7,7 @@ import 'package:sparta_go/pages/admin-equipment/equipment_manager.dart';
 import 'package:sparta_go/pages/admin-facillities/facilities_manager.dart';
 import 'package:sparta_go/pages/admin-reservation/reservation_manager.dart';
 import 'package:sparta_go/pages/admin-user_manager/user_detail.dart';
+import 'package:sparta_go/constant/constant.dart';
 
 class UserManagerPage extends StatefulWidget {
   const UserManagerPage({Key? key}) : super(key: key);
@@ -22,8 +23,6 @@ class _UserManagerPageState extends State<UserManagerPage> {
   List<Map<String, dynamic>> _allUsers = [];
   bool _isLoading = true;
 
-  final String baseUrl = "http://10.0.2.2:8080/users"; // <-- UPDATE THIS
-
   @override
   void initState() {
     super.initState();
@@ -36,7 +35,7 @@ class _UserManagerPageState extends State<UserManagerPage> {
   Future<void> _fetchUsers() async {
     try {
       final response = await http.get(
-        Uri.parse("$baseUrl/"),
+        Uri.parse("{$API_URL}/"),
         headers: {"Content-Type": "application/json"},
       );
 

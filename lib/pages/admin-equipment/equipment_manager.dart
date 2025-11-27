@@ -3,6 +3,7 @@ import 'package:sparta_go/pages/admin-facillities/facilities_manager.dart';
 import 'package:sparta_go/pages/admin-reservation/reservation_manager.dart';
 import 'dart:convert';
 import 'package:sparta_go/pages/admin-user_manager/user_manager.dart';
+import 'package:sparta_go/constant/constant.dart';
 
 // Add HTTP imports
 import 'package:http/http.dart' as http;
@@ -77,9 +78,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
   bool _isLoading = true;
   String? _expandedEquipmentId; // Track which equipment is expanded
 
-  // TODO: Replace with your actual API base URL
-  static const String baseUrl = 'http://10.0.2.2:8080';
-
   @override
   void initState() {
     super.initState();
@@ -93,10 +91,10 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
         _isLoading = true;
       });
 
-      print('🔄 Fetching equipment from: $baseUrl/equipment/');
+      print('🔄 Fetching equipment from: {$API_URL}/equipment/');
 
       final response = await http.get(
-        Uri.parse('$baseUrl/equipment/'),
+        Uri.parse('{$API_URL}/equipment/'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -155,7 +153,7 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
       print('🔄 Deleting equipment ID: $equipmentId');
 
       final response = await http.delete(
-        Uri.parse('$baseUrl/equipment/$equipmentId'),
+        Uri.parse('{$API_URL}/equipment/$equipmentId'),
         headers: {
           'Content-Type': 'application/json',
         },

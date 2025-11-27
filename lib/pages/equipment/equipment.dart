@@ -6,6 +6,7 @@ import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/pages/reservation/reservation.dart';
 import 'package:sparta_go/pages/profile/profile.dart';
 import 'package:sparta_go/pages/incoming-event/incoming_event.dart';
+import 'package:sparta_go/constant/constant.dart';
 
 // Add these imports for HTTP request
 import 'dart:convert';
@@ -26,9 +27,6 @@ class _EquipmentPageState extends State<EquipmentPage> {
   String searchQuery = '';
 
   List<Map<String, dynamic>> equipment = [];
-
-  // TODO: Replace with your actual API base URL
-  static const String baseUrl = 'http://10.0.2.2:8080';
 
 
   List<Map<String, dynamic>> get filteredEquipment {
@@ -53,11 +51,11 @@ class _EquipmentPageState extends State<EquipmentPage> {
   // Updated: HTTP GET request to fetch equipment
   Future<void> _loadEquipment() async {
     try {
-      print('🔄 Fetching equipment from: $baseUrl/equipment/');
+      print('🔄 Fetching equipment from: {$API_URL}/equipment/');
       
       // Make HTTP GET request
       final response = await http.get(
-        Uri.parse('$baseUrl/equipment/'),
+        Uri.parse('{$API_URL}/equipment/'),
         headers: {
           'Content-Type': 'application/json',
           // Add authorization if needed:

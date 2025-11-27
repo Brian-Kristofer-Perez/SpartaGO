@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';  // Added for date formatting
 import 'package:http/http.dart' as http;  // Added for HTTP requests
 import 'dart:convert';  // Added for JSON encoding
 import '../../common/calendar/calendar.dart';
+import 'package:sparta_go/constant/constant.dart';
 
 class EquipmentBorrowRequestWidget extends StatefulWidget {
   Map<String, dynamic> equipment;
@@ -19,8 +20,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
   DateTime? startDate;
   DateTime? endDate;
 
-  // Define your base URL here (replace with actual API base URL)
-  static const String baseUrl = 'http://10.0.2.2:8080';  
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +143,7 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                   // Replace service call with HTTP POST request
                   try {
                     final response = await http.post(
-                      Uri.parse('$baseUrl/equipment/reservations/'),
+                      Uri.parse('{$API_URL}/equipment/reservations/'),
                       headers: {'Content-Type': 'application/json'},
                       body: json.encode({
                         "equipmentId": widget.equipment['id'].toString(),

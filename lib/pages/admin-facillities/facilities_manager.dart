@@ -5,6 +5,7 @@ import 'package:sparta_go/pages/admin-reservation/reservation_manager.dart';
 import 'dart:convert';
 import 'package:sparta_go/pages/admin-user_manager/user_manager.dart';
 import 'package:http/http.dart' as http;
+import 'package:sparta_go/constant/constant.dart';
 
 // Reusable Filter Chips Widget
 class FilterChipsWidget extends StatelessWidget {
@@ -76,8 +77,6 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
   bool _isLoading = true;
   String? _expandedFacilitiesId; // Track which Facilities is expanded
 
-  // TODO: Replace with your actual API base URL
-  static const String baseUrl = 'http://10.0.2.2:8080';
 
   @override
   void initState() {
@@ -92,10 +91,10 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
         _isLoading = true;
       });
 
-      print('🔄 Fetching Facilities from: $baseUrl/facilities/');
+      print('🔄 Fetching Facilities from: {$API_URL}/facilities/');
 
       final response = await http.get(
-        Uri.parse('$baseUrl/facilities/'),
+        Uri.parse('{$API_URL}/facilities/'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -154,7 +153,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
       print('🔄 Deleting Facilities ID: $facilitiesId');
 
       final response = await http.delete(
-        Uri.parse('$baseUrl/facilities/$facilitiesId'),
+        Uri.parse('{$API_URL}/facilities/$facilitiesId'),
         headers: {
           'Content-Type': 'application/json',
         },

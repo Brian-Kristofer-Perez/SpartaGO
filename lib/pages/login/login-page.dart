@@ -7,6 +7,8 @@ import 'package:sparta_go/pages/login/sign-as-admin.dart';
 import 'package:sparta_go/pages/sign-up/sign-up-page.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:sparta_go/constant/constant.dart';
+
 
 class LoginPage extends StatefulWidget {
   @override
@@ -16,7 +18,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
   
   String? emailError;
   String? passwordError;
@@ -35,24 +36,13 @@ class _LoginPageState extends State<LoginPage> {
     return emailRegex.hasMatch(email);
   }
 
-  bool isValidStudentNumber(String number) {
-    final numberRegex = RegExp(r'^\d{2}-\d{5}$');
-    return numberRegex.hasMatch(number);
-  }
-
-  String? validateEmailOrStudentNumber(String value) {
+  String? validateEmail(String value) {
     if (value.isEmpty) {
       return 'Please enter your email';
     }
     
-    if (value.contains('@')) {
-      if (!isValidEmail(value)) {
-        return 'Please enter a valid email address';
-      }
-    } else {
-      if (!isValidStudentNumber(value)) {
-        return 'Please enter a valid email address';
-      }
+    if (!isValidEmail(value)) {
+      return 'Please enter a valid email address';
     }
     
     return null;
@@ -70,60 +60,59 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-    Future<Map<String, dynamic>> loginUser(String email, String password) async {
-      final url = Uri.parse("http://10.0.2.2:8080/users/login");
+  Future<Map<String, dynamic>> loginUser(String email, String password) async {
+    final url = Uri.parse("{$API_URL}/users/login");
 
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "email": email,
-          "password": password,
-        }),
-      );
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "email": email,
+        "password": password,
+      }),
+    );
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body); // returns user object
-      } else if (response.statusCode == 404) {
-        throw Exception("Invalid email or password");
-      } else {
-        throw Exception("Server error: ${response.statusCode}");
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body); // returns user object
+    } else if (response.statusCode == 404) {
+      throw Exception("Invalid email or password");
+    } else {
+      throw Exception("Server error: ${response.statusCode}");
+    }
+  }
+
+  void handleLogin() async {
+    setState(() {
+      emailError = validateEmail(emailController.text.trim());
+      passwordError = validatePassword(passwordController.text);
+    });
+
+    if (emailError == null && passwordError == null) {
+      try {
+        Map<String, dynamic> user = await loginUser(
+          emailController.text.trim(),
+          passwordController.text.trim(),
+        );
+
+        // Optionally, you can show a success message or directly navigate
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text('Login successful')),
+        // );
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FacilitiesPage(user: user),
+          ),
+        );
+      } catch (e) {
+        final String message = e.toString().replaceFirst("Exception: ", "");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
       }
     }
-
-
-      void handleLogin() async {
-      setState(() {
-        emailError = validateEmailOrStudentNumber(emailController.text.trim());
-        passwordError = validatePassword(passwordController.text);
-      });
-
-      if (emailError == null && passwordError == null) {
-        try {
-          Map<String, dynamic> user = await loginUser(
-            emailController.text.trim(),
-            passwordController.text.trim(),
-          );
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Login successful')),
-          );
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FacilitiesPage(user: user),
-            ),
-          );
-        } catch (e) {
-          final String message = e.toString().replaceFirst("Exception: ", "");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message)),
-          );
-        }
-      }
-    }
-
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +145,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: 32),
             
-            
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -180,7 +168,6 @@ class _LoginPageState extends State<LoginPage> {
             
             SizedBox(height: 16),
             
-          
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
