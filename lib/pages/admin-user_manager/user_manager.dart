@@ -216,13 +216,7 @@ class _UserManagerPageState extends State<UserManagerPage> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Text(
-                    "ID: ${user["id"] ?? "N/A"}",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
+                
                   Row(
                     children: [
                       Icon(Icons.email, size: 14, color: Colors.grey.shade600),

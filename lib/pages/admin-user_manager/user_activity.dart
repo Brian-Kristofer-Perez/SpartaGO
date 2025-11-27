@@ -169,14 +169,6 @@ class _UserActivityPageState extends State<UserActivityPage> {
                                         color: Colors.white,
                                       ),
                                     ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      widget.user['id'] ?? 'N/A',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
                                   ],
                                 ),
                               ),
@@ -369,14 +361,6 @@ class _UserActivityPageState extends State<UserActivityPage> {
                     size: 14,
                     color: Colors.grey.shade600,
                   ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Facility ID: ${reservation['facilityId'] ?? 'N/A'}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade500,
-                    ),
-                  ),
                 ],
               ),
             ],
@@ -477,14 +461,6 @@ class _UserActivityPageState extends State<UserActivityPage> {
                     Icons.tag,
                     size: 14,
                     color: Colors.grey.shade600,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Equipment ID: ${equipment['equipmentId'] ?? 'N/A'}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade500,
-                    ),
                   ),
                 ],
               ),

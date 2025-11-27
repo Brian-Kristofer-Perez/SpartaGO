@@ -17,14 +17,12 @@ class _SignUpPageState extends State<SignUpPage> {
   // Controllers
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController studentNumberController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
 
   // Errors
   String? fullNameError;
   String? emailError;
-  String? studentNumberError;
   String? passwordError;
   String? confirmPasswordError;
 
@@ -35,7 +33,6 @@ class _SignUpPageState extends State<SignUpPage> {
   void dispose() {
     fullNameController.dispose();
     emailController.dispose();
-    studentNumberController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
@@ -66,11 +63,6 @@ class _SignUpPageState extends State<SignUpPage> {
     return null;
   }
 
-  String? validateStudentNumber(String value) {
-    if (value.isEmpty) return 'Please enter your student/employee number';
-    if (value.length < 4) return 'Number must be at least 4 characters';
-    return null;
-  }
 
   String? validatePassword(String value) {
     if (value.isEmpty) return 'Please enter a password';
@@ -97,10 +89,9 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() {
       fullNameError = validateFullName(fullNameController.text.trim());
       emailError = validateEmail(emailController.text.trim());
-      studentNumberError = validateStudentNumber(studentNumberController.text.trim());
     });
 
-    return fullNameError == null && emailError == null && studentNumberError == null;
+    return fullNameError == null && emailError == null;
   }
 
   bool validateStep1() {
@@ -430,26 +421,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 ],
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: 20),
-
-        // Student/Employee Number (Full Width)
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CustomFormInput(
-              label: "Student/Employee Number",
-              controller: studentNumberController,
-            ),
-            if (studentNumberError != null)
-              Padding(
-                padding: const EdgeInsets.only(left: 10, top: 4),
-                child: Text(
-                  studentNumberError!,
-                  style: const TextStyle(color: Colors.red, fontSize: 10),
-                ),
-              ),
           ],
         ),
       ],

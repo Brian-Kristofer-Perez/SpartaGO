@@ -82,18 +82,6 @@ class UserDetailPage extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 4),
-
-                        // Student/Employee Number
-                        Text(
-                          user['id'] ?? 'N/A',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-
                         const SizedBox(height: 20),
 
                         // Divider
@@ -111,30 +99,10 @@ class UserDetailPage extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // User ID
-                              const Text(
-                                'User ID',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.white70,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                user['id'] ?? '00001',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
 
-                              const SizedBox(height: 16),
-
-                              // G-suite
+                              // Gmail
                               const Text(
-                                'G-suite',
+                                'Email',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.white70,
@@ -153,9 +121,9 @@ class UserDetailPage extends StatelessWidget {
 
                               const SizedBox(height: 16),
 
-                              // Role
+                              // User
                               const Text(
-                                'Role',
+                                'User',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.white70,
