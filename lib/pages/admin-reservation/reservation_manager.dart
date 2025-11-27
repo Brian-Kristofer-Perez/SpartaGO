@@ -38,10 +38,14 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
       _isLoading = true;
     });
     try {
-      // Load users (keeping as asset load since no API provided for users)
-      final usersString = await rootBundle.loadString('assets/files/user_manager.json');
-      final usersJson = json.decode(usersString) as List;
-      _users = List<Map<String, dynamic>>.from(usersJson);
+      // Load users via HTTP GET
+      final usersResponse = await http.get(Uri.parse('$API_URL/users/'));
+      if (usersResponse.statusCode == 200) {
+        final usersJson = json.decode(usersResponse.body) as List;
+        _users = List<Map<String, dynamic>>.from(usersJson);
+      } else {
+        throw Exception("Failed to load users: ${usersResponse.statusCode}");
+      }
 
       // Load facility reservations via HTTP GET
       final facilityResponse = await http.get(Uri.parse('$API_URL/facilities/reservations/'));
