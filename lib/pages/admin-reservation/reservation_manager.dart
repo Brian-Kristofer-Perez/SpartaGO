@@ -23,7 +23,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
   
   List<Map<String, dynamic>> _facilityReservations = [];
   List<Map<String, dynamic>> _equipmentReservations = [];
-  List<Map<String, dynamic>> _users = [];
   bool _isLoading = true;
 
   @override
@@ -32,21 +31,12 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
     _loadData();
   }
 
-// Load all data via HTTP requests
+  // Load all data via HTTP requests
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
     });
     try {
-      // Load users via HTTP GET
-      final usersResponse = await http.get(Uri.parse('$API_URL/users/'));
-      if (usersResponse.statusCode == 200) {
-        final usersJson = json.decode(usersResponse.body) as List;
-        _users = List<Map<String, dynamic>>.from(usersJson);
-      } else {
-        throw Exception("Failed to load users: ${usersResponse.statusCode}");
-      }
-
       // Load facility reservations via HTTP GET
       final facilityResponse = await http.get(Uri.parse('$API_URL/facilities/reservations/'));
       if (facilityResponse.statusCode == 200) {
@@ -73,7 +63,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
       setState(() {
         _isLoading = false;
       });
-      // Optionally show a snackbar or dialog for error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading data: $e')),
       );
@@ -81,7 +70,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
   }
 
   // Delete facility reservation via HTTP DELETE
-  Future<void> _deleteFacilityReservation(String id) async {
+  Future<void> _deleteFacilityReservation(int id) async {
     try {
       final response = await http.delete(Uri.parse('$API_URL/facilities/reservations/?reservationId=$id'));
       if (response.statusCode == 200) {
@@ -103,9 +92,8 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
   }
 
   // Delete equipment reservation via HTTP DELETE
-  Future<void> _deleteEquipmentReservation(String id) async {
+  Future<void> _deleteEquipmentReservation(int id) async {
     try {
-      // Find the reservation object to send in the body
       final reservation = _equipmentReservations.firstWhere((r) => r['id'] == id);
       final response = await http.delete(
         Uri.parse('$API_URL/equipment/reservations/$id'),
@@ -130,17 +118,10 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
     }
   }
 
-  // Get user name by userId
-  String _getUserName(String userId) {
-    try {
-      final user = _users.firstWhere(
-        (u) => u['id']?.toString() == userId,
-        orElse: () => {},
-      );
-      return user['name'] ?? 'Unknown User';
-    } catch (e) {
-      return 'Unknown User';
-    }
+  // Get user name from nested user object
+  String _getUserName(Map<String, dynamic>? user) {
+    if (user == null) return 'Unknown User';
+    return user['name']?.toString() ?? 'Unknown User';
   }
 
   // Get reserved dates for the current month
@@ -148,7 +129,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
     Set<int> dates = {};
     for (var reservation in _facilityReservations) {
       try {
-        // Parse date format: "2025-10-01"
+        // Parse date format: "2023-12-05"
         DateTime reservationDate = DateTime.parse(reservation['date']);
         if (reservationDate.year == _selectedMonth.year &&
             reservationDate.month == _selectedMonth.month) {
@@ -323,7 +304,12 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
   }
 
   Widget _buildFacilityReservationCard(Map<String, dynamic> reservation) {
-    final userName = _getUserName(reservation['userId']?.toString() ?? '');
+    // Extract nested objects
+    final facility = reservation['facility'] as Map<String, dynamic>?;
+    final user = reservation['user'] as Map<String, dynamic>?;
+    
+    final facilityName = facility?['name']?.toString() ?? 'Unknown Facility';
+    final userName = _getUserName(user);
     final formattedDate = reservation['date'] != null 
         ? DateFormat('MM/dd/yyyy').format(DateTime.parse(reservation['date']))
         : 'Unknown Date';
@@ -351,7 +337,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
             children: [
               Expanded(
                 child: Text(
-                  reservation['facility'] ?? 'Unknown Facility',
+                  facilityName,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -360,7 +346,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
                 ),
               ),
               IconButton(
-                onPressed: () => _deleteFacilityReservation(reservation['id'].toString()),
+                onPressed: () => _deleteFacilityReservation(reservation['id'] as int),
                 icon: Icon(
                   Icons.delete_outline,
                   color: Colors.red.shade400,
@@ -418,7 +404,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
               ),
               const SizedBox(width: 6),
               Text(
-                reservation['timeSlot'] ?? 'Unknown Time',
+                reservation['timeSlot']?.toString() ?? 'Unknown Time',
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.grey.shade600,
@@ -524,7 +510,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
               ),
             );
           } else if (index == 2) {
-            // Navigate to Facilities
             Navigator.pushReplacement(
               context,
               PageRouteBuilder(
@@ -535,7 +520,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
               ),
             );
           } else if (index == 3) {
-            // Navigate to Equipment
             Navigator.pushReplacement(
               context,
               PageRouteBuilder(
@@ -757,15 +741,24 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
     );
   }
 
-  Widget _buildEquipmentCard(Map<String, dynamic> equipment) {
-    final status = _getEquipmentStatus(equipment['endDate'] ?? '');
+  Widget _buildEquipmentCard(Map<String, dynamic> reservation) {
+    // Extract nested objects
+    final equipment = reservation['equipment'] as Map<String, dynamic>?;
+    final user = reservation['user'] as Map<String, dynamic>?;
+    
+    final equipmentName = equipment?['name']?.toString() ?? 'Unknown Equipment';
+    final equipmentDescription = equipment?['description']?.toString() ?? '';
+    final equipmentImage = equipment?['image']?.toString();
+    
+    final status = _getEquipmentStatus(reservation['endDate'] ?? '');
     final isOverdue = status == 'Overdue';
-    final userName = _getUserName(equipment['userId']?.toString() ?? '');
-    final formattedStartDate = equipment['startDate'] != null 
-        ? DateFormat('MM/dd/yyyy').format(DateTime.parse(equipment['startDate']))
+    final userName = _getUserName(user);
+    
+    final formattedStartDate = reservation['startDate'] != null 
+        ? DateFormat('MM/dd/yyyy').format(DateTime.parse(reservation['startDate']))
         : 'Unknown';
-    final formattedEndDate = equipment['endDate'] != null 
-        ? DateFormat('MM/dd/yyyy').format(DateTime.parse(equipment['endDate']))
+    final formattedEndDate = reservation['endDate'] != null 
+        ? DateFormat('MM/dd/yyyy').format(DateTime.parse(reservation['endDate']))
         : 'Unknown';
 
     return Container(
@@ -786,11 +779,11 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: equipment['image'] != null
+            child: equipmentImage != null
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.asset(
-                      "assets/images/${equipment['image']}",
+                      "assets/images/$equipmentImage",
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Icon(
                         Icons.fitness_center,
@@ -815,7 +808,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
                   children: [
                     Expanded(
                       child: Text(
-                        equipment['name'] ?? 'Unknown Equipment',
+                        equipmentName,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -845,7 +838,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  equipment['description'] ?? '',
+                  equipmentDescription,
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade600,
@@ -855,7 +848,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Count: ${equipment['count'] ?? 'N/A'}',
+                  'Count: ${reservation['count']?.toString() ?? 'N/A'}',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade600,
@@ -885,7 +878,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
           const SizedBox(width: 8),
           // Delete Icon
           IconButton(
-            onPressed: () => _deleteEquipmentReservation(equipment['id'].toString()),
+            onPressed: () => _deleteEquipmentReservation(reservation['id'] as int),
             icon: Icon(
               Icons.delete_outline,
               color: Colors.red.shade400,
