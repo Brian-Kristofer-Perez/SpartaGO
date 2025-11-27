@@ -35,7 +35,7 @@ class EquipmentItemCard extends StatelessWidget{
                 topRight: Radius.circular(16),
               ),
               child: Image.asset(
-                equipment['image'],
+                "assets/images/${equipment['image']}",
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: 175,
