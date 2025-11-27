@@ -531,7 +531,7 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
               borderRadius: BorderRadius.circular(8),
               child: equipment['image'] != null
                   ? Image.asset(
-                      equipment['image'],
+                      "assets/images/${equipment['image']}",
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Icon(
                         Icons.inventory_2_outlined,
@@ -639,7 +639,7 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
               borderRadius: BorderRadius.circular(8),
               child: equipment['image'] != null
                   ? Image.asset(
-                      equipment['image'],
+                      "assets/images/${equipment['image']}",
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: Colors.grey.shade300,

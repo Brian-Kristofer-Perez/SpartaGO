@@ -786,7 +786,7 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.asset(
-                      equipment['image'],
+                      "assets/images/${equipment['image']}",
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Icon(
                         Icons.fitness_center,

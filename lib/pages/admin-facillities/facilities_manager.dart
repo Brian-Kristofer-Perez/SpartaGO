@@ -531,7 +531,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
               borderRadius: BorderRadius.circular(8),
               child: facilities['image'] != null
                   ? Image.asset(
-                      facilities['image'],
+                      "assets/images/${facilities['image']}",
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Icon(
                         Icons.inventory_2_outlined,
@@ -639,7 +639,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
               borderRadius: BorderRadius.circular(8),
               child: facilities['image'] != null
                   ? Image.asset(
-                      facilities['image'],
+                      "assets/images/${facilities['image']}",
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: Colors.grey.shade300,

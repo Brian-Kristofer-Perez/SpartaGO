@@ -5,6 +5,7 @@ import 'package:sparta_go/pages/profile/profile.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:sparta_go/constant/constant.dart';
+import 'package:intl/intl.dart';
 
 
 class ReservationPage extends StatefulWidget {
@@ -82,7 +83,7 @@ class _ReservationPageState extends State<ReservationPage> {
       print('🔄 Fetching facility reservations...');
 
       final response = await http.get(
-        Uri.parse('{$API_URL}/facilities/reservations/?userId=$userId'),
+        Uri.parse('$API_URL/facilities/reservations/?userId=$userId'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -115,7 +116,7 @@ class _ReservationPageState extends State<ReservationPage> {
       print('🔄 Fetching equipment reservations...');
 
       final response = await http.get(
-        Uri.parse('{$API_URL}/equipment/reservations/?userId=$userId'),
+        Uri.parse('$API_URL/equipment/reservations/?userId=$userId'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -148,7 +149,7 @@ class _ReservationPageState extends State<ReservationPage> {
       print('🔄 Deleting facility reservation ID: $reservationId');
 
       final response = await http.delete(
-        Uri.parse('{$API_URL}/facilities/reservations/?reservationId=$reservationId'),
+        Uri.parse('$API_URL/facilities/reservations/?reservationId=$reservationId'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -197,7 +198,6 @@ class _ReservationPageState extends State<ReservationPage> {
   }
 
   // DELETE /equipment/reservations/{id}
-  // Note: According to the API, this requires the full EquipmentReservation object in the request body
   Future<void> _returnEquipment(Map<String, dynamic> equipment) async {
     try {
       final equipmentId = equipment['id'];
@@ -209,11 +209,11 @@ class _ReservationPageState extends State<ReservationPage> {
       print('🔄 Returning equipment reservation ID: $equipmentId');
 
       final response = await http.delete(
-        Uri.parse('{$API_URL}/equipment/reservations/$equipmentId'),
+        Uri.parse('$API_URL/equipment/reservations/$equipmentId'),
         headers: {
           'Content-Type': 'application/json',
         },
-        body: json.encode(equipment), // Send the full equipment object as request body
+        body: json.encode(equipment),
       );
 
       print('📡 Return equipment status: ${response.statusCode}');
@@ -255,6 +255,29 @@ class _ReservationPageState extends State<ReservationPage> {
           ),
         );
       }
+    }
+  }
+
+  // Format date from ISO 8601 to readable format
+  String _formatDate(String? dateStr) {
+    if (dateStr == null) return '';
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('MMM dd, yyyy').format(date);
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  // Format date range for equipment
+  String _formatDateRange(String? startDate, String? endDate) {
+    if (startDate == null || endDate == null) return '';
+    try {
+      final start = DateTime.parse(startDate);
+      final end = DateTime.parse(endDate);
+      return '${DateFormat('MMM dd').format(start)} - ${DateFormat('MMM dd').format(end)}';
+    } catch (e) {
+      return '$startDate - $endDate';
     }
   }
 
@@ -446,6 +469,12 @@ class _ReservationPageState extends State<ReservationPage> {
 
     return Column(
       children: _reservations.map((reservation) {
+        // Parse nested facility object
+        final facility = reservation['facility'] as Map<String, dynamic>?;
+        final facilityName = facility?['name'] ?? 'Unknown';
+        final date = reservation['date'] ?? '';
+        final timeSlot = reservation['timeSlot'] ?? '';
+
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
@@ -461,7 +490,7 @@ class _ReservationPageState extends State<ReservationPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      reservation['name'] ?? 'Unknown',
+                      facilityName,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -478,7 +507,7 @@ class _ReservationPageState extends State<ReservationPage> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          reservation['date'] ?? '',
+                          _formatDate(date),
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade600,
@@ -487,42 +516,38 @@ class _ReservationPageState extends State<ReservationPage> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'Booked on ${reservation['bookedDate'] ?? ''}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          size: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          timeSlot,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // Delete Icon Button
-                  IconButton(
-                    onPressed: () {
-                      _showDeleteReservationDialog(context, reservation);
-                    },
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      color: Color(0xFF8B1E1E),
-                      size: 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(height: 2),
-                  // Time
-                  Text(
-                    reservation['time'] ?? '',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
-                ],
+              // Delete Icon Button
+              IconButton(
+                onPressed: () {
+                  _showDeleteReservationDialog(context, reservation);
+                },
+                icon: const Icon(
+                  Icons.delete_outline,
+                  color: Color(0xFF8B1E1E),
+                  size: 24,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
             ],
           ),
@@ -537,7 +562,15 @@ class _ReservationPageState extends State<ReservationPage> {
     }
 
     return Column(
-      children: _borrowedEquipment.map((equipment) {
+      children: _borrowedEquipment.map((equipmentReservation) {
+        // Parse nested equipment object
+        final equipment = equipmentReservation['equipment'] as Map<String, dynamic>?;
+        final equipmentName = equipment?['name'] ?? 'Unknown';
+        final count = equipmentReservation['count'] ?? 0;
+        final startDate = equipmentReservation['startDate'];
+        final endDate = equipmentReservation['endDate'];
+        final dateRange = _formatDateRange(startDate, endDate);
+
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
@@ -553,7 +586,7 @@ class _ReservationPageState extends State<ReservationPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      equipment['name'] ?? 'Unknown',
+                      equipmentName,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -570,7 +603,7 @@ class _ReservationPageState extends State<ReservationPage> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'Quantity: ${equipment['quantity'] ?? 0}',
+                          'Quantity: $count',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade600,
@@ -579,52 +612,38 @@ class _ReservationPageState extends State<ReservationPage> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'Requested on ${equipment['requestedDate'] ?? ''}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_month,
+                          size: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          dateRange,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // Return Icon Button
-                  IconButton(
-                    onPressed: () {
-                      _showReturnEquipmentDialog(context, equipment);
-                    },
-                    icon: const Icon(
-                      Icons.assignment_return_outlined,
-                      color: Colors.green,
-                      size: 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(height: 2),
-                  // Date Range
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_month,
-                        size: 16,
-                        color: Colors.grey.shade600,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        equipment['dateRange'] ?? '',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              // Return Icon Button
+              IconButton(
+                onPressed: () {
+                  _showReturnEquipmentDialog(context, equipmentReservation);
+                },
+                icon: const Icon(
+                  Icons.assignment_return_outlined,
+                  color: Colors.green,
+                  size: 24,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
             ],
           ),
