@@ -45,6 +45,7 @@ class _UserManagerPageState extends State<UserManagerPage> {
         setState(() {
           _allUsers = jsonList.map<Map<String, dynamic>>((user) {
             return {
+              "id": user["id"]?.toString() ?? "",  // Added id field
               "name": user["name"] ?? "Unknown",
               "email": user["email"] ?? "",
               "password": user["password"] ?? "",
@@ -76,9 +77,9 @@ class _UserManagerPageState extends State<UserManagerPage> {
 
     final query = _searchController.text.toLowerCase();
     return _allUsers.where((user) {
-      final name = user["name"].toLowerCase();
-      final id = user["id"].toLowerCase();
-      final email = user["email"].toLowerCase();
+      final name = (user["name"] ?? "").toLowerCase();
+      final id = (user["id"] ?? "").toLowerCase();
+      final email = (user["email"] ?? "").toLowerCase();
 
       return name.contains(query) ||
           id.contains(query) ||
@@ -184,8 +185,6 @@ class _UserManagerPageState extends State<UserManagerPage> {
   /// CARD UI FOR EACH USER
   /// ----------------------------------------
   Widget _buildUserCard(Map<String, dynamic> user) {
-    
-
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -205,21 +204,20 @@ class _UserManagerPageState extends State<UserManagerPage> {
         ),
         child: Row(
           children: [
-
             /// USER INFO
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    user["name"],
+                    user["name"] ?? "Unknown",
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   Text(
-                    user["id"],
+                    "ID: ${user["id"] ?? "N/A"}",
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey.shade700,
@@ -231,7 +229,7 @@ class _UserManagerPageState extends State<UserManagerPage> {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          user["email"],
+                          user["email"] ?? "",
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
