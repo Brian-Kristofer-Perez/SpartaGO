@@ -75,7 +75,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
 
   List<Map<String, dynamic>> _facilities = [];
   bool _isLoading = true;
-  String? _expandedFacilitiesId; // Track which Facilities is expanded
+  String? _expandedFacilityId; // Track which Facility is expanded
 
 
   @override
@@ -147,13 +147,13 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
     }
   }
 
-  // HTTP DELETE request to delete Facilities
-  Future<void> _deleteFacilities(int facilitiesId) async {
+  // HTTP DELETE request to delete Facility
+  Future<void> _deleteFacility(int facilityId) async {
     try {
-      print('🔄 Deleting Facilities ID: $facilitiesId');
+      print('🔄 Deleting Facility ID: $facilityId');
 
       final response = await http.delete(
-        Uri.parse('$API_URL/facilities/$facilitiesId'),
+        Uri.parse('$API_URL/facilities/$facilityId'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -162,7 +162,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
       print('📡 Response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        print('✅ Facilities deleted successfully');
+        print('✅ Facility deleted successfully');
 
         // Reload Facilities list
         await _loadFacilitiesData();
@@ -170,7 +170,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Facilities deleted successfully'),
+              content: Text('Facility deleted successfully'),
               backgroundColor: Colors.green,
             ),
           );
@@ -181,14 +181,14 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to delete Facilities: ${response.statusCode}'),
+              content: Text('Failed to delete Facility: ${response.statusCode}'),
               backgroundColor: Colors.red,
             ),
           );
         }
       }
     } catch (e) {
-      print('❌ Error deleting Facilities: $e');
+      print('❌ Error deleting Facility: $e');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -212,16 +212,16 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
 
     // Filter by type
     if (_selectedFilter != 'All') {
-      filtered = filtered.where((facilities) {
-        return facilities['type'] == _selectedFilter;
+      filtered = filtered.where((facility) {
+        return facility['type'] == _selectedFilter;
       }).toList();
     }
 
     // Filter by search query
     if (_searchController.text.isNotEmpty) {
       final query = _searchController.text.toLowerCase();
-      filtered = filtered.where((facilities) {
-        final name = facilities['name'].toString().toLowerCase();
+      filtered = filtered.where((facility) {
+        final name = facility['name'].toString().toLowerCase();
         return name.contains(query);
       }).toList();
     }
@@ -229,31 +229,23 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
     return filtered;
   }
 
-  String _getFacilitiesStatus(Map<String, dynamic> facilities) {
-    final available = facilities['available'] as int? ?? 0;
-    if (available > 0) {
-      return 'Available';
-    }
-    return 'Out of Stock';
-  }
-
-  void _toggleFacilitiesExpansion(Map<String, dynamic> facilities) {
+  void _toggleFacilityExpansion(Map<String, dynamic> facility) {
     setState(() {
-      final facilitiesId = facilities['id']?.toString() ?? facilities['name'];
-      if (_expandedFacilitiesId == facilitiesId) {
-        _expandedFacilitiesId = null; // Collapse if already expanded
+      final facilityId = facility['id']?.toString() ?? facility['name'];
+      if (_expandedFacilityId == facilityId) {
+        _expandedFacilityId = null; // Collapse if already expanded
       } else {
-        _expandedFacilitiesId = facilitiesId; // Expand
+        _expandedFacilityId = facilityId; // Expand
       }
     });
   }
 
-  void _showDeleteConfirmation(Map<String, dynamic> facilities) {
+  void _showDeleteConfirmation(Map<String, dynamic> facility) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Facilities'),
-        content: Text('Are you sure you want to delete ${facilities['name']}?'),
+        title: const Text('Delete Facility'),
+        content: Text('Are you sure you want to delete ${facility['name']}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -264,16 +256,16 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
               Navigator.pop(context);
               
               // Call HTTP DELETE
-              final facilitiesId = facilities['id'] as int?;
-              if (facilitiesId != null) {
-                _deleteFacilities(facilitiesId);
+              final facilityId = facility['id'] as int?;
+              if (facilityId != null) {
+                _deleteFacility(facilityId);
                 setState(() {
-                  _expandedFacilitiesId = null; // Collapse after delete
+                  _expandedFacilityId = null; // Collapse after delete
                 });
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Invalid Facilities ID'),
+                    content: Text('Invalid Facility ID'),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -344,7 +336,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
                     controller: _searchController,
                     decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                      hintText: 'Search facilitiess...',
+                      hintText: 'Search facilities...',
                       hintStyle: TextStyle(color: Colors.grey.shade400),
                       filled: true,
                       fillColor: Colors.grey.shade100,
@@ -371,7 +363,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
                     onFilterSelected: (filter) {
                       setState(() {
                         _selectedFilter = filter;
-                        _expandedFacilitiesId = null; // Collapse when filter changes
+                        _expandedFacilityId = null; // Collapse when filter changes
                       });
                     },
                   ),
@@ -386,7 +378,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  Icons.inventory_2_outlined,
+                                  Icons.home_work_outlined,
                                   size: 64,
                                   color: Colors.grey.shade300,
                                 ),
@@ -404,10 +396,10 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
                         : ListView.builder(
                             itemCount: _filteredFacilities.length,
                             itemBuilder: (context, index) {
-                              final facilities = _filteredFacilities[index];
-                              final facilitiesId = facilities['id']?.toString() ?? facilities['name'];
-                              final isExpanded = _expandedFacilitiesId == facilitiesId;
-                              return _buildFacilitiesCard(facilities, isExpanded);
+                              final facility = _filteredFacilities[index];
+                              final facilityId = facility['id']?.toString() ?? facility['name'];
+                              final isExpanded = _expandedFacilityId == facilityId;
+                              return _buildFacilityCard(facility, isExpanded);
                             },
                           ),
                   ),
@@ -488,11 +480,9 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
     );
   }
 
-  Widget _buildFacilitiesCard(Map<String, dynamic> facilities, bool isExpanded) {
-    final status = _getFacilitiesStatus(facilities);
-    
+  Widget _buildFacilityCard(Map<String, dynamic> facility, bool isExpanded) {
     return GestureDetector(
-      onTap: () => _toggleFacilitiesExpansion(facilities),
+      onTap: () => _toggleFacilityExpansion(facility),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         margin: const EdgeInsets.only(bottom: 12),
@@ -505,21 +495,18 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
           ),
         ),
         child: isExpanded 
-            ? _buildExpandedCard(facilities, status)
-            : _buildCollapsedCard(facilities, status),
+            ? _buildExpandedCard(facility)
+            : _buildCollapsedCard(facility),
       ),
     );
   }
 
-  Widget _buildCollapsedCard(Map<String, dynamic> facilities, String status) {
-    final available = facilities['available'] ?? 0;
-    final total = facilities['total'] ?? 0;
-    
+  Widget _buildCollapsedCard(Map<String, dynamic> facility) {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-          // Facilities Image
+          // Facility Image
           Container(
             width: 80,
             height: 80,
@@ -529,31 +516,31 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: facilities['image'] != null
+              child: facility['image'] != null
                   ? Image.asset(
-                      "assets/images/${facilities['image']}",
+                      "assets/images/${facility['image']}",
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Icon(
-                        Icons.inventory_2_outlined,
+                        Icons.home_work_outlined,
                         size: 40,
                         color: Colors.grey.shade400,
                       ),
                     )
                   : Icon(
-                      Icons.inventory_2_outlined,
+                      Icons.home_work_outlined,
                       size: 40,
                       color: Colors.grey.shade400,
                     ),
             ),
           ),
           const SizedBox(width: 12),
-          // Facilities Info
+          // Facility Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  facilities['name'] ?? 'Unknown Facilities',
+                  facility['name'] ?? 'Unknown Facility',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -562,7 +549,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  facilities['description'] ?? '',
+                  facility['description'] ?? '',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade600,
@@ -574,16 +561,20 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
                 Row(
                   children: [
                     Icon(
-                      Icons.inventory,
+                      Icons.location_on,
                       size: 14,
                       color: Colors.grey.shade600,
                     ),
                     const SizedBox(width: 4),
-                    Text(
-                      'Qty: $available/$total',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
+                    Expanded(
+                      child: Text(
+                        facility['building'] ?? 'N/A',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -595,19 +586,15 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: status == 'Available' 
-                        ? Colors.green.shade50 
-                        : Colors.red.shade50,
+                    color: Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    'Status: $status',
+                    facility['type'] ?? 'N/A',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: status == 'Available' 
-                          ? Colors.green.shade700 
-                          : Colors.red.shade700,
+                      color: Colors.blue.shade700,
                     ),
                   ),
                 ),
@@ -619,9 +606,9 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
     );
   }
 
-  Widget _buildExpandedCard(Map<String, dynamic> facilities, String status) {
-    final available = facilities['available'] ?? 0;
-    final total = facilities['total'] ?? 0;
+  Widget _buildExpandedCard(Map<String, dynamic> facility) {
+    final equipment = facility['equipment'] as List<dynamic>?;
+    final equipmentList = equipment?.map((e) => e.toString()).toList() ?? [];
     
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -637,14 +624,14 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: facilities['image'] != null
+              child: facility['image'] != null
                   ? Image.asset(
-                      "assets/images/${facilities['image']}",
+                      "assets/images/${facility['image']}",
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: Colors.grey.shade300,
                         child: Icon(
-                          Icons.inventory_2_outlined,
+                          Icons.home_work_outlined,
                           size: 50,
                           color: Colors.grey.shade400,
                         ),
@@ -653,7 +640,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
                   : Container(
                       color: Colors.grey.shade300,
                       child: Icon(
-                        Icons.inventory_2_outlined,
+                        Icons.home_work_outlined,
                         size: 50,
                         color: Colors.grey.shade400,
                       ),
@@ -662,9 +649,9 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
           ),
           const SizedBox(height: 16),
 
-          // Facilities Name
+          // Facility Name
           Text(
-            facilities['name'] ?? 'Unknown Facilities',
+            facility['name'] ?? 'Unknown Facility',
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -675,7 +662,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
 
           // Description
           Text(
-            facilities['description'] ?? '',
+            facility['description'] ?? '',
             style: const TextStyle(
               fontSize: 14,
               color: Colors.white,
@@ -685,17 +672,39 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
           ),
           const SizedBox(height: 12),
 
-          // Quantity
+          // Building
           Row(
             children: [
               const Icon(
-                Icons.inventory,
+                Icons.location_on,
+                size: 16,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  facility['building'] ?? 'N/A',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Capacity
+          Row(
+            children: [
+              const Icon(
+                Icons.people,
                 size: 16,
                 color: Colors.white,
               ),
               const SizedBox(width: 6),
               Text(
-                'Qty: $available/$total',
+                'Capacity: ${facility['capacity'] ?? 'N/A'}',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.white,
@@ -705,24 +714,69 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
           ),
           const SizedBox(height: 12),
 
-          // Status Badge
+          // Equipment List
+          if (equipmentList.isNotEmpty) ...[
+            const Row(
+              children: [
+                Icon(
+                  Icons.inventory_2,
+                  size: 16,
+                  color: Colors.white,
+                ),
+                SizedBox(width: 6),
+                Text(
+                  'Equipment:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: equipmentList.map((eq) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    eq,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 12),
+          ],
+
+          // Type Badge
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 6,
             ),
             decoration: BoxDecoration(
-              color: status == 'Available' 
-                  ? Colors.green.shade600 
-                  : Colors.red.shade600,
+              color: Colors.white.withOpacity(0.9),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
-              'Status: $status',
+              'Type: ${facility['type'] ?? 'N/A'}',
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: Color(0xFF8B1E1E),
               ),
             ),
           ),
@@ -734,7 +788,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                _showDeleteConfirmation(facilities);
+                _showDeleteConfirmation(facility);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -760,7 +814,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () => _toggleFacilitiesExpansion(facilities),
+              onPressed: () => _toggleFacilityExpansion(facility),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
                 side: BorderSide.none,
