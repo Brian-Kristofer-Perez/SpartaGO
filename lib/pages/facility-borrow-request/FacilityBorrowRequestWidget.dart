@@ -177,8 +177,8 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                     Uri.parse('$API_URL/facilities/reservations/'),
                     headers: {'Content-Type': 'application/json'},
                     body: json.encode({
-                      "userId": widget.user['id'].toString(),
-                      "facilityId": widget.facility['id'].toString(),
+                      "user": widget.user,
+                      "facility": widget.facility,
                       "date": DateFormat('yyyy-MM-dd').format(startDate!),
                       "timeSlot": selectedTime!,
                     }),
