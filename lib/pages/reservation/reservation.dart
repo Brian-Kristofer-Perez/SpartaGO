@@ -143,13 +143,13 @@ class _ReservationPageState extends State<ReservationPage> {
     }
   }
 
-  // DELETE /facilities/reservations/?reservationId={reservationId}
+  // DELETE /facilities/reservations/{reservationId}
   Future<void> _deleteFacilityReservation(int reservationId) async {
     try {
       print('🔄 Deleting facility reservation ID: $reservationId');
 
       final response = await http.delete(
-        Uri.parse('$API_URL/facilities/reservations/?reservationId=$reservationId'),
+        Uri.parse('$API_URL/facilities/reservations/$reservationId'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -213,7 +213,6 @@ class _ReservationPageState extends State<ReservationPage> {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: json.encode(equipment),
       );
 
       print('📡 Return equipment status: ${response.statusCode}');
