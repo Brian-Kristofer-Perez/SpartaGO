@@ -35,7 +35,7 @@ class _UserManagerPageState extends State<UserManagerPage> {
   Future<void> _fetchUsers() async {
     try {
       final response = await http.get(
-        Uri.parse("$API_URL/"),
+        Uri.parse("$API_URL/users/"),
         headers: {"Content-Type": "application/json"},
       );
 
@@ -184,7 +184,7 @@ class _UserManagerPageState extends State<UserManagerPage> {
   /// CARD UI FOR EACH USER
   /// ----------------------------------------
   Widget _buildUserCard(Map<String, dynamic> user) {
-    bool hasImage = user["hasImage"];
+    
 
     return GestureDetector(
       onTap: () {
@@ -205,18 +205,6 @@ class _UserManagerPageState extends State<UserManagerPage> {
         ),
         child: Row(
           children: [
-            /// PROFILE
-            CircleAvatar(
-              radius: 26,
-              backgroundColor:
-                  hasImage ? Colors.orange.shade100 : Colors.grey.shade200,
-              child: Icon(
-                hasImage ? Icons.person : Icons.person_outline,
-                size: 30,
-                color: hasImage ? Colors.orange.shade700 : Colors.grey,
-              ),
-            ),
-            const SizedBox(width: 16),
 
             /// USER INFO
             Expanded(
