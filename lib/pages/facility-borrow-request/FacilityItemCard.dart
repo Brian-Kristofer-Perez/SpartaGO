@@ -28,7 +28,7 @@ class FacilityItemCard extends StatelessWidget {
                     width: double.infinity,
                     color: Colors.grey[300],
                     child: Image.asset(
-                      facility['image'],
+                      "assets/images/${facility['image']}",
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Icon(
                         Icons.fitness_center,

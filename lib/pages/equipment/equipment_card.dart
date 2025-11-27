@@ -27,7 +27,7 @@ class EquipmentCard extends StatelessWidget {
               width: double.infinity,
               color: Colors.grey[300],
               child: Image.asset(
-                equipment['image'],
+                "assets/images/${equipment['image']}",
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Icon(
                   Icons.fitness_center,
