@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';  // Added for date formatting
-import 'package:http/http.dart' as http;  // Added for HTTP requests
-import 'dart:convert';  // Added for JSON encoding
+import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:sparta_go/pages/facility-borrow-request/ReservationSummaryCard.dart';
 import 'package:sparta_go/pages/facility-borrow-request/TimeSlotSelector.dart';
 import '../../common/calendar/calendar.dart';
@@ -19,7 +19,73 @@ class FacilityBorrowRequestWidget extends StatefulWidget {
 class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidget> {
   DateTime? startDate;
   String? selectedTime;
-  
+  List<String> availableTimeSlots = [];
+  bool isLoadingSlots = false;
+
+  // All possible time slots
+  final List<String> allTimeSlots = [
+    "5:00 - 6:00pm",
+    "6:00 - 7:00pm",
+    "7:00 - 8:00pm"
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    availableTimeSlots = List<String>.from(allTimeSlots);
+  }
+
+  Future<void> _fetchAvailableTimeSlots() async {
+    if (startDate == null) return;
+
+    setState(() {
+      isLoadingSlots = true;
+    });
+
+    try {
+      final formattedDate = DateFormat('yyyy-MM-dd').format(startDate!);
+      final response = await http.get(
+        Uri.parse('$API_URL/facilities/reservations/${widget.facility['id']}?date=$formattedDate'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> reservations = json.decode(response.body);
+        
+        // Extract reserved time slots
+        final reservedSlots = reservations
+            .map((reservation) => reservation['timeSlot'] as String)
+            .toSet();
+
+        // Filter out reserved slots from all time slots
+        setState(() {
+          availableTimeSlots = allTimeSlots
+              .where((slot) => !reservedSlots.contains(slot))
+              .toList();
+          
+          // Reset selected time if it's no longer available
+          if (selectedTime != null && !availableTimeSlots.contains(selectedTime)) {
+            selectedTime = null;
+          }
+          
+          isLoadingSlots = false;
+        });
+      } else {
+        setState(() {
+          availableTimeSlots = List<String>.from(allTimeSlots);
+          isLoadingSlots = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        availableTimeSlots = List<String>.from(allTimeSlots);
+        isLoadingSlots = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching time slots: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,17 +112,28 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                 _dateSelector(
                   label: 'Date',
                   selectedDate: startDate,
-                  onPicked: (picked) => setState(() => startDate = picked),
+                  onPicked: (picked) async {
+                    setState(() {
+                      startDate = picked;
+                      selectedTime = null; // Reset time when date changes
+                    });
+                    await _fetchAvailableTimeSlots();
+                  },
                 ),
                 const SizedBox(width: 6),
-                TimeSlotSelector(
-                  availableSlots: List<String>.from(widget.facility['availableTimeSlots']),
-                  onSelected: (time) {
-                    setState(() {
-                      selectedTime = time;
-                    });
-                  },
-                )
+                isLoadingSlots
+                    ? const Padding(
+                        padding: EdgeInsets.only(top: 30),
+                        child: CircularProgressIndicator(),
+                      )
+                    : TimeSlotSelector(
+                        availableSlots: availableTimeSlots,
+                        onSelected: (time) {
+                          setState(() {
+                            selectedTime = time;
+                          });
+                        },
+                      )
               ],
             ),
             const SizedBox(height: 24),
@@ -67,6 +144,13 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
               date: startDate,
               time: selectedTime,
               onConfirm: () async {
+                if (startDate == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Enter a valid date')),
+                  );
+                  return;
+                }
+
                 if (startDate!.isBefore(
                     DateTime(
                         DateTime.now().year,
@@ -76,13 +160,6 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                 )) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Start date must be at least today')),
-                  );
-                  return;
-                }
-
-                if (startDate == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Enter a valid date')),
                   );
                   return;
                 }
@@ -144,11 +221,9 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
           child: OutlinedButton.icon(
             onPressed: () async {
               final picked = await showCustomCalendarDialog(context);
-              if (picked != null) onPicked(picked);
-
-              setState(() {
-                startDate = picked;
-              });
+              if (picked != null) {
+                await onPicked(picked);
+              }
             },
             icon: const Icon(Icons.calendar_today, size: 18),
             label: Text(
