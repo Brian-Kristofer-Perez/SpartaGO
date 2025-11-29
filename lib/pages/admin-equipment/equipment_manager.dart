@@ -1012,21 +1012,21 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: equipment['image'] != null
-                  ? Image.asset(
-                      "assets/images/${equipment['image']}",
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Icon(
-                        Icons.inventory_2_outlined,
-                        size: 40,
-                        color: Colors.grey.shade400,
-                      ),
-                    )
-                  : Icon(
-                      Icons.inventory_2_outlined,
-                      size: 40,
-                      color: Colors.grey.shade400,
-                    ),
+              child: equipment['image'] != null && equipment['image'].toString().isNotEmpty
+            ? Image.memory(
+                base64Decode(equipment['image']),
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Icon(
+                  Icons.inventory_2_outlined,
+                  size: 40,
+                  color: Colors.grey.shade400,
+                ),
+              )
+            : Icon(
+                Icons.inventory_2_outlined,
+                size: 40,
+                color: Colors.grey.shade400,
+              )
             ),
           ),
           const SizedBox(width: 12),
@@ -1120,27 +1120,19 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: equipment['image'] != null
-                  ? Image.asset(
-                      "assets/images/${equipment['image']}",
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey.shade300,
-                        child: Icon(
-                          Icons.inventory_2_outlined,
-                          size: 50,
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                    )
-                  : Container(
-                      color: Colors.grey.shade300,
-                      child: Icon(
-                        Icons.inventory_2_outlined,
-                        size: 50,
-                        color: Colors.grey.shade400,
-                      ),
-                    ),
+              child: equipment['image'] != null && equipment['image'].toString().isNotEmpty
+              ? _buildImage(
+                  equipment['image'],
+                  Icons.inventory_2_outlined,
+                )
+              : Container(
+                  color: Colors.grey.shade300,
+                  child: Icon(
+                    Icons.inventory_2_outlined,
+                    size: 50,
+                    color: Colors.grey.shade400,
+                  ),
+                ),
             ),
           ),
           const SizedBox(height: 16),
@@ -1267,6 +1259,49 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
       ),
     );
   }
+
+  Widget _buildImage(String imageData, IconData fallbackIcon) {
+  if (imageData.length > 100 && !imageData.contains('.')) {
+    // It's base64
+    try {
+      return Image.memory(
+        base64Decode(imageData),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          color: Colors.grey.shade300,
+          child: Icon(
+            fallbackIcon,
+            size: 50,
+            color: Colors.grey.shade400,
+          ),
+        ),
+      );
+    } catch (e) {
+      print('Error decoding base64 image: $e');
+      return Container(
+        color: Colors.grey.shade300,
+        child: Icon(
+          fallbackIcon,
+          size: 50,
+          color: Colors.grey.shade400,
+        ),
+      );
+    }
+  } else {
+    return Image.asset(
+      "assets/images/$imageData",
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        color: Colors.grey.shade300,
+        child: Icon(
+          fallbackIcon,
+          size: 50,
+          color: Colors.grey.shade400,
+        ),
+      ),
+    );
+  }
+}
 
   void _showLogoutDialog() {
     showDialog(

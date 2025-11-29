@@ -1041,21 +1041,21 @@ Future<void> _pickImage() async {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: facility['image'] != null
-                  ? Image.asset(
-                      "assets/images/${facility['image']}",
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Icon(
+              child: facility['image'] != null && facility['image'].toString().isNotEmpty
+                    ? Image.memory(
+                        base64Decode(facility['image']),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.home_work_outlined,
+                          size: 40,
+                          color: Colors.grey.shade400,
+                        ),
+                      )
+                    : Icon(
                         Icons.home_work_outlined,
                         size: 40,
                         color: Colors.grey.shade400,
-                      ),
-                    )
-                  : Icon(
-                      Icons.home_work_outlined,
-                      size: 40,
-                      color: Colors.grey.shade400,
-                    ),
+                      )
             ),
           ),
           const SizedBox(width: 12),
@@ -1149,27 +1149,19 @@ Future<void> _pickImage() async {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: facility['image'] != null
-                  ? Image.asset(
-                      "assets/images/${facility['image']}",
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey.shade300,
-                        child: Icon(
-                          Icons.home_work_outlined,
-                          size: 50,
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                    )
-                  : Container(
-                      color: Colors.grey.shade300,
-                      child: Icon(
-                        Icons.home_work_outlined,
-                        size: 50,
-                        color: Colors.grey.shade400,
-                      ),
-                    ),
+              child: facility['image'] != null && facility['image'].toString().isNotEmpty
+              ? _buildImage(
+                  facility['image'],
+                  Icons.home_work_outlined,
+                )
+              : Container(
+                  color: Colors.grey.shade300,
+                  child: Icon(
+                    Icons.home_work_outlined,
+                    size: 50,
+                    color: Colors.grey.shade400,
+                  ),
+                ),
             ),
           ),
           const SizedBox(height: 16),
@@ -1363,6 +1355,51 @@ Future<void> _pickImage() async {
       ),
     );
   }
+
+  Widget _buildImage(String imageData, IconData fallbackIcon) {
+  // Check if it's base64 (base64 strings are typically very long and don't have file extensions)
+  if (imageData.length > 100 && !imageData.contains('.')) {
+    // It's base64
+    try {
+      return Image.memory(
+        base64Decode(imageData),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          color: Colors.grey.shade300,
+          child: Icon(
+            fallbackIcon,
+            size: 50,
+            color: Colors.grey.shade400,
+          ),
+        ),
+      );
+    } catch (e) {
+      print('Error decoding base64 image: $e');
+      return Container(
+        color: Colors.grey.shade300,
+        child: Icon(
+          fallbackIcon,
+          size: 50,
+          color: Colors.grey.shade400,
+        ),
+      );
+    }
+  } else {
+    // It's a filename, load from assets
+    return Image.asset(
+      "assets/images/$imageData",
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        color: Colors.grey.shade300,
+        child: Icon(
+          fallbackIcon,
+          size: 50,
+          color: Colors.grey.shade400,
+        ),
+      ),
+    );
+  }
+}
 
   void _showLogoutDialog() {
     showDialog(
