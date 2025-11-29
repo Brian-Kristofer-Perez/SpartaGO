@@ -1260,48 +1260,46 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
     );
   }
 
-  Widget _buildImage(String imageData, IconData fallbackIcon) {
-  if (imageData.length > 100 && !imageData.contains('.')) {
-    // It's base64
-    try {
-      return Image.memory(
-        base64Decode(imageData),
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Container(
+    Widget _buildImage(String imageData, IconData fallbackIcon) {
+    // Check if it's base64 (base64 strings are typically long and have no file extension)
+    if (imageData.length > 100 && !imageData.contains('.')) {
+      try {
+        return Image.memory(
+          base64Decode(imageData),
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: Colors.grey.shade300,
+            child: Icon(
+              fallbackIcon,
+              size: 50,
+              color: Colors.grey.shade400,
+            ),
+          ),
+        );
+      } catch (e) {
+        print('Error decoding base64 image: $e');
+        return Container(
           color: Colors.grey.shade300,
           child: Icon(
             fallbackIcon,
             size: 50,
             color: Colors.grey.shade400,
           ),
-        ),
-      );
-    } catch (e) {
-      print('Error decoding base64 image: $e');
-      return Container(
-        color: Colors.grey.shade300,
-        child: Icon(
-          fallbackIcon,
-          size: 50,
-          color: Colors.grey.shade400,
-        ),
-      );
+        );
+      }
     }
-  } else {
-    return Image.asset(
-      "assets/images/$imageData",
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => Container(
-        color: Colors.grey.shade300,
-        child: Icon(
-          fallbackIcon,
-          size: 50,
-          color: Colors.grey.shade400,
-        ),
+
+    // Fallback widget when image is NOT base64 (no Image.asset)
+    return Container(
+      color: Colors.grey.shade300,
+      child: Icon(
+        fallbackIcon,
+        size: 50,
+        color: Colors.grey.shade400,
       ),
     );
   }
-}
+
 
   void _showLogoutDialog() {
     showDialog(
