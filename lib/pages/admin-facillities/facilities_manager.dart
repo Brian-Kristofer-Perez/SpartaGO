@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'package:sparta_go/pages/admin-user_manager/user_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:sparta_go/constant/constant.dart';
+import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
 
 // Reusable Filter Chips Widget
 class FilterChipsWidget extends StatelessWidget {
@@ -72,6 +74,8 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
   int _currentIndex = 2; // Facilities tab selected
   String _selectedFilter = 'All';
   final TextEditingController _searchController = TextEditingController();
+  Uint8List? _selectedImageBytes; // Store the image bytes
+  String? _selectedImageName; // Store the image filename
 
   List<Map<String, dynamic>> _facilities = [];
   bool _isLoading = true;
@@ -208,74 +212,118 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
     }
   }
 
-  // HTTP POST add facility
-  Future<void> _addFacility() async {
-  try {
-    final facilityData = {
-      "name": nameController.text,
-      "description": descController.text,
-      "image": imageController.text,
-      "building": buildingController.text,
-      "capacity": capacityController.text,
-      "equipment": equipmentController.text
-          .split(',')
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty)
-          .toList(),
-      "type": typeController.text
-    };
-
-    print('🔄 Adding new facility: $facilityData');
-
-    final response = await http.post(
-      Uri.parse('$API_URL/facilities/'),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(facilityData),
-    );
-
-    print('📡 Response status: ${response.statusCode}');
-
-    if (response.statusCode == 201 || response.statusCode == 200) {
-      print('✅ Facility added successfully');
-      
-      // Clear controllers
-      nameController.clear();
-      descController.clear();
-      imageController.clear();
-      buildingController.clear();
-      capacityController.clear();
-      equipmentController.clear();
-      typeController.clear();
-
-      // Reload facilities list
-      await _loadFacilitiesData();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Facility added successfully"),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pop(context); // Close the dialog
+    // HTTP POST add facility
+    Future<void> _addFacility() async {
+    try {
+      // Convert image bytes to base64 if image is selected
+      String? base64Image;
+      if (_selectedImageBytes != null) {
+        base64Image = base64Encode(_selectedImageBytes!);
+        print('📷 Image encoded to base64, length: ${base64Image.length}');
       }
-    } else {
-      print('❌ Error: ${response.body}');
+
+      final facilityData = {
+        "name": nameController.text,
+        "description": descController.text,
+        "image": base64Image, // Send base64 string instead of filename
+        "building": buildingController.text,
+        "capacity": capacityController.text,
+        "equipment": equipmentController.text
+            .split(',')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList(),
+        "type": typeController.text
+      };
+
+      print('🔄 Adding new facility: ${facilityData.keys}');
+
+      final response = await http.post(
+        Uri.parse('$API_URL/facilities/'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(facilityData),
+      );
+
+      print('📡 Response status: ${response.statusCode}');
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        print('✅ Facility added successfully');
+        
+        // Clear controllers and image
+        nameController.clear();
+        descController.clear();
+        imageController.clear();
+        buildingController.clear();
+        capacityController.clear();
+        equipmentController.clear();
+        typeController.clear();
+        setState(() {
+          _selectedImageBytes = null;
+          _selectedImageName = null;
+        });
+
+        // Reload facilities list
+        await _loadFacilitiesData();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Facility added successfully"),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context);
+        }
+      } else {
+        print('❌ Error: ${response.body}');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Error: ${response.statusCode}"),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print("❌ Error adding facility: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error: ${response.statusCode}"),
+            content: Text("Error: $e"),
             backgroundColor: Colors.red,
           ),
         );
       }
     }
+  }
+
+// Image for add facility
+Future<void> _pickImage() async {
+  try {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1920,
+      maxHeight: 1080,
+      imageQuality: 85,
+    );
+
+    if (image != null) {
+      final bytes = await image.readAsBytes();
+      setState(() {
+        _selectedImageBytes = bytes;
+        _selectedImageName = image.name;
+      });
+      
+      print('✅ Image selected: ${image.name}, Size: ${bytes.length} bytes');
+    }
   } catch (e) {
-    print("❌ Error adding facility: $e");
+    print('❌ Error picking image: $e');
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Error: $e"),
+          content: Text('Error picking image: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -385,16 +433,20 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.black),
                 onPressed: () {
-                  // Clear controllers
-                  nameController.clear();
-                  descController.clear();
-                  imageController.clear();
-                  buildingController.clear();
-                  capacityController.clear();
-                  equipmentController.clear();
-                  typeController.clear();
-                  Navigator.pop(context);
-                },
+              // Clear controllers and image
+              nameController.clear();
+              descController.clear();
+              imageController.clear();
+              buildingController.clear();
+              capacityController.clear();
+              equipmentController.clear();
+              typeController.clear();
+              setState(() {
+                _selectedImageBytes = null;
+                _selectedImageName = null;
+              });
+              Navigator.pop(context);
+            },
               ),
               title: const Text(
                 'Add Facility',
@@ -414,30 +466,42 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
                   children: [
                     // Image Placeholder
                     Center(
-                      child: Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300, width: 2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.image_outlined,
-                              size: 40,
-                              color: Colors.grey.shade400,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Add Facility Photo',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
+                      child: GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300, width: 2),
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.grey.shade50,
+                          ),
+                          child: _selectedImageBytes != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: Image.memory(
+                                    _selectedImageBytes!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.add_photo_alternate,
+                                      size: 40,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Add Facility Photo',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                         ),
                       ),
                     ),

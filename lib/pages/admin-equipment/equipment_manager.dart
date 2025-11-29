@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:sparta_go/pages/admin-user_manager/user_manager.dart';
 import 'package:sparta_go/constant/constant.dart';
 import 'package:http/http.dart' as http;
+import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
 
 // Reusable Filter Chips Widget
 class FilterChipsWidget extends StatelessWidget {
@@ -71,6 +73,8 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
   int _currentIndex = 3; // Equipment tab selected
   String _selectedFilter = 'All';
   final TextEditingController _searchController = TextEditingController();
+  Uint8List? _selectedImageBytes; // Store the image bytes
+  String? _selectedImageName; // Store the image filename
 
   List<Map<String, dynamic>> _equipment = [];
   bool _isLoading = true;
@@ -206,19 +210,26 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
     }
   }
 
-  // HTTP POST add equipment
-  Future<void> _addEquipment() async {
+    // HTTP POST add equipment
+    Future<void> _addEquipment() async {
     try {
+      // Convert image bytes to base64 if image is selected
+      String? base64Image;
+      if (_selectedImageBytes != null) {
+        base64Image = base64Encode(_selectedImageBytes!);
+        print('📷 Image encoded to base64, length: ${base64Image.length}');
+      }
+
       final equipmentData = {
         "name": nameController.text,
         "description": descController.text,
-        "image": imageController.text,
+        "image": base64Image, // Send base64 string instead of filename
         "available": int.tryParse(availableController.text) ?? 0,
         "total": int.tryParse(totalController.text) ?? 0,
         "type": typeController.text
       };
 
-      print('🔄 Adding new equipment: $equipmentData');
+      print('🔄 Adding new equipment: ${equipmentData.keys}');
 
       final response = await http.post(
         Uri.parse('$API_URL/equipment/'),
@@ -231,13 +242,17 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
       if (response.statusCode == 201 || response.statusCode == 200) {
         print('✅ Equipment added successfully');
         
-        // Clear controllers
+        // Clear controllers and image
         nameController.clear();
         descController.clear();
         imageController.clear();
         availableController.clear();
         totalController.clear();
         typeController.clear();
+        setState(() {
+          _selectedImageBytes = null;
+          _selectedImageName = null;
+        });
 
         // Reload equipment list
         await _loadEquipmentData();
@@ -249,7 +264,7 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.pop(context); // Close the form screen
+          Navigator.pop(context);
         }
       } else {
         print('❌ Error: ${response.body}');
@@ -274,6 +289,39 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
       }
     }
   }
+ 
+ // Image for add equipment
+  Future<void> _pickImage() async {
+  try {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1920,
+      maxHeight: 1080,
+      imageQuality: 85,
+    );
+
+    if (image != null) {
+      final bytes = await image.readAsBytes();
+      setState(() {
+        _selectedImageBytes = bytes;
+        _selectedImageName = image.name;
+      });
+      
+      print('✅ Image selected: ${image.name}, Size: ${bytes.length} bytes');
+    }
+  } catch (e) {
+    print('❌ Error picking image: $e');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error picking image: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+}
 
   @override
   void dispose() {
@@ -383,15 +431,19 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black),
               onPressed: () {
-                // Clear controllers
-                nameController.clear();
-                descController.clear();
-                imageController.clear();
-                availableController.clear();
-                totalController.clear();
-                typeController.clear();
-                Navigator.pop(context);
-              },
+              // Clear controllers and image
+              nameController.clear();
+              descController.clear();
+              imageController.clear();
+              availableController.clear();
+              totalController.clear();
+              typeController.clear();
+              setState(() {
+                _selectedImageBytes = null;
+                _selectedImageName = null;
+              });
+              Navigator.pop(context);
+            },
             ),
             title: const Text(
               'Add Equipment',
@@ -411,30 +463,42 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
                 children: [
                   // Image Placeholder
                   Center(
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade300, width: 2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.image_outlined,
-                            size: 40,
-                            color: Colors.grey.shade400,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Add Equipment Photo',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300, width: 2),
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.grey.shade50,
+                        ),
+                        child: _selectedImageBytes != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Image.memory(
+                                  _selectedImageBytes!,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add_photo_alternate,
+                                    size: 40,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Add Equipment Photo',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
                     ),
                   ),
