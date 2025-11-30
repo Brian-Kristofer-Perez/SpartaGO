@@ -7,6 +7,7 @@ import 'package:sparta_go/pages/admin-user_manager/user_manager.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:sparta_go/constant/constant.dart';
+import 'dart:typed_data';
 
 class ReservationManagerPage extends StatefulWidget {
   const ReservationManagerPage({Key? key}) : super(key: key);
@@ -755,24 +756,10 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: equipmentImage != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      "assets/images/$equipmentImage",
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Icon(
-                        Icons.fitness_center,
-                        size: 35,
-                        color: Colors.grey.shade400,
-                      ),
-                    ),
-                  )
-                : Icon(
-                    Icons.fitness_center,
-                    size: 35,
-                    color: Colors.grey.shade400,
-                  ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: _buildImage(equipmentImage),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -951,5 +938,34 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
         ],
       ),
     );
+  }
+
+    Widget _buildImage(String? imageData) {
+    if (imageData == null || imageData.isEmpty) {
+      return Icon(
+        Icons.fitness_center,
+        size: 35,
+        color: Colors.grey[400],
+      );
+    }
+
+    try {
+      return Image.memory(
+        base64Decode(imageData),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Icon(
+          Icons.fitness_center,
+          size: 35,
+          color: Colors.grey[400],
+        ),
+      );
+    } catch (e) {
+      print('Error decoding base64 image: $e');
+      return Icon(
+        Icons.fitness_center,
+        size: 35,
+        color: Colors.grey[400],
+      );
+    }
   }
 }
