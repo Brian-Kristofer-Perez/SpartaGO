@@ -32,11 +32,9 @@ class UserDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               // Back Button
               const CustomBackButton(),
               const SizedBox(height: 10),
 
-              // Title
               const Text(
                 'User Manager',
                 style: TextStyle(
@@ -55,12 +53,10 @@ class UserDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // User Detail Card with overlapping profile picture
               Stack(
                 clipBehavior: Clip.none,
                 alignment: Alignment.topCenter,
                 children: [
-                  // Main Card
                   Container(
                     margin: const EdgeInsets.only(top: 60),
                     width: double.infinity,
@@ -72,7 +68,6 @@ class UserDetailPage extends StatelessWidget {
                       children: [
                         const SizedBox(height: 70),
 
-                        // User Name
                         Text(
                           user['name'] ?? 'Unknown User',
                           style: const TextStyle(
@@ -82,21 +77,8 @@ class UserDetailPage extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 4),
-
-                        // Student/Employee Number
-                        Text(
-                          user['id'] ?? 'N/A',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-
                         const SizedBox(height: 20),
 
-                        // Divider
                         Container(
                           margin: const EdgeInsets.symmetric(horizontal: 40),
                           height: 1,
@@ -105,36 +87,14 @@ class UserDetailPage extends StatelessWidget {
 
                         const SizedBox(height: 20),
 
-                        // User Details
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 30),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // User ID
-                              const Text(
-                                'User ID',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.white70,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                user['id'] ?? '00001',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
 
-                              const SizedBox(height: 16),
-
-                              // G-suite
                               const Text(
-                                'G-suite',
+                                'Email',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.white70,
@@ -153,9 +113,8 @@ class UserDetailPage extends StatelessWidget {
 
                               const SizedBox(height: 16),
 
-                              // Role
                               const Text(
-                                'Role',
+                                'User',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.white70,
@@ -177,12 +136,10 @@ class UserDetailPage extends StatelessWidget {
                           ),
                         ),
 
-                        // Buttons
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 30),
                           child: Column(
                             children: [
-                              // View User Activity Button
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton(
@@ -215,7 +172,6 @@ class UserDetailPage extends StatelessWidget {
 
                               const SizedBox(height: 10),
 
-                              // Delete User Button
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton(
@@ -248,8 +204,7 @@ class UserDetailPage extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  // Profile Picture (overlapping)
+                  
                   Positioned(
                     top: 0,
                     child: Container(
@@ -312,8 +267,8 @@ class UserDetailPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Go back to user list
+              Navigator.pop(context);
+              Navigator.pop(context); 
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('${user['name']} deleted successfully'),

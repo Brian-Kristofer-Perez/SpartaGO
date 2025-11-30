@@ -5,8 +5,10 @@ import 'package:sparta_go/common/filter_chips_widget.dart';
 import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/pages/reservation/reservation.dart';
 import 'package:sparta_go/pages/profile/profile.dart';
-import 'package:sparta_go/services/EquipmentService.dart';
 import 'package:sparta_go/pages/incoming-event/incoming_event.dart';
+import 'package:sparta_go/constant/constant.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class EquipmentPage extends StatefulWidget {
 
@@ -44,12 +46,55 @@ class _EquipmentPageState extends State<EquipmentPage> {
     return filtered;
   }
 
-  // Helper: Async function to get equipment
   Future<void> _loadEquipment() async {
-    final data = await EquipmentService().getAllEquipment();
-    setState(() {
-      equipment = data;
-    });
+    try {
+      print('🔄 Fetching equipment from: {$API_URL}/equipment/');
+      
+      final response = await http.get(
+        Uri.parse('$API_URL/equipment/'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('📡 Response status: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        final List<Map<String, dynamic>> data = 
+            jsonData.map((item) => item as Map<String, dynamic>).toList();
+        
+        print('✅ Successfully fetched ${data.length} equipment items');
+        
+        setState(() {
+          equipment = data;
+        });
+        
+      } else {
+        print('❌ Error: Status code ${response.statusCode}');
+        print('Response body: ${response.body}');
+      
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to load equipment: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+      
+    } catch (e) {
+      print('❌ Error fetching equipment: $e');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -57,8 +102,6 @@ class _EquipmentPageState extends State<EquipmentPage> {
     super.initState();
     _loadEquipment();
   }
-
-  // Helper: Callback upon navigation tap
   void _onNavTapped(int index) {
     if (index == 0) {
       Navigator.pushReplacement(

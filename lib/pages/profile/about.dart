@@ -45,7 +45,6 @@ class AboutPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // App Description Section
               const Text(
                 'App Description',
                 style: TextStyle(
@@ -66,7 +65,6 @@ class AboutPage extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Mission Section
               const Text(
                 'Mission',
                 style: TextStyle(
@@ -87,7 +85,6 @@ class AboutPage extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Features Section
               const Text(
                 'Features',
                 style: TextStyle(
@@ -105,7 +102,6 @@ class AboutPage extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Developers Section
               const Text(
                 'Developers',
                 style: TextStyle(
@@ -123,7 +119,6 @@ class AboutPage extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Supported by Section
               const Text(
                 'Supported by',
                 style: TextStyle(

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:sparta_go/pages/equipment/equipment.dart';
 import 'package:sparta_go/pages/facilities/facilities.dart';
 import 'package:sparta_go/pages/profile/profile.dart';
-import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:sparta_go/constant/constant.dart';
+import 'package:intl/intl.dart';
 
 
 class ReservationPage extends StatefulWidget {
@@ -21,7 +23,6 @@ class _ReservationPageState extends State<ReservationPage> {
   int _currentIndex = 2;
   int _selectedTab = 0;
 
-
   List<Map<String, dynamic>> _reservations = [];
   List<Map<String, dynamic>> _borrowedEquipment = [];
   bool _isLoading = true;
@@ -33,32 +34,241 @@ class _ReservationPageState extends State<ReservationPage> {
     _loadData();
   }
 
-
-  // Load data from combined JSON file
   Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      // Load combined history data
-      final historyString = await rootBundle.loadString('assets/files/reservation_data.json');
-      final historyJson = json.decode(historyString);
+      final userId = widget.user['id'];
+      
+      if (userId == null) {
+        throw Exception('User ID not found');
+      }
 
+      print('🔄 Fetching reservations for user ID: $userId');
+
+      await _loadFacilityReservations(userId);
+      await _loadEquipmentReservations(userId);
 
       setState(() {
-        _reservations = List<Map<String, dynamic>>.from(historyJson['reservations']);
-        _borrowedEquipment = List<Map<String, dynamic>>.from(historyJson['borrowedEquipment']);
         _isLoading = false;
       });
+
     } catch (e) {
-      print('Error loading data: $e');
+      print('❌ Error loading data: $e');
       setState(() {
         _isLoading = false;
       });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
+  Future<void> _loadFacilityReservations(int userId) async {
+    try {
+      print('🔄 Fetching facility reservations...');
+
+      final response = await http.get(
+        Uri.parse('$API_URL/facilities/reservations/?userId=$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('📡 Facility reservations status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        final List<Map<String, dynamic>> reservations = 
+            jsonData.map((item) => item as Map<String, dynamic>).toList();
+
+        print('✅ Loaded ${reservations.length} facility reservations');
+
+        setState(() {
+          _reservations = reservations;
+        });
+      } else {
+        print('❌ Failed to load facility reservations: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error loading facility reservations: $e');
+      throw e;
+    }
+  }
+
+  Future<void> _loadEquipmentReservations(int userId) async {
+    try {
+      print('🔄 Fetching equipment reservations...');
+
+      final response = await http.get(
+        Uri.parse('$API_URL/equipment/reservations/?userId=$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('📡 Equipment reservations status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        final List<Map<String, dynamic>> equipment = 
+            jsonData.map((item) => item as Map<String, dynamic>).toList();
+
+        print('✅ Loaded ${equipment.length} equipment reservations');
+
+        setState(() {
+          _borrowedEquipment = equipment;
+        });
+      } else {
+        print('❌ Failed to load equipment reservations: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error loading equipment reservations: $e');
+      throw e;
+    }
+  }
+
+  Future<void> _deleteFacilityReservation(int reservationId) async {
+    try {
+      print('🔄 Deleting facility reservation ID: $reservationId');
+
+      final response = await http.delete(
+        Uri.parse('$API_URL/facilities/reservations/$reservationId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('📡 Delete facility reservation status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        print('✅ Facility reservation deleted successfully');
+
+        await _loadData();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Reservation deleted successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        print('❌ Failed to delete reservation: ${response.statusCode}');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('❌ Error deleting facility reservation: $e');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _returnEquipment(Map<String, dynamic> equipment) async {
+    try {
+      final equipmentId = equipment['id'];
+      
+      if (equipmentId == null) {
+        throw Exception('Equipment reservation ID not found');
+      }
+
+      print('🔄 Returning equipment reservation ID: $equipmentId');
+
+      final response = await http.delete(
+        Uri.parse('$API_URL/equipment/reservations/$equipmentId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('📡 Return equipment status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        print('✅ Equipment returned successfully');
+
+        await _loadData();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Equipment returned successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        print('❌ Failed to return equipment: ${response.statusCode}');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to return: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('❌ Error returning equipment: $e');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  String _formatDate(String? dateStr) {
+    if (dateStr == null) return '';
+    try {
+      final date = DateTime.parse(dateStr);
+      return DateFormat('MMM dd, yyyy').format(date);
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  String _formatDateRange(String? startDate, String? endDate) {
+    if (startDate == null || endDate == null) return '';
+    try {
+      final start = DateTime.parse(startDate);
+      final end = DateTime.parse(endDate);
+      return '${DateFormat('MMM dd').format(start)} - ${DateFormat('MMM dd').format(end)}';
+    } catch (e) {
+      return '$startDate - $endDate';
+    }
+  }
 
   void _onNavTapped(int index) {
     if (index == _currentIndex) return;
-
 
     if (index == 0) {
       Navigator.pushReplacement(
@@ -93,7 +303,6 @@ class _ReservationPageState extends State<ReservationPage> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -144,8 +353,6 @@ class _ReservationPageState extends State<ReservationPage> {
                     ),
                     const SizedBox(height: 20),
 
-
-                    // Tab Selector
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
@@ -164,11 +371,8 @@ class _ReservationPageState extends State<ReservationPage> {
                       ),
                     ),
 
-
                     const SizedBox(height: 20),
 
-
-                    // Content based on selected tab
                     _selectedTab == 0
                         ? _buildReservationsList()
                         : _buildBorrowedEquipmentList(),
@@ -203,7 +407,6 @@ class _ReservationPageState extends State<ReservationPage> {
       ),
     );
   }
-
 
   Widget _buildTabButton(String label, int index) {
     final isSelected = _selectedTab == index;
@@ -243,14 +446,18 @@ class _ReservationPageState extends State<ReservationPage> {
     );
   }
 
-
-Widget _buildReservationsList() {
+  Widget _buildReservationsList() {
     if (_reservations.isEmpty) {
       return _buildEmptyState('No current reservation facility');
     }
 
     return Column(
       children: _reservations.map((reservation) {
+        final facility = reservation['facility'] as Map<String, dynamic>?;
+        final facilityName = facility?['name'] ?? 'Unknown';
+        final date = reservation['date'] ?? '';
+        final timeSlot = reservation['timeSlot'] ?? '';
+
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
@@ -266,7 +473,7 @@ Widget _buildReservationsList() {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      reservation['name'],
+                      facilityName,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -283,7 +490,7 @@ Widget _buildReservationsList() {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          reservation['date'],
+                          _formatDate(date),
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade600,
@@ -292,42 +499,37 @@ Widget _buildReservationsList() {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'Booked on ${reservation['bookedDate']}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          size: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          timeSlot,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // Delete Icon Button
-                  IconButton(
-                    onPressed: () {
-                      _showDeleteReservationDialog(context, reservation);
-                    },
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      color: Color(0xFF8B1E1E),
-                      size: 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(height: 2),
-                  // Time
-                  Text(
-                    reservation['time'],
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
-                ],
+              IconButton(
+                onPressed: () {
+                  _showDeleteReservationDialog(context, reservation);
+                },
+                icon: const Icon(
+                  Icons.delete_outline,
+                  color: Color(0xFF8B1E1E),
+                  size: 24,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
             ],
           ),
@@ -342,7 +544,14 @@ Widget _buildReservationsList() {
     }
 
     return Column(
-      children: _borrowedEquipment.map((equipment) {
+      children: _borrowedEquipment.map((equipmentReservation) {
+        final equipment = equipmentReservation['equipment'] as Map<String, dynamic>?;
+        final equipmentName = equipment?['name'] ?? 'Unknown';
+        final count = equipmentReservation['count'] ?? 0;
+        final startDate = equipmentReservation['startDate'];
+        final endDate = equipmentReservation['endDate'];
+        final dateRange = _formatDateRange(startDate, endDate);
+
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
@@ -358,7 +567,7 @@ Widget _buildReservationsList() {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      equipment['name'],
+                      equipmentName,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -375,7 +584,7 @@ Widget _buildReservationsList() {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'Quantity: ${equipment['quantity']}',
+                          'Quantity: $count',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade600,
@@ -384,52 +593,37 @@ Widget _buildReservationsList() {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'Requested on ${equipment['requestedDate']}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_month,
+                          size: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          dateRange,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // Return Icon Button
-                  IconButton(
-                    onPressed: () {
-                      _showReturnEquipmentDialog(context, equipment);
-                    },
-                    icon: const Icon(
-                      Icons.assignment_return_outlined,
-                      color: Colors.green,
-                      size: 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(height: 2),
-                  // Date Range
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_month,
-                        size: 16,
-                        color: Colors.grey.shade600,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        equipment['dateRange'],
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              IconButton(
+                onPressed: () {
+                  _showReturnEquipmentDialog(context, equipmentReservation);
+                },
+                icon: const Icon(
+                  Icons.assignment_return_outlined,
+                  color: Colors.green,
+                  size: 24,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
             ],
           ),
@@ -437,7 +631,6 @@ Widget _buildReservationsList() {
       }).toList(),
     );
   }
-
 
   void _showDeleteReservationDialog(BuildContext context, Map<String, dynamic> reservation) {
     showDialog(
@@ -465,16 +658,19 @@ Widget _buildReservationsList() {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  setState(() {
-                    _reservations.remove(reservation);
-                  });
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Reservation deleted successfully'),
-                      backgroundColor: Color(0xFF8B1E1E),
-                    ),
-                  );
+                  
+                  final reservationId = reservation['id'];
+                  if (reservationId != null) {
+                    _deleteFacilityReservation(reservationId);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Invalid reservation ID'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8B1E1E),
@@ -536,16 +732,9 @@ Widget _buildReservationsList() {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  setState(() {
-                    _borrowedEquipment.remove(equipment);
-                  });
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Equipment returned successfully'),
-                      backgroundColor: Color(0xFF8B1E1E),
-                    ),
-                  );
+                  
+                  _returnEquipment(equipment);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8B1E1E),

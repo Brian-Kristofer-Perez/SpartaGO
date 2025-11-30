@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:sparta_go/pages/facility-borrow-request/ReservationSummaryCard.dart';
 import 'package:sparta_go/pages/facility-borrow-request/TimeSlotSelector.dart';
-import 'package:sparta_go/services/FacilityReservationService.dart';
 import '../../common/calendar/calendar.dart';
+import 'package:sparta_go/constant/constant.dart';
 
 class FacilityBorrowRequestWidget extends StatefulWidget {
-
-  final Map<String,dynamic> facility;
-  Map<String,dynamic> user;
+  final Map<String, dynamic> facility;
+  Map<String, dynamic> user;
   FacilityBorrowRequestWidget({super.key, required this.facility, required this.user});
 
   @override
@@ -15,9 +17,72 @@ class FacilityBorrowRequestWidget extends StatefulWidget {
 }
 
 class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidget> {
-
   DateTime? startDate;
   String? selectedTime;
+  List<String> availableTimeSlots = [];
+  bool isLoadingSlots = false;
+
+  final List<String> allTimeSlots = [
+    "5:00 - 6:00pm",
+    "6:00 - 7:00pm",
+    "7:00 - 8:00pm"
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    availableTimeSlots = List<String>.from(allTimeSlots);
+  }
+
+  Future<void> _fetchAvailableTimeSlots() async {
+    if (startDate == null) return;
+
+    setState(() {
+      isLoadingSlots = true;
+    });
+
+    try {
+      final formattedDate = DateFormat('yyyy-MM-dd').format(startDate!);
+      final response = await http.get(
+        Uri.parse('$API_URL/facilities/reservations/${widget.facility['id']}?date=$formattedDate'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> reservations = json.decode(response.body);
+
+        final reservedSlots = reservations
+            .map((reservation) => reservation['timeSlot'] as String)
+            .toSet();
+
+
+        setState(() {
+          availableTimeSlots = allTimeSlots
+              .where((slot) => !reservedSlots.contains(slot))
+              .toList();
+          
+          if (selectedTime != null && !availableTimeSlots.contains(selectedTime)) {
+            selectedTime = null;
+          }
+          
+          isLoadingSlots = false;
+        });
+      } else {
+        setState(() {
+          availableTimeSlots = List<String>.from(allTimeSlots);
+          isLoadingSlots = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        availableTimeSlots = List<String>.from(allTimeSlots);
+        isLoadingSlots = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching time slots: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +101,6 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
             ),
             const SizedBox(height: 16),
 
-            // Date pickers
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,28 +108,43 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                 _dateSelector(
                   label: 'Date',
                   selectedDate: startDate,
-                  onPicked: (picked) => setState(() => startDate = picked),
-                ),
-                SizedBox(width: 6),
-
-                TimeSlotSelector(
-                  availableSlots: List<String>.from(widget.facility['availableTimeSlots']),
-                  onSelected: (time) {
+                  onPicked: (picked) async {
                     setState(() {
-                      selectedTime = time;
+                      startDate = picked;
+                      selectedTime = null; 
                     });
+                    await _fetchAvailableTimeSlots();
                   },
-                )
+                ),
+                const SizedBox(width: 6),
+                isLoadingSlots
+                    ? const Padding(
+                        padding: EdgeInsets.only(top: 30),
+                        child: CircularProgressIndicator(),
+                      )
+                    : TimeSlotSelector(
+                        availableSlots: availableTimeSlots,
+                        onSelected: (time) {
+                          setState(() {
+                            selectedTime = time;
+                          });
+                        },
+                      )
               ],
             ),
             const SizedBox(height: 24),
 
-            // Submit button
             ReservationSummaryCard(
               facility: widget.facility,
               date: startDate,
               time: selectedTime,
               onConfirm: () async {
+                if (startDate == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Enter a valid date')),
+                  );
+                  return;
+                }
 
                 if (startDate!.isBefore(
                     DateTime(
@@ -80,13 +159,6 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                   return;
                 }
 
-                if (startDate == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Enter a valid date')),
-                  );
-                  return;
-                }
-
                 if (selectedTime == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Select a valid time slot!')),
@@ -94,29 +166,40 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                   return;
                 }
 
-                await FacilityReservationService().reserve_facility(
-                    widget.user['id'],
-                    widget.facility['id'],
-                    startDate!,
-                    selectedTime!
-                );
+                try {
+                  final response = await http.post(
+                    Uri.parse('$API_URL/facilities/reservations/'),
+                    headers: {'Content-Type': 'application/json'},
+                    body: json.encode({
+                      "user": widget.user,
+                      "facility": widget.facility,
+                      "date": DateFormat('yyyy-MM-dd').format(startDate!),
+                      "timeSlot": selectedTime!,
+                    }),
+                  );
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Reservation made successfully')),
-                );
-
-                Navigator.pop(context, true);
-
-
+                  if (response.statusCode == 200) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Reservation made successfully')),
+                    );
+                    Navigator.pop(context, true);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to make reservation: ${response.statusCode}')),
+                    );
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
               },
-
             )
           ],
         ),
       ),
     );
   }
-
 
   Widget _dateSelector({
     required String label,
@@ -132,11 +215,9 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
           child: OutlinedButton.icon(
             onPressed: () async {
               final picked = await showCustomCalendarDialog(context);
-              if (picked != null) onPicked(picked);
-
-              setState(() {
-                startDate = picked;
-              });
+              if (picked != null) {
+                await onPicked(picked);
+              }
             },
             icon: const Icon(Icons.calendar_today, size: 18),
             label: Text(

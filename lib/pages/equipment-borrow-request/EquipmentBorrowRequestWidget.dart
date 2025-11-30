@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:sparta_go/repositories/EquipmentReservationRepository.dart';
-import 'package:sparta_go/services/AutoIncrementService.dart';
+import 'package:intl/intl.dart'; 
+import 'package:http/http.dart' as http;  
+import 'dart:convert'; 
 import '../../common/calendar/calendar.dart';
-import '../../services/EquipmentReservationService.dart';
+import 'package:sparta_go/constant/constant.dart';
 
 class EquipmentBorrowRequestWidget extends StatefulWidget {
-
   Map<String, dynamic> equipment;
   Map<String, dynamic> user;
 
@@ -19,6 +19,7 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
   int count = 0;
   DateTime? startDate;
   DateTime? endDate;
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +42,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
             ),
             const SizedBox(height: 16),
 
-            // Quantity selector
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -70,7 +70,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
             ),
             const SizedBox(height: 24),
 
-            // Date pickers
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -79,7 +78,7 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                   selectedDate: startDate,
                   onPicked: (picked) => setState(() => startDate = picked),
                 ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 _dateSelector(
                   label: 'End Date',
                   selectedDate: endDate,
@@ -89,7 +88,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
             ),
             const SizedBox(height: 24),
 
-            // Submit button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -101,8 +99,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                   ),
                 ),
                 onPressed: () async {
-
-                  // Validation: Dates must be not null
                   if (startDate == null || endDate == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Please select both start and end dates.')),
@@ -110,7 +106,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                     return;
                   }
 
-                  // Validation: end date must not be before start date
                   if (endDate!.isBefore(startDate!)) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('End date must be after start date.')),
@@ -118,7 +113,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                     return;
                   }
 
-                  // Validation: start date is at least today
                   if (startDate!.isBefore(
                       DateTime(
                         DateTime.now().year,
@@ -132,7 +126,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                     return;
                   }
 
-                  // Validation: there must be a valid count
                   if (count == 0) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Enter a valid amount to borrow.')),
@@ -140,21 +133,34 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                     return;
                   }
 
-                  await EquipmentReservationService().reserve_equipment(
-                      widget.equipment['id'],
-                      count,
-                      widget.user['id'],
-                      startDate!,
-                      endDate!
-                  );
+                  try {
+                    final response = await http.post(
+                      Uri.parse('$API_URL/equipment/reservations/'),
+                      headers: {'Content-Type': 'application/json'},
+                      body: json.encode({
+                        "equipment": widget.equipment,
+                        "user": widget.user,
+                        "startDate": DateFormat('yyyy-MM-dd').format(startDate!),
+                        "endDate": DateFormat('yyyy-MM-dd').format(endDate!),  
+                        "count": count.toString(),  
+                      }),
+                    );
 
-                  // TODO: Route page to successful page or print a success widget or return to main
-                  // Navigator.push()
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Reservation successful')),
-                  );
-                  Navigator.pop(context, true);
-
+                    if (response.statusCode == 200) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Reservation successful')),
+                      );
+                      Navigator.pop(context, true);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to create reservation: ${response.statusCode}')),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $e')),
+                    );
+                  }
                 },
                 child: const Text(
                   'Submit Borrow Request',
@@ -210,8 +216,7 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
             icon: const Icon(Icons.calendar_today, size: 18),
             label: Text(
               selectedDate != null
-                  ? "${selectedDate.year}-${selectedDate.month}-${selectedDate
-                  .day}"
+                  ? "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}"
                   : 'Select Date',
             ),
             style: OutlinedButton.styleFrom(

@@ -1,7 +1,7 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:sparta_go/common/calendar/calendar.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 
 class EquipmentItemCard extends StatelessWidget{
 
@@ -28,21 +28,13 @@ class EquipmentItemCard extends StatelessWidget{
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
               ),
-              child: Image.asset(
-                equipment['image'],
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: 175,
-              ),
+              child: _buildImage(equipment['image']),
             ),
-
-            // Product Details
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -78,5 +70,46 @@ class EquipmentItemCard extends StatelessWidget{
         ),
       ),
     );
+  }
+
+    Widget _buildImage(String? imageData) {
+    if (imageData == null || imageData.isEmpty) {
+      return Icon(
+        Icons.fitness_center,
+        size: 50,
+        color: Colors.grey[400],
+      );
+    }
+
+    try {
+      return Image.memory(
+        base64Decode(imageData),
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: 175,
+        errorBuilder: (context, error, stackTrace) => Container(
+          width: double.infinity,
+          height: 175,
+          color: Colors.grey[300],
+          child: Icon(
+            Icons.fitness_center,
+            size: 50,
+            color: Colors.grey[400],
+          ),
+        ),
+      );
+    } catch (e) {
+      print('Error decoding base64 image: $e');
+      return Container(
+        width: double.infinity,
+        height: 175,
+        color: Colors.grey[300],
+        child: Icon(
+          Icons.fitness_center,
+          size: 50,
+          color: Colors.grey[400],
+        ),
+      );
+    }
   }
 }

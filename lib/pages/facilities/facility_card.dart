@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sparta_go/pages/facility-borrow-request/FacilityBorrowRequestPage.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+
 
 class FacilityCard extends StatelessWidget {
   final Map<String, dynamic> facility;
@@ -20,26 +23,15 @@ class FacilityCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Container(
               height: 100,
               width: double.infinity,
               color: Colors.grey[300],
-              child: Image.asset(
-                facility['image'],
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Icon(
-                  Icons.fitness_center,
-                  size: 50,
-                  color: Colors.grey[400],
-                ),
-              ),
+              child: _buildImage(facility['image']),
             ),
           ),
-
-          // Content
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(12.0),
@@ -112,7 +104,6 @@ class FacilityCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 3),
-                  // Equipment section
                   Text(
                     'Equipment:',
                     style: TextStyle(
@@ -183,5 +174,33 @@ class FacilityCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+    Widget _buildImage(String? imageData) {
+    if (imageData == null || imageData.isEmpty) {
+      return Icon(
+        Icons.fitness_center,
+        size: 50,
+        color: Colors.grey[400],
+      );
+    }
+    try {
+      return Image.memory(
+        base64Decode(imageData),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Icon(
+          Icons.fitness_center,
+          size: 50,
+          color: Colors.grey[400],
+        ),
+      );
+    } catch (e) {
+      print('Error decoding base64 image: $e');
+      return Icon(
+        Icons.fitness_center,
+        size: 50,
+        color: Colors.grey[400],
+      );
+    }
   }
 }

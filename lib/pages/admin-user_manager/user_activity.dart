@@ -15,7 +15,7 @@ class UserActivityPage extends StatefulWidget {
 
 class _UserActivityPageState extends State<UserActivityPage> {
   int _currentIndex = 0;
-  int _selectedTab = 0; // 0 for Reservations, 1 for Borrowed Equipment
+  int _selectedTab = 0; 
 
   List<Map<String, dynamic>> _reservations = [];
   List<Map<String, dynamic>> _borrowedEquipment = [];
@@ -29,25 +29,20 @@ class _UserActivityPageState extends State<UserActivityPage> {
 
   Future<void> _loadUserActivity() async {
     try {
-      // Load facility reservations
       final facilityString = await rootBundle.loadString('assets/files/facility_reservations.json');
       final facilityJson = json.decode(facilityString) as List;
 
-      // Load equipment reservations
       final equipmentString = await rootBundle.loadString('assets/files/equipment_reservations.json');
       final equipmentJson = json.decode(equipmentString) as List;
 
-      // Get user ID from the user object
       final userId = widget.user['id']?.toString() ?? '';
       
-      // Filter reservations for this specific user
       final userFacilityReservations = List<Map<String, dynamic>>.from(
         facilityJson.where((reservation) => 
           reservation['userId']?.toString() == userId
         )
       );
 
-      // Filter equipment reservations for this specific user
       final userEquipmentReservations = List<Map<String, dynamic>>.from(
         equipmentJson.where((equipment) => 
           equipment['userId']?.toString() == userId
@@ -117,12 +112,10 @@ class _UserActivityPageState extends State<UserActivityPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
 
-                          // Back Button at the top
                           const CustomBackButton(),
                           
                           const SizedBox(height: 10),
 
-                          // Title
                           const Text(
                             'User Activity',
                             style: TextStyle(
@@ -141,11 +134,9 @@ class _UserActivityPageState extends State<UserActivityPage> {
                           ),
                           const SizedBox(height: 20),
 
-                          // User Info Card with overlapping profile picture
                           Stack(
                             clipBehavior: Clip.none,
                             children: [
-                              // Main Card
                               Container(
                                 margin: const EdgeInsets.only(left: 60),
                                 padding: const EdgeInsets.only(
@@ -169,19 +160,10 @@ class _UserActivityPageState extends State<UserActivityPage> {
                                         color: Colors.white,
                                       ),
                                     ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      widget.user['id'] ?? 'N/A',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
                                   ],
                                 ),
                               ),
 
-                              // Profile Picture (overlapping on the left)
                               Positioned(
                                 left: 0,
                                 top: 0,
@@ -226,7 +208,6 @@ class _UserActivityPageState extends State<UserActivityPage> {
 
                           const SizedBox(height: 20),
 
-                          // Tab Selector
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
@@ -247,7 +228,6 @@ class _UserActivityPageState extends State<UserActivityPage> {
 
                           const SizedBox(height: 20),
 
-                          // Content based on selected tab
                           _selectedTab == 0
                               ? _buildReservationsList()
                               : _buildBorrowedEquipmentList(),
@@ -369,14 +349,6 @@ class _UserActivityPageState extends State<UserActivityPage> {
                     size: 14,
                     color: Colors.grey.shade600,
                   ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Facility ID: ${reservation['facilityId'] ?? 'N/A'}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade500,
-                    ),
-                  ),
                 ],
               ),
             ],
@@ -477,14 +449,6 @@ class _UserActivityPageState extends State<UserActivityPage> {
                     Icons.tag,
                     size: 14,
                     color: Colors.grey.shade600,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Equipment ID: ${equipment['equipmentId'] ?? 'N/A'}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade500,
-                    ),
                   ),
                 ],
               ),
