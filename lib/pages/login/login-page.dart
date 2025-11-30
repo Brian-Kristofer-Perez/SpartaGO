@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-  Future<Map<String, dynamic>> loginUser(String email, String password) async {
+    Future<Map<String, dynamic>?> loginUser(String email, String password) async {
     final url = Uri.parse("$API_URL/users/login");
 
     final response = await http.post(
@@ -73,9 +73,18 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body); 
+
+      if (response.body.isEmpty || response.body == 'null') {
+        return null; 
+      }
+      
+      try {
+        return jsonDecode(response.body);
+      } catch (e) {
+        return null; 
+      }
     } else if (response.statusCode == 404) {
-      throw Exception("Invalid email or password");
+      return null; 
     } else {
       throw Exception("Server error: ${response.statusCode}");
     }
@@ -89,10 +98,20 @@ class _LoginPageState extends State<LoginPage> {
 
     if (emailError == null && passwordError == null) {
       try {
-        Map<String, dynamic> user = await loginUser(
+        Map<String, dynamic>? user = await loginUser(
           emailController.text.trim(),
           passwordController.text.trim(),
         );
+
+        if (user == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Invalid email or password"),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
 
         Navigator.push(
           context,
@@ -103,7 +122,10 @@ class _LoginPageState extends State<LoginPage> {
       } catch (e) {
         final String message = e.toString().replaceFirst("Exception: ", "");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
