@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+
 
 class FacilityItemCard extends StatelessWidget {
   final Map<String, dynamic> facility;
@@ -26,15 +29,7 @@ class FacilityItemCard extends StatelessWidget {
                     height: 100,
                     width: double.infinity,
                     color: Colors.grey[300],
-                    child: Image.asset(
-                      "assets/images/${facility['image']}",
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Icon(
-                        Icons.fitness_center,
-                        size: 50,
-                        color: Colors.grey[400],
-                      ),
-                    ),
+                    child: _buildImage(facility['image']),
                   ),
                 ),
 
@@ -146,6 +141,34 @@ class FacilityItemCard extends StatelessWidget {
             ),
           )
       );
+  }
 
+    Widget _buildImage(String? imageData) {
+    if (imageData == null || imageData.isEmpty) {
+      return Icon(
+        Icons.fitness_center,
+        size: 50,
+        color: Colors.grey[400],
+      );
+    }
+
+    try {
+      return Image.memory(
+        base64Decode(imageData),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Icon(
+          Icons.fitness_center,
+          size: 50,
+          color: Colors.grey[400],
+        ),
+      );
+    } catch (e) {
+      print('Error decoding base64 image: $e');
+      return Icon(
+        Icons.fitness_center,
+        size: 50,
+        color: Colors.grey[400],
+      );
+    }
   }
 }
