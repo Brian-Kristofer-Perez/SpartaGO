@@ -42,7 +42,6 @@ class ReservationSummaryCard extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Title
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -57,7 +56,6 @@ class ReservationSummaryCard extends StatelessWidget {
 
               const SizedBox(height: 18),
 
-              // Rows: Facility / Date / Time
               _buildInfoRow('Facility:', facility["name"], labelStyle, valueStyle),
               const SizedBox(height: 12),
               _buildInfoRow('Date:', date == null ? "No date selected" : "${date?.year}-${date?.month}-${date?.day}", labelStyle, valueStyle),
@@ -65,8 +63,7 @@ class ReservationSummaryCard extends StatelessWidget {
               _buildInfoRow('Time:', time ?? "No time selected", labelStyle, valueStyle),
 
               const SizedBox(height: 18),
-
-              // Confirm button
+              
               Center(
                 child: SizedBox(
                   width: 300,

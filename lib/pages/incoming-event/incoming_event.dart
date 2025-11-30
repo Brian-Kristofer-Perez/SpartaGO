@@ -105,7 +105,6 @@ class _IncomingEventsPageState extends State<IncomingEventsPage> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                // Logo
                 Image.asset(
                   'assets/images/logo.png',
                   height: 100,
@@ -118,7 +117,6 @@ class _IncomingEventsPageState extends State<IncomingEventsPage> {
                 
                 const SizedBox(height: 20),
 
-                // Title
                 const Text(
                   'Incoming Events',
                   style: TextStyle(
@@ -130,7 +128,6 @@ class _IncomingEventsPageState extends State<IncomingEventsPage> {
 
                 const SizedBox(height: 30),
 
-                // Calendar Container
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -146,7 +143,6 @@ class _IncomingEventsPageState extends State<IncomingEventsPage> {
                   ),
                   child: Column(
                     children: [
-                      // Month Navigation
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -172,8 +168,6 @@ class _IncomingEventsPageState extends State<IncomingEventsPage> {
                       ),
 
                       const SizedBox(height: 20),
-
-                      // Weekday Headers
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
@@ -197,7 +191,6 @@ class _IncomingEventsPageState extends State<IncomingEventsPage> {
 
                       const SizedBox(height: 10),
 
-                      // Calendar Grid
                       _buildCalendarGrid(),
                     ],
                   ),
@@ -208,7 +201,7 @@ class _IncomingEventsPageState extends State<IncomingEventsPage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0, // No specific page selected
+        currentIndex: 0, 
         onTap: _onNavTapped,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.grey,

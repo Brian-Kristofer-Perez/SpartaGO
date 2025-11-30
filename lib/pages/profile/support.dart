@@ -45,7 +45,6 @@ class SupportPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Contact Support Section
               const Text(
                 'Contact Support',
                 style: TextStyle(

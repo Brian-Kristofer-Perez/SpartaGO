@@ -16,8 +16,8 @@ class ReservationManagerPage extends StatefulWidget {
 }
 
 class _ReservationManagerPageState extends State<ReservationManagerPage> {
-  int _currentIndex = 1; // Reservations tab selected
-  int _selectedTab = 0; // 0 for Facilities, 1 for Equipment
+  int _currentIndex = 1; 
+  int _selectedTab = 0; 
   DateTime _selectedMonth = DateTime.now();
   DateTime? _selectedDate;
   
@@ -31,13 +31,11 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
     _loadData();
   }
 
-  // Load all data via HTTP requests
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
     });
     try {
-      // Load facility reservations via HTTP GET
       final facilityResponse = await http.get(Uri.parse('$API_URL/facilities/reservations/'));
       if (facilityResponse.statusCode == 200) {
         final facilityJson = json.decode(facilityResponse.body) as List;
@@ -46,7 +44,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
         throw Exception('Failed to load facility reservations');
       }
 
-      // Load equipment reservations via HTTP GET
       final equipmentResponse = await http.get(Uri.parse('$API_URL/equipment/reservations/'));
       if (equipmentResponse.statusCode == 200) {
         final equipmentJson = json.decode(equipmentResponse.body) as List;
@@ -69,7 +66,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
     }
   }
 
-  // Delete facility reservation via HTTP DELETE
   Future<void> _deleteFacilityReservation(int id) async {
     try {
       final response = await http.delete(Uri.parse('$API_URL/facilities/reservations/$id'));
@@ -91,7 +87,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
     }
   }
 
-  // Delete equipment reservation via HTTP DELETE
   Future<void> _deleteEquipmentReservation(int id) async {
     try {
       final reservation = _equipmentReservations.firstWhere((r) => r['id'] == id);
@@ -118,18 +113,15 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
     }
   }
 
-  // Get user name from nested user object
   String _getUserName(Map<String, dynamic>? user) {
     if (user == null) return 'Unknown User';
     return user['name']?.toString() ?? 'Unknown User';
   }
 
-  // Get reserved dates for the current month
   Set<int> _getReservedDates() {
     Set<int> dates = {};
     for (var reservation in _facilityReservations) {
       try {
-        // Parse date format: "2023-12-05"
         DateTime reservationDate = DateTime.parse(reservation['date']);
         if (reservationDate.year == _selectedMonth.year &&
             reservationDate.month == _selectedMonth.month) {
@@ -142,7 +134,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
     return dates;
   }
 
-  // Get reservations for a specific date
   List<Map<String, dynamic>> _getReservationsForDate(DateTime date) {
     String dateStr = DateFormat('yyyy-MM-dd').format(date);
     return _facilityReservations.where((reservation) {
@@ -150,7 +141,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
     }).toList();
   }
 
-  // Check if equipment is overdue
   String _getEquipmentStatus(String endDate) {
     try {
       DateTime returnDate = DateTime.parse(endDate);
@@ -222,7 +212,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
         ),
         child: Column(
           children: [
-            // Header
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -265,7 +254,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
               ),
             ),
 
-            // Reservations List
             Expanded(
               child: reservations.isEmpty
                   ? Center(
@@ -304,7 +292,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
   }
 
   Widget _buildFacilityReservationCard(Map<String, dynamic> reservation) {
-    // Extract nested objects
     final facility = reservation['facility'] as Map<String, dynamic>?;
     final user = reservation['user'] as Map<String, dynamic>?;
     
@@ -451,7 +438,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title
                     const Text(
                       'Reservation Manager',
                       style: TextStyle(
@@ -469,8 +455,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Tab Selector
                     Row(
                       children: [
                         Expanded(
@@ -485,7 +469,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
 
                     const SizedBox(height: 20),
 
-                    // Content based on selected tab
                     _selectedTab == 0
                         ? _buildFacilitiesContent(reservedDates)
                         : _buildEquipmentContent(),
@@ -599,7 +582,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
   Widget _buildFacilitiesContent(Set<int> reservedDates) {
     return Column(
       children: [
-        // Calendar Title (Centered)
         Center(
           child: RichText(
             text: const TextSpan(
@@ -635,7 +617,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
 
         const SizedBox(height: 20),
 
-        // Calendar Container
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -644,7 +625,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
           ),
           child: Column(
             children: [
-              // Month Navigation
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -671,7 +651,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
 
               const SizedBox(height: 16),
 
-              // Weekday Headers
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
@@ -695,7 +674,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
 
               const SizedBox(height: 8),
 
-              // Calendar Grid
               _buildCalendarGrid(reservedDates),
             ],
           ),
@@ -742,7 +720,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
   }
 
   Widget _buildEquipmentCard(Map<String, dynamic> reservation) {
-    // Extract nested objects
     final equipment = reservation['equipment'] as Map<String, dynamic>?;
     final user = reservation['user'] as Map<String, dynamic>?;
     
@@ -771,7 +748,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
       ),
       child: Row(
         children: [
-          // Equipment Image
           Container(
             width: 70,
             height: 70,
@@ -799,7 +775,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
                   ),
           ),
           const SizedBox(width: 12),
-          // Equipment Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -876,7 +851,6 @@ class _ReservationManagerPageState extends State<ReservationManagerPage> {
             ),
           ),
           const SizedBox(width: 8),
-          // Delete Icon
           IconButton(
             onPressed: () => _deleteEquipmentReservation(reservation['id'] as int),
             icon: Icon(

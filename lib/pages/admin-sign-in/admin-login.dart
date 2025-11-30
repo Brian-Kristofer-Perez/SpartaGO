@@ -33,7 +33,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     if (value.isEmpty) {
       return 'Please enter your Admin Email';
     }
-    // Basic email validation
     if (!value.contains('@')) {
       return 'Please enter a valid email';
     }
@@ -50,7 +49,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     return null;
   }
 
-  // HTTP POST request for admin login
   Future<void> handleAdminLogin() async {
     setState(() {
       adminIdError = validateAdminId(adminIdController.text.trim());
@@ -71,7 +69,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
 
       print('🔄 Admin login attempt for: $email');
 
-      // Make HTTP POST request
       final response = await http.post(
         Uri.parse('$API_URL/admin/login'),
         headers: {
@@ -91,7 +88,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
       });
 
       if (response.statusCode == 200) {
-        // Parse the boolean response
         final bool isAuthenticated = json.decode(response.body);
 
         if (isAuthenticated) {
@@ -104,8 +100,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 backgroundColor: Colors.green,
               ),
             );
-
-            // Navigate to Admin Dashboard (User Manager)
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -169,7 +163,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Logo
                   Image.asset(
                     'assets/images/logo.png',
                     height: 120,
@@ -180,8 +173,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  
-                  // Subtitle
                   const Text(
                     'Sparta Gymnasium Organizer',
                     style: TextStyle(
@@ -192,8 +183,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   ),
                   
                   const SizedBox(height: 32),
-                  
-                  // Title
                   const Text(
                     'Admin Dashboard',
                     style: TextStyle(
@@ -205,7 +194,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   
                   const SizedBox(height: 8),
                   
-                  // Description
                   Text(
                     'Sign in to access your Admin account',
                     style: TextStyle(
@@ -216,7 +204,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   
                   const SizedBox(height: 40),
                   
-                  // Admin Email Field
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -240,7 +227,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   
                   const SizedBox(height: 20),
                   
-                  // Password Field
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -265,7 +251,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   
                   const SizedBox(height: 32),
                   
-                  // Sign In Button with Loading State
                   AppButton(
                     onPressed: handleAdminLogin,
                     children: [
@@ -292,7 +277,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   
                   const SizedBox(height: 40),
                   
-                  // User Sign In Link
                   Column(
                     children: [
                       const Icon(

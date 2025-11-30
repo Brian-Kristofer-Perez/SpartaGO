@@ -20,7 +20,6 @@ class FacilityItemCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Image
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                   child: Container(
@@ -39,7 +38,6 @@ class FacilityItemCard extends StatelessWidget {
                   ),
                 ),
 
-                // Content
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Column(
@@ -112,7 +110,6 @@ class FacilityItemCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
 
-                      // Equipment section
                       Text(
                         'Equipment:',
                         style: TextStyle(

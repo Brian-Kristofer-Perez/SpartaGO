@@ -14,19 +14,16 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   int currentStep = 0;
 
-  // Controllers
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
 
-  // Errors
   String? fullNameError;
   String? emailError;
   String? passwordError;
   String? confirmPasswordError;
 
-  // Loading state
   bool isLoading = false;
 
   @override
@@ -38,10 +35,6 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
-  // -----------------------------------
-  // VALIDATION
-  // -----------------------------------
-
   bool isValidEmail(String email) {
     return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
         .hasMatch(email);
@@ -50,7 +43,6 @@ class _SignUpPageState extends State<SignUpPage> {
   String? validateFullName(String value) {
     if (value.isEmpty) return 'Please enter your full name';
     if (value.length < 2) return 'Name must be at least 2 characters';
-    // Check if it contains at least first and last name
     if (!value.trim().contains(' ')) {
       return 'Please enter both first and last name';
     }
@@ -125,11 +117,6 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  // -----------------------------------
-  // HTTP REQUESTS
-  // -----------------------------------
-
-  // POST /users/register
   Future<void> registerUser() async {
     setState(() {
       isLoading = true;
@@ -138,7 +125,6 @@ class _SignUpPageState extends State<SignUpPage> {
     try {
       print('🔄 Registering user...');
 
-      // Split full name into first and last name
       final nameParts = fullNameController.text.trim().split(' ');
       final firstName = nameParts.first;
       final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : nameParts.first;
@@ -166,14 +152,13 @@ class _SignUpPageState extends State<SignUpPage> {
       });
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // Parse boolean response
         final bool success = json.decode(response.body);
 
         if (success) {
           print('✅ Registration successful');
 
           setState(() {
-            currentStep = 2; // Move to completion step
+            currentStep = 2; 
           });
         } else {
           print('❌ Registration failed: API returned false');
@@ -216,10 +201,6 @@ class _SignUpPageState extends State<SignUpPage> {
       }
     }
   }
-
-  // -----------------------------------
-  // UI START
-  // -----------------------------------
 
   Widget buildStepIndicator(int step, String label, bool done, bool current) {
     return Column(
@@ -301,7 +282,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 40),
 
-                // Step Indicators
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -327,7 +307,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 _buildNavigationButtons(),
                 const SizedBox(height: 20),
                 
-                // Sign In Link
                 if (currentStep < 2)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -366,10 +345,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  // -----------------------------------
-  // STEP CONTENTS
-  // -----------------------------------
-
   Widget _buildStepContent() {
     if (currentStep == 0) return _buildAccountInfoStep();
     if (currentStep == 1) return _buildCredentialsStep();
@@ -379,7 +354,6 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _buildAccountInfoStep() {
     return Column(
       children: [
-        // Full Name and Email in a Row
         Row(
           children: [
             Expanded(
@@ -499,10 +473,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  // -----------------------------------
-  // BUTTONS
-  // -----------------------------------
-
   Widget _buildNavigationButtons() {
     if (currentStep == 2) {
       return AppButton(
@@ -560,18 +530,14 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   void _handleContinue() {
-    // Step 0: Validate account info
     if (currentStep == 0) {
       if (validateStep0()) {
         nextStep();
       }
       return;
     }
-
-    // Step 1: Validate credentials and register
     if (currentStep == 1) {
       if (validateStep1()) {
-        // Call registration API
         registerUser();
       }
       return;

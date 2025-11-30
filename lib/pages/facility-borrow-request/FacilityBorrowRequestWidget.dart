@@ -22,7 +22,6 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
   List<String> availableTimeSlots = [];
   bool isLoadingSlots = false;
 
-  // All possible time slots
   final List<String> allTimeSlots = [
     "5:00 - 6:00pm",
     "6:00 - 7:00pm",
@@ -51,19 +50,17 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
 
       if (response.statusCode == 200) {
         final List<dynamic> reservations = json.decode(response.body);
-        
-        // Extract reserved time slots
+
         final reservedSlots = reservations
             .map((reservation) => reservation['timeSlot'] as String)
             .toSet();
 
-        // Filter out reserved slots from all time slots
+
         setState(() {
           availableTimeSlots = allTimeSlots
               .where((slot) => !reservedSlots.contains(slot))
               .toList();
           
-          // Reset selected time if it's no longer available
           if (selectedTime != null && !availableTimeSlots.contains(selectedTime)) {
             selectedTime = null;
           }
@@ -104,7 +101,6 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
             ),
             const SizedBox(height: 16),
 
-            // Date pickers
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,7 +111,7 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                   onPicked: (picked) async {
                     setState(() {
                       startDate = picked;
-                      selectedTime = null; // Reset time when date changes
+                      selectedTime = null; 
                     });
                     await _fetchAvailableTimeSlots();
                   },
@@ -138,7 +134,6 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
             ),
             const SizedBox(height: 24),
 
-            // Submit button
             ReservationSummaryCard(
               facility: widget.facility,
               date: startDate,
@@ -171,7 +166,6 @@ class _FacilityBorrowRequestWidgetState extends State<FacilityBorrowRequestWidge
                   return;
                 }
 
-                // Replace service call with HTTP POST request
                 try {
                   final response = await http.post(
                     Uri.parse('$API_URL/facilities/reservations/'),

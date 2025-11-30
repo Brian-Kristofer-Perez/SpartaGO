@@ -73,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body); // returns user object
+      return jsonDecode(response.body); 
     } else if (response.statusCode == 404) {
       throw Exception("Invalid email or password");
     } else {
@@ -93,11 +93,6 @@ class _LoginPageState extends State<LoginPage> {
           emailController.text.trim(),
           passwordController.text.trim(),
         );
-
-        // Optionally, you can show a success message or directly navigate
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(content: Text('Login successful')),
-        // );
 
         Navigator.push(
           context,

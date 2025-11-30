@@ -7,8 +7,6 @@ import 'package:sparta_go/pages/reservation/reservation.dart';
 import 'package:sparta_go/pages/profile/profile.dart';
 import 'package:sparta_go/pages/incoming-event/incoming_event.dart';
 import 'package:sparta_go/constant/constant.dart';
-
-// Add these imports for HTTP request
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -48,35 +46,25 @@ class _EquipmentPageState extends State<EquipmentPage> {
     return filtered;
   }
 
-  // Updated: HTTP GET request to fetch equipment
   Future<void> _loadEquipment() async {
     try {
       print('🔄 Fetching equipment from: {$API_URL}/equipment/');
       
-      // Make HTTP GET request
       final response = await http.get(
         Uri.parse('$API_URL/equipment/'),
         headers: {
           'Content-Type': 'application/json',
-          // Add authorization if needed:
-          // 'Authorization': 'Bearer YOUR_TOKEN',
         },
       );
 
       print('📡 Response status: ${response.statusCode}');
-
-      // Check if request was successful
       if (response.statusCode == 200) {
-        // Decode JSON response
         final List<dynamic> jsonData = json.decode(response.body);
-        
-        // Convert to List<Map<String, dynamic>>
         final List<Map<String, dynamic>> data = 
             jsonData.map((item) => item as Map<String, dynamic>).toList();
         
         print('✅ Successfully fetched ${data.length} equipment items');
         
-        // Update state with fetched data
         setState(() {
           equipment = data;
         });
@@ -84,8 +72,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
       } else {
         print('❌ Error: Status code ${response.statusCode}');
         print('Response body: ${response.body}');
-        
-        // Show error to user
+      
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -99,7 +86,6 @@ class _EquipmentPageState extends State<EquipmentPage> {
     } catch (e) {
       print('❌ Error fetching equipment: $e');
       
-      // Show error to user
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -116,8 +102,6 @@ class _EquipmentPageState extends State<EquipmentPage> {
     super.initState();
     _loadEquipment();
   }
-
-  // Helper: Callback upon navigation tap
   void _onNavTapped(int index) {
     if (index == 0) {
       Navigator.pushReplacement(

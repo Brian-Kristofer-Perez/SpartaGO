@@ -8,7 +8,6 @@ import 'package:http/http.dart' as http;
 import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 
-// Reusable Filter Chips Widget
 class FilterChipsWidget extends StatelessWidget {
   final List<String> filters;
   final String selectedFilter;
@@ -70,15 +69,15 @@ class EquipmentManagerPage extends StatefulWidget {
 }
 
 class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
-  int _currentIndex = 3; // Equipment tab selected
+  int _currentIndex = 3; 
   String _selectedFilter = 'All';
   final TextEditingController _searchController = TextEditingController();
-  Uint8List? _selectedImageBytes; // Store the image bytes
-  String? _selectedImageName; // Store the image filename
+  Uint8List? _selectedImageBytes; 
+  String? _selectedImageName;
 
   List<Map<String, dynamic>> _equipment = [];
   bool _isLoading = true;
-  String? _expandedEquipmentId; // Track which equipment is expanded
+  String? _expandedEquipmentId; 
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descController = TextEditingController();
@@ -93,7 +92,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
     _loadEquipmentData();
   }
 
-  // HTTP GET request to fetch all equipment
   Future<void> _loadEquipmentData() async {
     try {
       setState(() {
@@ -156,7 +154,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
     }
   }
 
-  // HTTP DELETE request to delete equipment
   Future<void> _deleteEquipment(int equipmentId) async {
     try {
       print('🔄 Deleting equipment ID: $equipmentId');
@@ -173,7 +170,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
       if (response.statusCode == 200) {
         print('✅ Equipment deleted successfully');
 
-        // Reload equipment list
         await _loadEquipmentData();
 
         if (mounted) {
@@ -210,10 +206,8 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
     }
   }
 
-    // HTTP POST add equipment
     Future<void> _addEquipment() async {
     try {
-      // Convert image bytes to base64 if image is selected
       String? base64Image;
       if (_selectedImageBytes != null) {
         base64Image = base64Encode(_selectedImageBytes!);
@@ -223,7 +217,7 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
       final equipmentData = {
         "name": nameController.text,
         "description": descController.text,
-        "image": base64Image, // Send base64 string instead of filename
+        "image": base64Image, 
         "available": int.tryParse(availableController.text) ?? 0,
         "total": int.tryParse(totalController.text) ?? 0,
         "type": typeController.text
@@ -242,7 +236,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
       if (response.statusCode == 201 || response.statusCode == 200) {
         print('✅ Equipment added successfully');
         
-        // Clear controllers and image
         nameController.clear();
         descController.clear();
         imageController.clear();
@@ -254,7 +247,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
           _selectedImageName = null;
         });
 
-        // Reload equipment list
         await _loadEquipmentData();
 
         if (mounted) {
@@ -290,7 +282,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
     }
   }
  
- // Image for add equipment
   Future<void> _pickImage() async {
   try {
     final ImagePicker picker = ImagePicker();
@@ -338,14 +329,12 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
   List<Map<String, dynamic>> get _filteredEquipment {
     List<Map<String, dynamic>> filtered = _equipment;
 
-    // Filter by type
     if (_selectedFilter != 'All') {
       filtered = filtered.where((equipment) {
         return equipment['type'] == _selectedFilter;
       }).toList();
     }
 
-    // Filter by search query
     if (_searchController.text.isNotEmpty) {
       final query = _searchController.text.toLowerCase();
       filtered = filtered.where((equipment) {
@@ -369,9 +358,9 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
     setState(() {
       final equipmentId = equipment['id']?.toString() ?? equipment['name'];
       if (_expandedEquipmentId == equipmentId) {
-        _expandedEquipmentId = null; // Collapse if already expanded
+        _expandedEquipmentId = null; 
       } else {
-        _expandedEquipmentId = equipmentId; // Expand
+        _expandedEquipmentId = equipmentId; 
       }
     });
   }
@@ -391,12 +380,11 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
             onPressed: () {
               Navigator.pop(context);
               
-              // Call HTTP DELETE
               final equipmentId = equipment['id'] as int?;
               if (equipmentId != null) {
                 _deleteEquipment(equipmentId);
                 setState(() {
-                  _expandedEquipmentId = null; // Collapse after delete
+                  _expandedEquipmentId = null; 
                 });
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -418,7 +406,7 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
   }
 
     void _showAddEquipmentDialog() {
-    String selectedType = 'Sports Equipment'; // Default type
+    String selectedType = 'Sports Equipment'; 
 
     Navigator.push(
       context,
@@ -431,7 +419,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black),
               onPressed: () {
-              // Clear controllers and image
               nameController.clear();
               descController.clear();
               imageController.clear();
@@ -461,7 +448,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Image Placeholder
                   Center(
                     child: GestureDetector(
                       onTap: _pickImage,
@@ -504,7 +490,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Equipment Name
                   const Text(
                     'Add Equipment Name',
                     style: TextStyle(
@@ -537,7 +522,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Description
                   const Text(
                     'Add Description',
                     style: TextStyle(
@@ -571,7 +555,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Available Quantity
                   const Text(
                     'Available Quantity',
                     style: TextStyle(
@@ -605,7 +588,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Total Quantity
                   const Text(
                     'Total Quantity',
                     style: TextStyle(
@@ -637,9 +619,9 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 16),
 
-                  // Equipment Type
                   const Text(
                     'Select Equipment Type',
                     style: TextStyle(
@@ -680,15 +662,14 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
                       });
                     },
                   ),
+
                   const SizedBox(height: 32),
 
-                  // Add Equipment Button
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Validation
                         if (nameController.text.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -709,11 +690,7 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
                           );
                           return;
                         }
-
-                        // Set the selected type
                         typeController.text = selectedType;
-
-                        // Call the add equipment function
                         _addEquipment();
                       },
                       style: ElevatedButton.styleFrom(
@@ -774,7 +751,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title
                   const Text(
                     'Equipment Manager',
                     style: TextStyle(
@@ -792,8 +768,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  // Search Bar
                   TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
@@ -818,21 +792,18 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
 
                   const SizedBox(height: 16),
 
-                  // Filter Chips (Centered)
                   FilterChipsWidget(
                     filters: const ['All', 'Sports Equipment', 'Strength Training'],
                     selectedFilter: _selectedFilter,
                     onFilterSelected: (filter) {
                       setState(() {
                         _selectedFilter = filter;
-                        _expandedEquipmentId = null; // Collapse when filter changes
+                        _expandedEquipmentId = null; 
                       });
                     },
                   ),
 
                   const SizedBox(height: 20),
-
-                  // Equipment List
                   Expanded(
                     child: _filteredEquipment.isEmpty
                         ? Center(
@@ -866,7 +837,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
                           ),
                   ),
 
-                  //Centered Add Equipment Button
                   const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -904,7 +874,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
             _currentIndex = index;
           });
           if (index == 0) {
-            // Navigate to Users
             Navigator.pushReplacement(
               context,
               PageRouteBuilder(
@@ -915,7 +884,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
               ),
             );
           } else if (index == 1) {
-            // Navigate to Reservations
             Navigator.pushReplacement(
               context,
               PageRouteBuilder(
@@ -926,7 +894,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
               ),
             );
           } else if (index == 2) {
-            // Navigate to Facilities
             Navigator.pushReplacement(
               context,
               PageRouteBuilder(
@@ -1002,7 +969,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-          // Equipment Image
           Container(
             width: 80,
             height: 80,
@@ -1030,7 +996,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
             ),
           ),
           const SizedBox(width: 12),
-          // Equipment Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1111,7 +1076,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image Section
           Container(
             height: 180,
             width: double.infinity,
@@ -1136,8 +1100,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Equipment Name
           Text(
             equipment['name'] ?? 'Unknown Equipment',
             style: const TextStyle(
@@ -1147,8 +1109,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
             ),
           ),
           const SizedBox(height: 12),
-
-          // Description
           Text(
             equipment['description'] ?? '',
             style: const TextStyle(
@@ -1159,8 +1119,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 12),
-
-          // Quantity
           Row(
             children: [
               const Icon(
@@ -1179,8 +1137,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
             ],
           ),
           const SizedBox(height: 12),
-
-          // Status Badge
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 12,
@@ -1203,8 +1159,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
           ),
 
           const SizedBox(height: 20),
-
-          // Delete Button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -1230,8 +1184,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
           ),
 
           const SizedBox(height: 12),
-
-          // Back Button
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
@@ -1261,7 +1213,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
   }
 
     Widget _buildImage(String imageData, IconData fallbackIcon) {
-    // Check if it's base64 (base64 strings are typically long and have no file extension)
     if (imageData.length > 100 && !imageData.contains('.')) {
       try {
         return Image.memory(
@@ -1288,8 +1239,6 @@ class _EquipmentManagerPageState extends State<EquipmentManagerPage> {
         );
       }
     }
-
-    // Fallback widget when image is NOT base64 (no Image.asset)
     return Container(
       color: Colors.grey.shade300,
       child: Icon(

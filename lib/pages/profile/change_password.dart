@@ -112,12 +112,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Back Button
               const CustomBackButton(),
-
               const SizedBox(height: 10),
 
-              // Title
               const Text(
                 'Change Password',
                 style: TextStyle(
@@ -129,7 +126,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
               const SizedBox(height: 30),
 
-              // Enter Current Password Field
               Text(
                 'Enter Current Password',
                 style: TextStyle(
@@ -186,7 +182,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
               const SizedBox(height: 20),
 
-              // Enter New Password Field
               Text(
                 'Enter New Password',
                 style: TextStyle(
@@ -243,7 +238,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
               const SizedBox(height: 20),
 
-              // Verify New Password Field
               Text(
                 'Verify New Password',
                 style: TextStyle(
@@ -300,7 +294,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
               const SizedBox(height: 30),
 
-              // Save Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

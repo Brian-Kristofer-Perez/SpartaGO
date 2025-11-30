@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';  // Added for date formatting
-import 'package:http/http.dart' as http;  // Added for HTTP requests
-import 'dart:convert';  // Added for JSON encoding
+import 'package:intl/intl.dart'; 
+import 'package:http/http.dart' as http;  
+import 'dart:convert'; 
 import '../../common/calendar/calendar.dart';
 import 'package:sparta_go/constant/constant.dart';
 
@@ -42,7 +42,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
             ),
             const SizedBox(height: 16),
 
-            // Quantity selector
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -71,7 +70,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
             ),
             const SizedBox(height: 24),
 
-            // Date pickers
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -90,7 +88,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
             ),
             const SizedBox(height: 24),
 
-            // Submit button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -102,7 +99,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                   ),
                 ),
                 onPressed: () async {
-                  // Validation: Dates must be not null
                   if (startDate == null || endDate == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Please select both start and end dates.')),
@@ -110,7 +106,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                     return;
                   }
 
-                  // Validation: end date must not be before start date
                   if (endDate!.isBefore(startDate!)) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('End date must be after start date.')),
@@ -118,7 +113,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                     return;
                   }
 
-                  // Validation: start date is at least today
                   if (startDate!.isBefore(
                       DateTime(
                         DateTime.now().year,
@@ -132,7 +126,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                     return;
                   }
 
-                  // Validation: there must be a valid count
                   if (count == 0) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Enter a valid amount to borrow.')),
@@ -140,7 +133,6 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                     return;
                   }
 
-                  // Replace service call with HTTP POST request
                   try {
                     final response = await http.post(
                       Uri.parse('$API_URL/equipment/reservations/'),
@@ -149,8 +141,8 @@ class _EquipmentBorrowRequestWidgetState extends State<EquipmentBorrowRequestWid
                         "equipment": widget.equipment,
                         "user": widget.user,
                         "startDate": DateFormat('yyyy-MM-dd').format(startDate!),
-                        "endDate": DateFormat('yyyy-MM-dd').format(endDate!),  // Added based on data format
-                        "count": count.toString(),  // Added based on data format
+                        "endDate": DateFormat('yyyy-MM-dd').format(endDate!),  
+                        "count": count.toString(),  
                       }),
                     );
 

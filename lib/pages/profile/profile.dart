@@ -63,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: Center(
-          child: Image.asset(
+          child: Image.asset (
             'assets/images/logo.png',
             width: 80,
             height: 60,
@@ -93,7 +93,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 20),
               
-              // Profile Card
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
@@ -220,9 +219,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 width: double.infinity,
                 child: AppButton(
                   onPressed: () {
-                    // Add logout logic here
-
-                    Navigator.pop(context);
+                    _showLogoutDialog();
                   },
                   padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
                   borderRadius: 8,
@@ -267,6 +264,32 @@ class _ProfilePageState extends State<ProfilePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+
+    void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            child: const Text(
+              'Logout',
+              style: TextStyle(color: Color(0xFF8B1E1E)),
+            ),
           ),
         ],
       ),

@@ -18,7 +18,6 @@ class TimeSlotSelector extends StatefulWidget {
 
 class _TimeSlotSelectorState extends State<TimeSlotSelector> {
 
-  // fixed list of slots
   final List<String> _allSlots = const [
     '5:00 - 6:00pm',
     '6:00 - 7:00pm',

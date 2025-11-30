@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sparta_go/common/back_button.dart';
-import 'package:sparta_go/pages/profile/change_password.dart'; // Import your custom back button
+import 'package:sparta_go/pages/profile/change_password.dart'; 
 
 class ProfileEditPage extends StatefulWidget {
   final Map<String, dynamic> user;
@@ -19,7 +19,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize with existing user data if available
     _nameController.text = widget.user['name'] ?? '';
     _contactController.text = widget.user['contact'] ?? '';
     _emailController.text = widget.user['email'] ?? '';
@@ -74,7 +73,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
               ),
               const SizedBox(height: 28),
 
-              // Profile Picture
               Center(
                 child: Column(
                   children: [
@@ -115,7 +113,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
               const SizedBox(height: 20),
 
-              // Edit Name Field
               Text(
                 'Edit Name',
                 style: TextStyle(
@@ -156,7 +153,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
               const SizedBox(height: 20),
 
-              // Edit Contact Number Field
               Text(
                 'Edit Contact Number',
                 style: TextStyle(
@@ -198,7 +194,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
               const SizedBox(height: 20),
 
-              // Email Address Field (View Only)
               Text(
                 'Email Address (view only)',
                 style: TextStyle(
@@ -240,7 +235,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
               const SizedBox(height: 20),
 
-              // Change Password Button
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
@@ -275,17 +269,14 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
               ),
               const SizedBox(height: 30),
 
-              // Save Changes Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
                     // Add save logic here
-                    // Update user data
                     widget.user['name'] = _nameController.text;
                     widget.user['contact'] = _contactController.text;
                     
-                    // Show success message
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Profile updated successfully!'),
@@ -293,7 +284,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       ),
                     );
                     
-                    // Go back to profile page
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(

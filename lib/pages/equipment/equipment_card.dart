@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sparta_go/pages/equipment-borrow-request/EquipmentBorrowRequestPage.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 
 class EquipmentCard extends StatelessWidget {
   final Map<String, dynamic> equipment;
@@ -19,26 +21,15 @@ class EquipmentCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Container(
               height: 100,
               width: double.infinity,
               color: Colors.grey[300],
-              child: Image.asset(
-                "assets/images/${equipment['image']}",
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Icon(
-                  Icons.fitness_center,
-                  size: 50,
-                  color: Colors.grey[400],
-                ),
-              ),
+              child: _buildImage(equipment['image']),
             ),
           ),
-
-          // Content
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(12.0),
@@ -112,5 +103,33 @@ class EquipmentCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+    Widget _buildImage(String? imageData) {
+    if (imageData == null || imageData.isEmpty) {
+      return Icon(
+        Icons.fitness_center,
+        size: 50,
+        color: Colors.grey[400],
+      );
+    }
+    try {
+      return Image.memory(
+        base64Decode(imageData),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Icon(
+          Icons.fitness_center,
+          size: 50,
+          color: Colors.grey[400],
+        ),
+      );
+    } catch (e) {
+      print('Error decoding base64 image: $e');
+      return Icon(
+        Icons.fitness_center,
+        size: 50,
+        color: Colors.grey[400],
+      );
+    }
   }
 }

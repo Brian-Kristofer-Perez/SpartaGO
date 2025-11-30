@@ -29,9 +29,6 @@ class _UserManagerPageState extends State<UserManagerPage> {
     _fetchUsers();
   }
 
-  /// -------------------------------
-  /// FETCH USERS FROM API
-  /// -------------------------------
   Future<void> _fetchUsers() async {
     try {
       final response = await http.get(
@@ -45,7 +42,7 @@ class _UserManagerPageState extends State<UserManagerPage> {
         setState(() {
           _allUsers = jsonList.map<Map<String, dynamic>>((user) {
             return {
-              "id": user["id"]?.toString() ?? "",  // Added id field
+              "id": user["id"]?.toString() ?? "", 
               "name": user["name"] ?? "Unknown",
               "email": user["email"] ?? "",
               "password": user["password"] ?? "",
@@ -71,7 +68,6 @@ class _UserManagerPageState extends State<UserManagerPage> {
     super.dispose();
   }
 
-  /// FILTER USERS
   List<Map<String, dynamic>> get _filteredUsers {
     if (_searchController.text.isEmpty) return _allUsers;
 
@@ -87,15 +83,11 @@ class _UserManagerPageState extends State<UserManagerPage> {
     }).toList();
   }
 
-  /// ----------------------------------------
-  /// UI BUILD
-  /// ----------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      /// APP BAR
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -117,7 +109,6 @@ class _UserManagerPageState extends State<UserManagerPage> {
         centerTitle: true,
       ),
 
-      /// BODY
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -142,7 +133,6 @@ class _UserManagerPageState extends State<UserManagerPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  /// SEARCH BAR
                   TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
@@ -161,7 +151,6 @@ class _UserManagerPageState extends State<UserManagerPage> {
 
                   const SizedBox(height: 20),
 
-                  /// USER LIST
                   Expanded(
                     child: _filteredUsers.isEmpty
                         ? _noUsersFound()
@@ -176,14 +165,10 @@ class _UserManagerPageState extends State<UserManagerPage> {
               ),
             ),
 
-      /// BOTTOM NAVIGATION
       bottomNavigationBar: _buildBottomNavBar(),
     );
   }
 
-  /// ----------------------------------------
-  /// CARD UI FOR EACH USER
-  /// ----------------------------------------
   Widget _buildUserCard(Map<String, dynamic> user) {
     return GestureDetector(
       onTap: () {
@@ -204,7 +189,6 @@ class _UserManagerPageState extends State<UserManagerPage> {
         ),
         child: Row(
           children: [
-            /// USER INFO
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,7 +226,7 @@ class _UserManagerPageState extends State<UserManagerPage> {
     );
   }
 
-  /// NO USERS FOUND WIDGET
+
   Widget _noUsersFound() {
     return Center(
       child: Column(
@@ -260,7 +244,6 @@ class _UserManagerPageState extends State<UserManagerPage> {
     );
   }
 
-  /// BOTTOM NAVIGATION BAR
   Widget _buildBottomNavBar() {
     return BottomNavigationBar(
       currentIndex: _currentIndex,
@@ -311,7 +294,6 @@ class _UserManagerPageState extends State<UserManagerPage> {
     );
   }
 
-  /// LOGOUT POPUP
   void _showLogoutDialog() {
     showDialog(
       context: context,

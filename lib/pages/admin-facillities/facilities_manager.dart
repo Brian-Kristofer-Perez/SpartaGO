@@ -9,7 +9,6 @@ import 'package:sparta_go/constant/constant.dart';
 import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 
-// Reusable Filter Chips Widget
 class FilterChipsWidget extends StatelessWidget {
   final List<String> filters;
   final String selectedFilter;
@@ -71,15 +70,15 @@ class FacilityManagerPage extends StatefulWidget {
 }
 
 class _FacilityManagerPageState extends State<FacilityManagerPage> {
-  int _currentIndex = 2; // Facilities tab selected
+  int _currentIndex = 2; 
   String _selectedFilter = 'All';
   final TextEditingController _searchController = TextEditingController();
-  Uint8List? _selectedImageBytes; // Store the image bytes
-  String? _selectedImageName; // Store the image filename
+  Uint8List? _selectedImageBytes;
+  String? _selectedImageName; 
 
   List<Map<String, dynamic>> _facilities = [];
   bool _isLoading = true;
-  String? _expandedFacilityId; // Track which Facility is expanded
+  String? _expandedFacilityId; 
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descController = TextEditingController();
@@ -95,7 +94,6 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
     _loadFacilitiesData();
   }
 
-  // HTTP GET request to fetch all Facilities
   Future<void> _loadFacilitiesData() async {
     try {
       setState(() {
@@ -158,7 +156,6 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
     }
   }
 
-  // HTTP DELETE request to delete Facility
   Future<void> _deleteFacility(int facilityId) async {
     try {
       print('🔄 Deleting Facility ID: $facilityId');
@@ -175,7 +172,6 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
       if (response.statusCode == 200) {
         print('✅ Facility deleted successfully');
 
-        // Reload Facilities list
         await _loadFacilitiesData();
 
         if (mounted) {
@@ -212,10 +208,8 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
     }
   }
 
-    // HTTP POST add facility
     Future<void> _addFacility() async {
     try {
-      // Convert image bytes to base64 if image is selected
       String? base64Image;
       if (_selectedImageBytes != null) {
         base64Image = base64Encode(_selectedImageBytes!);
@@ -225,7 +219,7 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
       final facilityData = {
         "name": nameController.text,
         "description": descController.text,
-        "image": base64Image, // Send base64 string instead of filename
+        "image": base64Image,
         "building": buildingController.text,
         "capacity": capacityController.text,
         "equipment": equipmentController.text
@@ -248,8 +242,6 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         print('✅ Facility added successfully');
-        
-        // Clear controllers and image
         nameController.clear();
         descController.clear();
         imageController.clear();
@@ -262,7 +254,6 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
           _selectedImageName = null;
         });
 
-        // Reload facilities list
         await _loadFacilitiesData();
 
         if (mounted) {
@@ -298,7 +289,6 @@ class _FacilityManagerPageState extends State<FacilityManagerPage> {
     }
   }
 
-// Image for add facility
 Future<void> _pickImage() async {
   try {
     final ImagePicker picker = ImagePicker();
@@ -346,16 +336,13 @@ Future<void> _pickImage() async {
   }
 
   List<Map<String, dynamic>> get _filteredFacilities {
-    List<Map<String, dynamic>> filtered = _facilities;
-
-    // Filter by type
+  List<Map<String, dynamic>> filtered = _facilities;
     if (_selectedFilter != 'All') {
       filtered = filtered.where((facility) {
         return facility['type'] == _selectedFilter;
       }).toList();
     }
 
-    // Filter by search query
     if (_searchController.text.isNotEmpty) {
       final query = _searchController.text.toLowerCase();
       filtered = filtered.where((facility) {
@@ -371,9 +358,9 @@ Future<void> _pickImage() async {
     setState(() {
       final facilityId = facility['id']?.toString() ?? facility['name'];
       if (_expandedFacilityId == facilityId) {
-        _expandedFacilityId = null; // Collapse if already expanded
+        _expandedFacilityId = null; 
       } else {
-        _expandedFacilityId = facilityId; // Expand
+        _expandedFacilityId = facilityId; 
       }
     });
   }
@@ -393,12 +380,11 @@ Future<void> _pickImage() async {
             onPressed: () {
               Navigator.pop(context);
               
-              // Call HTTP DELETE
               final facilityId = facility['id'] as int?;
               if (facilityId != null) {
                 _deleteFacility(facilityId);
                 setState(() {
-                  _expandedFacilityId = null; // Collapse after delete
+                  _expandedFacilityId = null; 
                 });
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -420,7 +406,7 @@ Future<void> _pickImage() async {
   }
 
     void _showAddFacilityDialog() {
-      String selectedType = 'Court'; // Default type
+      String selectedType = 'Court'; 
 
       Navigator.push(
         context,
@@ -433,7 +419,6 @@ Future<void> _pickImage() async {
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.black),
                 onPressed: () {
-              // Clear controllers and image
               nameController.clear();
               descController.clear();
               imageController.clear();
@@ -464,7 +449,6 @@ Future<void> _pickImage() async {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Image Placeholder
                     Center(
                       child: GestureDetector(
                         onTap: _pickImage,
@@ -506,8 +490,6 @@ Future<void> _pickImage() async {
                       ),
                     ),
                     const SizedBox(height: 24),
-
-                    // Facility Name
                     const Text(
                       'Add Facility Name',
                       style: TextStyle(
@@ -539,8 +521,6 @@ Future<void> _pickImage() async {
                       ),
                     ),
                     const SizedBox(height: 16),
-
-                    // Description
                     const Text(
                       'Add Description',
                       style: TextStyle(
@@ -574,7 +554,6 @@ Future<void> _pickImage() async {
                     ),
                     const SizedBox(height: 16),
 
-                    // Building
                     const Text(
                       'Add Building',
                       style: TextStyle(
@@ -607,7 +586,6 @@ Future<void> _pickImage() async {
                     ),
                     const SizedBox(height: 16),
 
-                    // Capacity
                     const Text(
                       'Add Capacity',
                       style: TextStyle(
@@ -639,8 +617,6 @@ Future<void> _pickImage() async {
                       ),
                     ),
                     const SizedBox(height: 16),
-
-                    // Equipment
                     const Text(
                       'Add Facility Equipment',
                       style: TextStyle(
@@ -673,7 +649,6 @@ Future<void> _pickImage() async {
                     ),
                     const SizedBox(height: 16),
 
-                    // Facility Type
                     const Text(
                       'Select Facility Type',
                       style: TextStyle(
@@ -717,13 +692,11 @@ Future<void> _pickImage() async {
                     ),
                     const SizedBox(height: 32),
 
-                    // Add Facility Button
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Validation
                           if (nameController.text.trim().isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -743,11 +716,7 @@ Future<void> _pickImage() async {
                             );
                             return;
                           }
-
-                          // Set the selected type
                           typeController.text = selectedType;
-
-                          // Call the add facility function
                           _addFacility();
                         },
                         style: ElevatedButton.styleFrom(
@@ -808,7 +777,6 @@ Future<void> _pickImage() async {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title
                   const Text(
                     'Facilities Manager',
                     style: TextStyle(
@@ -827,7 +795,6 @@ Future<void> _pickImage() async {
                   ),
                   const SizedBox(height: 20),
 
-                  // Search Bar
                   TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
@@ -852,21 +819,19 @@ Future<void> _pickImage() async {
 
                   const SizedBox(height: 16),
 
-                  // Filter Chips (Centered)
                   FilterChipsWidget(
                     filters: const ['All', 'Court', 'Gym', 'Studio'],
                     selectedFilter: _selectedFilter,
                     onFilterSelected: (filter) {
                       setState(() {
                         _selectedFilter = filter;
-                        _expandedFacilityId = null; // Collapse when filter changes
+                        _expandedFacilityId = null; 
                       });
                     },
                   ),
 
                   const SizedBox(height: 20),
 
-                  // Facilities List
                   Expanded(
                     child: _filteredFacilities.isEmpty
                         ? Center(
@@ -900,7 +865,6 @@ Future<void> _pickImage() async {
                           ),
                   ),
 
-                  // Add Facility Button
                   const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -938,7 +902,6 @@ Future<void> _pickImage() async {
             _currentIndex = index;
           });
           if (index == 0) {
-            // Navigate to Users
             Navigator.pushReplacement(
               context,
               PageRouteBuilder(
@@ -949,7 +912,6 @@ Future<void> _pickImage() async {
               ),
             );
           } else if (index == 1) {
-            // Navigate to Reservations
             Navigator.pushReplacement(
               context,
               PageRouteBuilder(
@@ -960,7 +922,6 @@ Future<void> _pickImage() async {
               ),
             );
           } else if (index == 3) {
-            // Navigate to Equipment
             Navigator.pushReplacement(
               context,
               PageRouteBuilder(
@@ -1031,7 +992,6 @@ Future<void> _pickImage() async {
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-          // Facility Image
           Container(
             width: 80,
             height: 80,
@@ -1059,7 +1019,6 @@ Future<void> _pickImage() async {
             ),
           ),
           const SizedBox(width: 12),
-          // Facility Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1140,7 +1099,6 @@ Future<void> _pickImage() async {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image Section
           Container(
             height: 180,
             width: double.infinity,
@@ -1165,8 +1123,6 @@ Future<void> _pickImage() async {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Facility Name
           Text(
             facility['name'] ?? 'Unknown Facility',
             style: const TextStyle(
@@ -1176,8 +1132,6 @@ Future<void> _pickImage() async {
             ),
           ),
           const SizedBox(height: 12),
-
-          // Description
           Text(
             facility['description'] ?? '',
             style: const TextStyle(
@@ -1188,8 +1142,6 @@ Future<void> _pickImage() async {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 12),
-
-          // Building
           Row(
             children: [
               const Icon(
@@ -1210,8 +1162,6 @@ Future<void> _pickImage() async {
             ],
           ),
           const SizedBox(height: 12),
-
-          // Capacity
           Row(
             children: [
               const Icon(
@@ -1231,7 +1181,6 @@ Future<void> _pickImage() async {
           ),
           const SizedBox(height: 12),
 
-          // Equipment List
           if (equipmentList.isNotEmpty) ...[
             const Row(
               children: [
@@ -1278,7 +1227,6 @@ Future<void> _pickImage() async {
             const SizedBox(height: 12),
           ],
 
-          // Type Badge
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 12,
@@ -1300,7 +1248,6 @@ Future<void> _pickImage() async {
 
           const SizedBox(height: 20),
 
-          // Delete Button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -1327,7 +1274,6 @@ Future<void> _pickImage() async {
 
           const SizedBox(height: 12),
 
-          // Back Button
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
@@ -1357,7 +1303,6 @@ Future<void> _pickImage() async {
   }
 
   Widget _buildImage(String imageData, IconData fallbackIcon) {
-    // Check if it's base64 (base64 strings are typically long and have no file extension)
     if (imageData.length > 100 && !imageData.contains('.')) {
       try {
         return Image.memory(
@@ -1384,8 +1329,6 @@ Future<void> _pickImage() async {
         );
       }
     }
-
-    // Fallback widget when image is NOT base64 (no Image.asset)
     return Container(
       color: Colors.grey.shade300,
       child: Icon(

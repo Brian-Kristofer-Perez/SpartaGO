@@ -34,14 +34,12 @@ class _ReservationPageState extends State<ReservationPage> {
     _loadData();
   }
 
-  // Load data from API using HTTP requests
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // Get userId from user object
       final userId = widget.user['id'];
       
       if (userId == null) {
@@ -50,10 +48,7 @@ class _ReservationPageState extends State<ReservationPage> {
 
       print('🔄 Fetching reservations for user ID: $userId');
 
-      // Fetch facility reservations
       await _loadFacilityReservations(userId);
-
-      // Fetch equipment reservations (borrowed equipment)
       await _loadEquipmentReservations(userId);
 
       setState(() {
@@ -77,7 +72,6 @@ class _ReservationPageState extends State<ReservationPage> {
     }
   }
 
-  // GET /facilities/reservations/?userId={userId}
   Future<void> _loadFacilityReservations(int userId) async {
     try {
       print('🔄 Fetching facility reservations...');
@@ -110,7 +104,6 @@ class _ReservationPageState extends State<ReservationPage> {
     }
   }
 
-  // GET /equipment/reservations/?userId={userId}
   Future<void> _loadEquipmentReservations(int userId) async {
     try {
       print('🔄 Fetching equipment reservations...');
@@ -143,7 +136,6 @@ class _ReservationPageState extends State<ReservationPage> {
     }
   }
 
-  // DELETE /facilities/reservations/{reservationId}
   Future<void> _deleteFacilityReservation(int reservationId) async {
     try {
       print('🔄 Deleting facility reservation ID: $reservationId');
@@ -160,7 +152,6 @@ class _ReservationPageState extends State<ReservationPage> {
       if (response.statusCode == 200) {
         print('✅ Facility reservation deleted successfully');
 
-        // Reload data
         await _loadData();
 
         if (mounted) {
@@ -197,7 +188,6 @@ class _ReservationPageState extends State<ReservationPage> {
     }
   }
 
-  // DELETE /equipment/reservations/{id}
   Future<void> _returnEquipment(Map<String, dynamic> equipment) async {
     try {
       final equipmentId = equipment['id'];
@@ -220,7 +210,6 @@ class _ReservationPageState extends State<ReservationPage> {
       if (response.statusCode == 200) {
         print('✅ Equipment returned successfully');
 
-        // Reload data
         await _loadData();
 
         if (mounted) {
@@ -257,7 +246,6 @@ class _ReservationPageState extends State<ReservationPage> {
     }
   }
 
-  // Format date from ISO 8601 to readable format
   String _formatDate(String? dateStr) {
     if (dateStr == null) return '';
     try {
@@ -268,7 +256,6 @@ class _ReservationPageState extends State<ReservationPage> {
     }
   }
 
-  // Format date range for equipment
   String _formatDateRange(String? startDate, String? endDate) {
     if (startDate == null || endDate == null) return '';
     try {
@@ -366,7 +353,6 @@ class _ReservationPageState extends State<ReservationPage> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Tab Selector
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
@@ -387,7 +373,6 @@ class _ReservationPageState extends State<ReservationPage> {
 
                     const SizedBox(height: 20),
 
-                    // Content based on selected tab
                     _selectedTab == 0
                         ? _buildReservationsList()
                         : _buildBorrowedEquipmentList(),
@@ -468,7 +453,6 @@ class _ReservationPageState extends State<ReservationPage> {
 
     return Column(
       children: _reservations.map((reservation) {
-        // Parse nested facility object
         final facility = reservation['facility'] as Map<String, dynamic>?;
         final facilityName = facility?['name'] ?? 'Unknown';
         final date = reservation['date'] ?? '';
@@ -535,7 +519,6 @@ class _ReservationPageState extends State<ReservationPage> {
                   ],
                 ),
               ),
-              // Delete Icon Button
               IconButton(
                 onPressed: () {
                   _showDeleteReservationDialog(context, reservation);
@@ -562,7 +545,6 @@ class _ReservationPageState extends State<ReservationPage> {
 
     return Column(
       children: _borrowedEquipment.map((equipmentReservation) {
-        // Parse nested equipment object
         final equipment = equipmentReservation['equipment'] as Map<String, dynamic>?;
         final equipmentName = equipment?['name'] ?? 'Unknown';
         final count = equipmentReservation['count'] ?? 0;
@@ -631,7 +613,6 @@ class _ReservationPageState extends State<ReservationPage> {
                   ],
                 ),
               ),
-              // Return Icon Button
               IconButton(
                 onPressed: () {
                   _showReturnEquipmentDialog(context, equipmentReservation);
@@ -679,7 +660,6 @@ class _ReservationPageState extends State<ReservationPage> {
                 onPressed: () {
                   Navigator.pop(context);
                   
-                  // Call HTTP DELETE
                   final reservationId = reservation['id'];
                   if (reservationId != null) {
                     _deleteFacilityReservation(reservationId);
@@ -754,7 +734,6 @@ class _ReservationPageState extends State<ReservationPage> {
                 onPressed: () {
                   Navigator.pop(context);
                   
-                  // Call HTTP DELETE with full equipment object
                   _returnEquipment(equipment);
                 },
                 style: ElevatedButton.styleFrom(

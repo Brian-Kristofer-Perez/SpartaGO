@@ -45,7 +45,6 @@ class FAQsPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // GYM Reservation Section
               const Text(
                 'GYM Reservation',
                 style: TextStyle(
@@ -61,7 +60,6 @@ class FAQsPage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // Equipment Borrowing Section
               const Text(
                 'Equipment Borrowing',
                 style: TextStyle(
@@ -77,7 +75,6 @@ class FAQsPage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // Account & App Usage Section
               const Text(
                 'Account & App Usage',
                 style: TextStyle(

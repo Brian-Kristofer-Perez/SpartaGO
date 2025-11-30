@@ -42,7 +42,6 @@ class _ProgressItemState extends State<ProgressItem>{
     final Text numberContent = Text(
         "${widget.number}",
         style: TextStyle(
-          // fontFamily:
           fontSize: 24,
           color: textColor
         )

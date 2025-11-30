@@ -28,7 +28,6 @@ class EquipmentItemCard extends StatelessWidget{
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
@@ -42,7 +41,6 @@ class EquipmentItemCard extends StatelessWidget{
               ),
             ),
 
-            // Product Details
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
